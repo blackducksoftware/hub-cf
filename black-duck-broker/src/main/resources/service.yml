@@ -1,0 +1,18 @@
+# Service settings
+
+services:
+- name: black-duck-scan
+  id: 835d9918-55b4-4b6c-aa67-ae6b16ab5867
+  description: Black Duck Software Scan Service
+  tags:
+    - black-duck-scan
+    - bds-scan
+  bindable: true
+  metadata:
+    displayName: Black Duck Software Scan Service
+    imageUrl: ~
+  plan_updateable: false
+  plans:
+    - name: standard
+      id: 6af287e5-0cd1-4eb7-a7ac-cc69db62323d
+      description: Standard scan with resulting BOM in Hub

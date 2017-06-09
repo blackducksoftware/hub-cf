@@ -1,0 +1,13 @@
+server:
+  port: 8890
+spring:
+  main:
+    banner-mode: 'OFF'
+  application:
+    name: black-duck-broker
+application:
+  realm: BlackDuckSoftware
+  security:
+    basicAuth:
+      userEnvVblName: SECURITY_USER_NAME
+      passEnvVblName: SECURITY_USER_PASSWORD

@@ -1,0 +1,35 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.3.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'application'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+mainClassName = 'com.blackducksoftware.integration.pivotal.BDServiceBrokerApplication'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-hateoas')
+	compile('org.springframework.boot:spring-boot-starter-security')
+	compile('org.springframework.boot:spring-boot-starter-web') {
+		exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+	}
+	compile('com.fasterxml.jackson.core:jackson-databind:2.8.8.1')
+	compile('org.yaml:snakeyaml:1.18')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}

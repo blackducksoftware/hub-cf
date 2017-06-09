@@ -1,2 +1,8 @@
+.settings/
+.classpath
+.project
+.gradle/
 product/
 release/
+.DS_Store
+**/black-duck-decorator.zip

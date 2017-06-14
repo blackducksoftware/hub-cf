@@ -21,32 +21,51 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class HubLogin {
-    private final String username;
+public class BindResource {
 
-    private final String password;
+    private Optional<String> appGuid = Optional.empty();
 
-    public HubLogin(@JsonProperty(value = "identity", required = true) String username,
-            @JsonProperty(value = "password", required = true) String password) {
-        this.username = username;
-        this.password = password;
+    private Optional<String> route = Optional.empty();
+
+    public BindResource(@JsonProperty(value = "app_guid", required = false) Optional<String> appGuid,
+            @JsonProperty(value = "route", required = false) Optional<String> route) {
+        this.appGuid = appGuid;
+        this.route = route;
     }
 
     /**
-     * @return the username
+     * @return the appGuid
      */
-    @JsonProperty(value = "identity")
-    public String getUsername() {
-        return username;
+    @JsonProperty(value = "app_guid")
+    public Optional<String> getAppGuid() {
+        return appGuid;
     }
 
     /**
-     * @return the password
+     * @param appGuid
+     *            the appGuid to set
      */
-    @JsonProperty(value = "password")
-    public String getPassword() {
-        return password;
+    public void setAppGuid(Optional<String> appGuid) {
+        this.appGuid = appGuid;
+    }
+
+    /**
+     * @return the route
+     */
+    @JsonProperty(value = "route")
+    public Optional<String> getRoute() {
+        return route;
+    }
+
+    /**
+     * @param route
+     *            the route to set
+     */
+    public void setRoute(Optional<String> route) {
+        this.route = route;
     }
 }

@@ -21,6 +21,8 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -28,52 +30,46 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public final class BindingProvisionRequest {
-    @JsonProperty(value = "service_id", required = true)
-    private String serviceId;
 
-    @JsonProperty(value = "plan_id", required = true)
-    private String planId;
+    private final String serviceId;
 
-    @JsonProperty(value = "bind_resource", required = false)
-    private BindResource bindResource;
+    private final String planId;
 
-    @JsonProperty(value = "parameters", required = false)
-    private HubProjectParameters hubProjectParams;
+    private Optional<BindResource> bindResource = Optional.empty();
+
+    private Optional<HubProjectParameters> hubProjectParams = Optional.empty();
+
+    public BindingProvisionRequest(@JsonProperty(value = "service_id", required = true) String serviceId,
+            @JsonProperty(value = "plan_id", required = true) String planId,
+            @JsonProperty(value = "bind_resource", required = false) Optional<BindResource> bindResource,
+            @JsonProperty(value = "parameters", required = false) Optional<HubProjectParameters> hubProjectParams) {
+        this.serviceId = serviceId;
+        this.planId = planId;
+        this.bindResource = bindResource;
+        this.hubProjectParams = hubProjectParams;
+    }
 
     /**
      * @return the serviceId
      */
-    public final String getServiceId() {
+    @JsonProperty(value = "service_id")
+    public String getServiceId() {
         return serviceId;
-    }
-
-    /**
-     * @param serviceId
-     *            the serviceId to set
-     */
-    public final void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
     }
 
     /**
      * @return the planId
      */
-    public final String getPlanId() {
+    @JsonProperty(value = "plan_id")
+    public String getPlanId() {
         return planId;
-    }
-
-    /**
-     * @param planId
-     *            the planId to set
-     */
-    public final void setPlanId(String planId) {
-        this.planId = planId;
     }
 
     /**
      * @return the bindResource
      */
-    public final BindResource getBindResource() {
+    @JsonProperty(value = "bind_resource")
+    public Optional<BindResource> getBindResource() {
         return bindResource;
     }
 
@@ -81,14 +77,15 @@ public final class BindingProvisionRequest {
      * @param bindResource
      *            the bindResource to set
      */
-    public final void setBindResource(BindResource bindResource) {
+    public final void setBindResource(Optional<BindResource> bindResource) {
         this.bindResource = bindResource;
     }
 
     /**
      * @return the hubProjectParams
      */
-    public final HubProjectParameters getHubProjectParams() {
+    @JsonProperty(value = "parameters")
+    public Optional<HubProjectParameters> getHubProjectParams() {
         return hubProjectParams;
     }
 
@@ -96,54 +93,7 @@ public final class BindingProvisionRequest {
      * @param hubProjectParams
      *            the hubProjectParams to set
      */
-    public final void setHubProjectParams(HubProjectParameters hubProjectParams) {
+    public final void setHubProjectParams(Optional<HubProjectParameters> hubProjectParams) {
         this.hubProjectParams = hubProjectParams;
-    }
-
-    private class BindResource {
-        @JsonProperty(value = "app_guid", required = false)
-        private String appGuid;
-
-        @JsonProperty(value = "route", required = false)
-        private String route;
-
-        @SuppressWarnings("unused")
-        public BindResource() {
-
-        }
-
-        /**
-         * @return the appGuid
-         */
-        @SuppressWarnings("unused")
-        public final String getAppGuid() {
-            return appGuid;
-        }
-
-        /**
-         * @param appGuid
-         *            the appGuid to set
-         */
-        @SuppressWarnings("unused")
-        public final void setAppGuid(String appGuid) {
-            this.appGuid = appGuid;
-        }
-
-        /**
-         * @return the route
-         */
-        @SuppressWarnings("unused")
-        public final String getRoute() {
-            return route;
-        }
-
-        /**
-         * @param route
-         *            the route to set
-         */
-        @SuppressWarnings("unused")
-        public final void setRoute(String route) {
-            this.route = route;
-        }
     }
 }

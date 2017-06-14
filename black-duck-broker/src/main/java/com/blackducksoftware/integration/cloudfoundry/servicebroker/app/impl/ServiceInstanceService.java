@@ -24,13 +24,10 @@ package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.stereotype.Service;
-
 /**
  * @author jfisher
  *
  */
-@Service
 public class ServiceInstanceService {
     private final Set<String> serviceInstances = new HashSet<>();
 

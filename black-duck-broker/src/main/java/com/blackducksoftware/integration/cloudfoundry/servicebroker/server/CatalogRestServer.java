@@ -37,7 +37,7 @@ import org.yaml.snakeyaml.Yaml;
 @RestController
 @RequestMapping("/v2/catalog")
 public class CatalogRestServer {
-    private static final Logger logger = LoggerFactory.getLogger(CatalogRestServer.class);
+    private final Logger logger = LoggerFactory.getLogger(CatalogRestServer.class);
 
     private Object catalog;
 
@@ -49,7 +49,7 @@ public class CatalogRestServer {
             catalog = yaml.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("service.yml"));
         }
 
-        logger.debug("Returning: " + HttpStatus.OK + ", Catalog: " + catalog);
+        logger.debug("Returning: " + HttpStatus.OK + " (" + HttpStatus.OK.name() + "), Catalog: " + catalog);
         return new ResponseEntity<>(catalog, HttpStatus.OK);
     }
 }

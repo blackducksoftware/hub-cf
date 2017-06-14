@@ -46,7 +46,7 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl.Ser
 @RestController
 @RequestMapping("/v2/service_instances/{instance_id}")
 public class ServiceInstancesRestServer {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceInstancesRestServer.class);
+    private final Logger logger = LoggerFactory.getLogger(ServiceInstancesRestServer.class);
 
     private final ServiceInstanceService serviceInstanceService;
 
@@ -67,7 +67,7 @@ public class ServiceInstancesRestServer {
             respCode = HttpStatus.OK;
             logger.warn("Service Instance: " + instanceId + " already exists");
         }
-        logger.debug("Returning: " + respCode);
+        logger.debug("Returning: " + respCode + " (" + respCode.name() + ")");
         return new ResponseEntity<>(Collections.emptyMap(), respCode);
     }
 

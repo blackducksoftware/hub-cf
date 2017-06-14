@@ -28,75 +28,50 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public final class ServiceProvisionRequest {
-    @JsonProperty(value = "servie_id", required = true)
-    private String serviceId;
 
-    @JsonProperty(value = "plan_id", required = true)
-    private String planId;
+    private final String serviceId;
 
-    @JsonProperty(value = "orangization_guid", required = true)
-    private String orgGuid;
+    private final String planId;
 
-    @JsonProperty(value = "space_guid", required = true)
-    private String spaceGuid;
+    private final String orgGuid;
+
+    private final String spaceGuid;
+
+    public ServiceProvisionRequest(@JsonProperty(value = "servie_id", required = true) String serviceId,
+            @JsonProperty(value = "plan_id", required = true) String planId,
+            @JsonProperty(value = "orangization_guid", required = true) String orgGuid,
+            @JsonProperty(value = "space_guid", required = true) String spaceGuid) {
+        this.serviceId = serviceId;
+        this.planId = planId;
+        this.orgGuid = orgGuid;
+        this.spaceGuid = spaceGuid;
+    }
 
     /**
      * @return the serviceId
      */
-    public final String getServiceId() {
+    public String getServiceId() {
         return serviceId;
-    }
-
-    /**
-     * @param serviceId
-     *            the serviceId to set
-     */
-    public final void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
     }
 
     /**
      * @return the planId
      */
-    public final String getPlanId() {
+    public String getPlanId() {
         return planId;
-    }
-
-    /**
-     * @param planId
-     *            the planId to set
-     */
-    public final void setPlanId(String planId) {
-        this.planId = planId;
     }
 
     /**
      * @return the orgGuid
      */
-    public final String getOrgGuid() {
+    public String getOrgGuid() {
         return orgGuid;
-    }
-
-    /**
-     * @param orgGuid
-     *            the orgGuid to set
-     */
-    public final void setOrgGuid(String orgGuid) {
-        this.orgGuid = orgGuid;
     }
 
     /**
      * @return the spaceGuid
      */
-    public final String getSpaceGuid() {
+    public String getSpaceGuid() {
         return spaceGuid;
-    }
-
-    /**
-     * @param spaceGuid
-     *            the spaceGuid to set
-     */
-    public final void setSpaceGuid(String spaceGuid) {
-        this.spaceGuid = spaceGuid;
     }
 }

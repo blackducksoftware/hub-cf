@@ -30,6 +30,10 @@ dependencies {
 		exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
 	}
 	compile('com.fasterxml.jackson.core:jackson-databind:2.8.8.1')
+	compile('com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.6')
 	compile('org.yaml:snakeyaml:1.18')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.springframework.boot:spring-boot-starter-test') { 
+		exclude group: 'junit', module: 'junit'
+	}
+	testCompile('org.testng:testng:6.11')
 }

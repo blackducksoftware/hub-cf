@@ -21,6 +21,8 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -28,16 +30,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public final class HubProjectParameters {
-    @JsonProperty(value = "project_name", required = false)
-    private String projectName;
 
-    @JsonProperty(value = "code_location", required = false)
-    private String codeLocation;
+    private Optional<String> projectName = Optional.empty();
+
+    private Optional<String> codeLocation = Optional.empty();
+
+    public HubProjectParameters(@JsonProperty(value = "project_name", required = false) Optional<String> projectName,
+            @JsonProperty(value = "code_location", required = false) Optional<String> codeLocation) {
+        this.projectName = projectName;
+        this.codeLocation = codeLocation;
+    }
 
     /**
      * @return the projectName
      */
-    public final String getProjectName() {
+    @JsonProperty(value = "project_name")
+    public final Optional<String> getProjectName() {
         return projectName;
     }
 
@@ -45,14 +53,15 @@ public final class HubProjectParameters {
      * @param projectName
      *            the projectName to set
      */
-    public final void setProjectName(String projectName) {
+    public final void setProjectName(Optional<String> projectName) {
         this.projectName = projectName;
     }
 
     /**
      * @return the codeLocation
      */
-    public final String getCodeLocation() {
+    @JsonProperty(value = "code_location")
+    public Optional<String> getCodeLocation() {
         return codeLocation;
     }
 
@@ -60,7 +69,7 @@ public final class HubProjectParameters {
      * @param codeLocation
      *            the codeLocation to set
      */
-    public final void setCodeLocation(String codeLocation) {
+    public final void setCodeLocation(Optional<String> codeLocation) {
         this.codeLocation = codeLocation;
     }
 }

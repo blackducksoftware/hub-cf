@@ -41,16 +41,16 @@ public final class BindingInstance {
 
     private final String projectName;
 
-    private final String codeLocation;
+    private final String codeLocationName;
 
-    public BindingInstance(String scheme, String host, int port, String username, String password, String projectName, String codeLocation) {
+    public BindingInstance(String scheme, String host, int port, String username, String password, String projectName, String codeLocationName) {
         this.scheme = scheme;
         this.host = host;
         this.port = port;
         this.username = username;
         this.password = password;
         this.projectName = projectName;
-        this.codeLocation = codeLocation;
+        this.codeLocationName = codeLocationName;
     }
 
     /**
@@ -98,8 +98,8 @@ public final class BindingInstance {
     /**
      * @return the codeLocation
      */
-    public final String getCodeLocation() {
-        return codeLocation;
+    public final String getCodeLocationName() {
+        return codeLocationName;
     }
 
     public static final BindingProvisionResponse toBindingProvisionResponse(final BindingInstance bindingInstance) {

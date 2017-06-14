@@ -21,17 +21,10 @@
  */
 package com.blackducksoftware.integration.cloudfoundry;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.testng.annotations.Test;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class BDServiceBrokerApplicationTests {
-
-	@Test
-	public void contextLoads() {
-	}
-
+public class BDServiceBrokerApplicationTest {
+  @Test
+  public void f() {
+  }
 }

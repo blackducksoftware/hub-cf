@@ -21,25 +21,20 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
-import java.io.IOException;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.exception.BlackDuckServiceBrokerException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.json.JsonUtil;
 
 /**
  * @author jfisher
  *
  */
-@Component
 public final class HubCredentials {
-    private static final Logger logger = LoggerFactory.getLogger(HubCredentials.class);
+    private final Logger logger = LoggerFactory.getLogger(HubCredentials.class);
 
     private final String scheme;
 
@@ -50,42 +45,25 @@ public final class HubCredentials {
     private final HubLogin loginInfo;
 
     public HubCredentials(
-            @Value("#{ @environment['HUB_SCHEME'] ?: '0' }") String scheme,
-            @Value("#{ @environment['HUB_HOST'] ?: '0' }") String host,
-            @Value("#{ @environment['HUB_PORT'] ?: -1 }") int port,
-            @Value("#{ @environment['HUB_LOGIN'] ?: '{}' }") String loginInfo) {
+            String scheme,
+            String host,
+            int port,
+            String loginInfo) {
         // HUB_SCHEME environment variable must exist
-        if (scheme != null) {
-            this.scheme = scheme;
-        } else {
-            logger.error("HUB_SCHEME environment variable not provided");
-            throw new BlackDuckServiceBrokerException("HUB_SCHEME environment variable missing");
-        }
+        this.scheme = Objects.requireNonNull(scheme, "HUB_SCHEME environment variable not provided");
 
         // HUB_HOST environment variable must exist
-        if (host != null) {
-            this.host = host;
-        } else {
-            logger.error("HUB_HOST environment variable not provided");
-            throw new BlackDuckServiceBrokerException("HUB_HOST environment variable missing");
-        }
+        this.host = Objects.requireNonNull(host, "HUB_HOST environment variable not provided");
 
         // HUB_PORT environment variable is optional
         this.port = port;
 
         // HUB_LOGIN environment variable must exist
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            this.loginInfo = mapper.readValue(loginInfo, HubLogin.class);
-        } catch (JsonParseException e) {
-            logger.error("HUB_LOGIN environment variable improperly formatted", e);
-            throw new BlackDuckServiceBrokerException("Malformed JSON provided for HUB_LOGIN", e);
-        } catch (JsonMappingException e) {
-            logger.error("HUB_LOGIN mapping incorrect", e);
-            throw new BlackDuckServiceBrokerException("Unable to parse HUB_LOGIN: " + e.getPathReference());
-        } catch (IOException e) {
-            logger.error("HUB_LOGIN processing exception", e);
-            throw new BlackDuckServiceBrokerException(e);
+            this.loginInfo = JsonUtil.readValue(loginInfo, HubLogin.class);
+        } catch (BlackDuckServiceBrokerException e) {
+            logger.error("Error while processing HUB_LOGIN environment variable", e);
+            throw e;
         }
 
         logger.debug(
@@ -95,28 +73,28 @@ public final class HubCredentials {
     /**
      * @return the scheme
      */
-    public final String getScheme() {
+    public String getScheme() {
         return scheme;
     }
 
     /**
      * @return the host
      */
-    public final String getHost() {
+    public String getHost() {
         return host;
     }
 
     /**
      * @return the port
      */
-    public final int getPort() {
+    public int getPort() {
         return port;
     }
 
     /**
      * @return the loginInfo
      */
-    public final HubLogin getLoginInfo() {
+    public HubLogin getLoginInfo() {
         return loginInfo;
     }
 }

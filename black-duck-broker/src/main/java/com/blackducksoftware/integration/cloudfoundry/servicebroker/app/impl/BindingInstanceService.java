@@ -24,9 +24,6 @@ package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingInstance;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParameters;
@@ -35,7 +32,6 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubP
  * @author jfisher
  *
  */
-@Service
 public class BindingInstanceService {
     private final Map<String, BindingInstance> bindingInstances = new HashMap<>();
 
@@ -43,7 +39,6 @@ public class BindingInstanceService {
 
     private final HubCredentials creds;
 
-    @Autowired
     public BindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials creds) {
         this.serviceInstanceService = serviceInstanceService;
         this.creds = creds;
@@ -51,7 +46,7 @@ public class BindingInstanceService {
 
     public BindingInstance create(String bindingId, String instanceId, HubProjectParameters parms) {
         BindingInstance bInst = new BindingInstance(creds.getScheme(), creds.getHost(), creds.getPort(), creds.getLoginInfo().getUsername(),
-                creds.getLoginInfo().getPassword(), parms.getProjectName(), parms.getCodeLocation());
+                creds.getLoginInfo().getPassword(), parms.getProjectName().orElse(bindingId), parms.getCodeLocation().orElse(null));
         bindingInstances.put(bindingId, bInst);
         return bInst;
     }

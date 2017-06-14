@@ -25,7 +25,6 @@ import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,13 +45,12 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl.Ser
 @RestController
 @RequestMapping("/v2/service_instances/{instance_id}/service_bindings/{binding_id}")
 public class BindingInstancesRestServer {
-    private static final Logger logger = LoggerFactory.getLogger(BindingInstancesRestServer.class);
+    private final Logger logger = LoggerFactory.getLogger(BindingInstancesRestServer.class);
 
     private final ServiceInstanceService serviceInstanceService;
 
     private final BindingInstanceService bindingInstanceService;
 
-    @Autowired
     public BindingInstancesRestServer(ServiceInstanceService serviceInstanceService, BindingInstanceService bindingInstanceService) {
         this.serviceInstanceService = serviceInstanceService;
         this.bindingInstanceService = bindingInstanceService;
@@ -66,7 +64,7 @@ public class BindingInstancesRestServer {
         BindingInstance binding = null;
         if (serviceInstanceService.isExists(instanceId)) {
             if (!bindingInstanceService.isExists(instanceId, bindingId)) {
-                binding = bindingInstanceService.create(bindingId, instanceId, body.getHubProjectParams());
+                binding = bindingInstanceService.create(bindingId, instanceId, body.getHubProjectParams().orElse(null));
                 respCode = HttpStatus.CREATED;
                 logger.trace("Created binding");
             } else {
@@ -76,7 +74,7 @@ public class BindingInstancesRestServer {
         } else {
             logger.warn("Could not create binding instance. Service Instance: " + instanceId + " does not exist");
         }
-        logger.debug("Returning: " + respCode + ", Binding: " + BindingInstance.toBindingProvisionResponse(binding));
+        logger.debug("Returning: " + respCode + " (" + respCode.name() + "), Binding: " + BindingInstance.toBindingProvisionResponse(binding));
         return new ResponseEntity<>(BindingInstance.toBindingProvisionResponse(binding), respCode);
     }
 
@@ -92,7 +90,7 @@ public class BindingInstancesRestServer {
             respCode = HttpStatus.GONE;
             logger.warn("Binding: " + bindingId + " does not exist");
         }
-        logger.debug("Returning: " + respCode);
+        logger.debug("Returning: " + respCode + " (" + respCode.name() + ")");
         return new ResponseEntity<>(Collections.emptyMap(), respCode);
     }
 }

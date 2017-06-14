@@ -80,7 +80,7 @@ def get_scan_data(appinfo, service):
     if scan_data['project_release'] is None:
         # If not set, try as lower-case
         scan_data['project_release'] = os.environ.get('black_duck_scan_version', None)
-    scan_data['code_location'] = credentials.get('codeLocation')
+    scan_data['code_location'] = credentials.get('codeLocationName')
     return scan_data
 
 # Ensure the required elements were included in the VCAP_SERVICES
@@ -150,6 +150,10 @@ def run_scan(scan_client_base, scan_data, appinfo):
             if scan_data['scheme'] == "https":
                 scan_cmd.append('--port')
                 scan_cmd.append('443')
+    
+    if scan_data['code_location'] is not None:
+        scan_cmd.append('--name')
+        scan_cmd.append(str(scan_data['code_location']))
         
     scan_cmd.append('--insecure')
         
@@ -177,7 +181,7 @@ def retrieve_scan_client(scan_data):
     if scan_data['scheme'] is not None:
         scan_client_loc = str(scan_data['scheme']) + "://"
     else:
-        scan_client_loc = "http://"
+        scan_client_loc = "https://"
     scan_client_loc += str(scan_data['host'])
     if scan_data['port'] != -1:
         scan_client_loc += ":" + str(scan_data['port'])

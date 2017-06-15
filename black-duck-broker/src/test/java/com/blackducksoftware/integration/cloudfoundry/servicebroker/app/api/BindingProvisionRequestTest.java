@@ -21,8 +21,6 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
-import java.util.Optional;
-
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -50,10 +48,9 @@ public class BindingProvisionRequestTest {
 
     private static String TEST_CODELOCATION = "codeLocation";
 
-    private static Optional<BindResource> TEST_BINDRESOURCE = Optional.of(new BindResource(Optional.of(TEST_APPGUID), Optional.of(TEST_ROUTE)));
+    private static BindResource TEST_BINDRESOURCE = new BindResource(TEST_APPGUID, TEST_ROUTE);
 
-    private static Optional<HubProjectParameters> TEST_HUBPROJECTPARAMS = Optional
-            .of(new HubProjectParameters(Optional.of(TEST_PROJECTNAME), Optional.of(TEST_CODELOCATION)));
+    private static HubProjectParameters TEST_HUBPROJECTPARAMS = new HubProjectParameters(TEST_PROJECTNAME, TEST_CODELOCATION);
 
     private String bindingProvisionRequestJsonAllPresent;
 
@@ -76,8 +73,8 @@ public class BindingProvisionRequestTest {
                     .writeValueAsString(new BindingProvisionRequest(TEST_SERVICEID, TEST_PLANID, null, TEST_HUBPROJECTPARAMS));
             bindingProvisionRequestJsonNoHubProjectParameters = JsonUtil.getObjectMapper()
                     .writeValueAsString(new BindingProvisionRequest(TEST_SERVICEID, TEST_PLANID, TEST_BINDRESOURCE, null));
-            bindResourceJson = JsonUtil.getObjectMapper().writeValueAsString(TEST_BINDRESOURCE.get());
-            hubProjectParamsJson = JsonUtil.getObjectMapper().writeValueAsString(TEST_HUBPROJECTPARAMS.get());
+            bindResourceJson = JsonUtil.getObjectMapper().writeValueAsString(TEST_BINDRESOURCE);
+            hubProjectParamsJson = JsonUtil.getObjectMapper().writeValueAsString(TEST_HUBPROJECTPARAMS);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

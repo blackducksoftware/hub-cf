@@ -21,8 +21,6 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
-import java.util.Optional;
-
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,9 +34,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  *
  */
 public class BindResourceTest {
-    private static Optional<String> TEST_APPGUID = Optional.of("testAppGuid");
+    private static String TEST_APPGUID = "testAppGuid";
 
-    private static Optional<String> TEST_ROUTE = Optional.of("testRoute");
+    private static String TEST_ROUTE = "testRoute";
 
     private static String BIND_RESOURCE_EMPTY_JSON = "{}";
 
@@ -52,8 +50,8 @@ public class BindResourceTest {
     public void setupData() {
         try {
             bindResourceJsonAllPresent = JsonUtil.getObjectMapper().writeValueAsString(new BindResource(TEST_APPGUID, TEST_ROUTE));
-            bindResourceJsonNoAppGuid = JsonUtil.getObjectMapper().writeValueAsString(new BindResource(Optional.empty(), TEST_ROUTE));
-            bindResourceJsonNoRoute = JsonUtil.getObjectMapper().writeValueAsString(new BindResource(TEST_APPGUID, Optional.empty()));
+            bindResourceJsonNoAppGuid = JsonUtil.getObjectMapper().writeValueAsString(new BindResource(null, TEST_ROUTE));
+            bindResourceJsonNoRoute = JsonUtil.getObjectMapper().writeValueAsString(new BindResource(TEST_APPGUID, null));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -67,8 +65,8 @@ public class BindResourceTest {
         Assert.assertTrue(bindResource.getAppGuid().isPresent(), "BindResource appGuid should be present");
         Assert.assertTrue(bindResource.getRoute().isPresent(), "BindResource route should be present");
 
-        Assert.assertEquals(bindResource.getAppGuid().get(), TEST_APPGUID.get(), "BindResource appGuid incorrect");
-        Assert.assertEquals(bindResource.getRoute().get(), TEST_ROUTE.get(), "BindResource route incorrect");
+        Assert.assertEquals(bindResource.getAppGuid().get(), TEST_APPGUID, "BindResource appGuid incorrect");
+        Assert.assertEquals(bindResource.getRoute().get(), TEST_ROUTE, "BindResource route incorrect");
     }
 
     @Test
@@ -79,7 +77,7 @@ public class BindResourceTest {
         Assert.assertFalse(bindResource.getAppGuid().isPresent(), "BindResource appGuid should not be present");
         Assert.assertTrue(bindResource.getRoute().isPresent(), "BindResource route should be present");
 
-        Assert.assertEquals(bindResource.getRoute().get(), TEST_ROUTE.get(), "BindResource route incorrect");
+        Assert.assertEquals(bindResource.getRoute().get(), TEST_ROUTE, "BindResource route incorrect");
     }
 
     @Test
@@ -90,7 +88,7 @@ public class BindResourceTest {
         Assert.assertTrue(bindResource.getAppGuid().isPresent(), "BindResource appGuid should be present");
         Assert.assertFalse(bindResource.getRoute().isPresent(), "BindResource route should not be present");
 
-        Assert.assertEquals(bindResource.getAppGuid().get(), TEST_APPGUID.get(), "BindResource appGuid incorrect");
+        Assert.assertEquals(bindResource.getAppGuid().get(), TEST_APPGUID, "BindResource appGuid incorrect");
     }
 
     @Test

@@ -23,6 +23,9 @@ package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -39,14 +42,15 @@ public final class BindingProvisionRequest {
 
     private Optional<HubProjectParameters> hubProjectParams = Optional.empty();
 
+    @JsonCreator
     public BindingProvisionRequest(@JsonProperty(value = "service_id", required = true) String serviceId,
             @JsonProperty(value = "plan_id", required = true) String planId,
-            @JsonProperty(value = "bind_resource", required = false) Optional<BindResource> bindResource,
-            @JsonProperty(value = "parameters", required = false) Optional<HubProjectParameters> hubProjectParams) {
+            @JsonProperty(value = "bind_resource", required = false) @Nullable BindResource bindResource,
+            @JsonProperty(value = "parameters", required = false) @Nullable HubProjectParameters hubProjectParams) {
         this.serviceId = serviceId;
         this.planId = planId;
-        this.bindResource = bindResource;
-        this.hubProjectParams = hubProjectParams;
+        this.bindResource = Optional.ofNullable(bindResource);
+        this.hubProjectParams = Optional.ofNullable(hubProjectParams);
     }
 
     /**

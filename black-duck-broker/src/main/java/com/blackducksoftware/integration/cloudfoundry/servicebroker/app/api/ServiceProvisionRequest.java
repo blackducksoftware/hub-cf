@@ -21,6 +21,7 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -37,9 +38,10 @@ public final class ServiceProvisionRequest {
 
     private final String spaceGuid;
 
-    public ServiceProvisionRequest(@JsonProperty(value = "servie_id", required = true) String serviceId,
+    @JsonCreator
+    public ServiceProvisionRequest(@JsonProperty(value = "service_id", required = true) String serviceId,
             @JsonProperty(value = "plan_id", required = true) String planId,
-            @JsonProperty(value = "orangization_guid", required = true) String orgGuid,
+            @JsonProperty(value = "organization_guid", required = true) String orgGuid,
             @JsonProperty(value = "space_guid", required = true) String spaceGuid) {
         this.serviceId = serviceId;
         this.planId = planId;

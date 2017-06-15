@@ -23,6 +23,9 @@ package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BindResource {
@@ -31,10 +34,11 @@ public class BindResource {
 
     private Optional<String> route = Optional.empty();
 
-    public BindResource(@JsonProperty(value = "app_guid", required = false) Optional<String> appGuid,
-            @JsonProperty(value = "route", required = false) Optional<String> route) {
-        this.appGuid = appGuid;
-        this.route = route;
+    @JsonCreator
+    public BindResource(@JsonProperty(value = "app_guid", required = false) @Nullable String appGuid,
+            @JsonProperty(value = "route", required = false) @Nullable String route) {
+        this.appGuid = Optional.ofNullable(appGuid);
+        this.route = Optional.ofNullable(route);
     }
 
     /**

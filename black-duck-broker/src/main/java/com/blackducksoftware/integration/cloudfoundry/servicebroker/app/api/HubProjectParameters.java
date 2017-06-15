@@ -23,6 +23,9 @@ package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -35,10 +38,11 @@ public final class HubProjectParameters {
 
     private Optional<String> codeLocation = Optional.empty();
 
-    public HubProjectParameters(@JsonProperty(value = "project_name", required = false) Optional<String> projectName,
-            @JsonProperty(value = "code_location", required = false) Optional<String> codeLocation) {
-        this.projectName = projectName;
-        this.codeLocation = codeLocation;
+    @JsonCreator
+    public HubProjectParameters(@JsonProperty(value = "project_name", required = false) @Nullable String projectName,
+            @JsonProperty(value = "code_location", required = false) @Nullable String codeLocation) {
+        this.projectName = Optional.ofNullable(projectName);
+        this.codeLocation = Optional.ofNullable(codeLocation);
     }
 
     /**

@@ -21,6 +21,7 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class HubLogin {
@@ -28,6 +29,7 @@ public final class HubLogin {
 
     private final String password;
 
+    @JsonCreator
     public HubLogin(@JsonProperty(value = "identity", required = true) String username,
             @JsonProperty(value = "password", required = true) String password) {
         this.username = username;

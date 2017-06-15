@@ -21,8 +21,6 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
-import java.util.Optional;
-
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,9 +34,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  *
  */
 public class HubProjectParametersTest {
-    private static Optional<String> TEST_PROJECTNAME = Optional.of("Test Project");
+    private static String TEST_PROJECTNAME = "Test Project";
 
-    private static Optional<String> TEST_CODELOCATION = Optional.of("testCodeLocation");
+    private static String TEST_CODELOCATION = "testCodeLocation";
 
     private static String HUB_PROJECT_PARAMETERS_EMPTY_JSON = "{}";
 
@@ -52,8 +50,8 @@ public class HubProjectParametersTest {
     public void setupData() {
         try {
             hubProjectParametersJsonAllPresent = JsonUtil.getObjectMapper().writeValueAsString(new HubProjectParameters(TEST_PROJECTNAME, TEST_CODELOCATION));
-            hubProjectParametersJsonNoProject = JsonUtil.getObjectMapper().writeValueAsString(new HubProjectParameters(Optional.empty(), TEST_CODELOCATION));
-            hubProjectParametersJsonNoCodeLoc = JsonUtil.getObjectMapper().writeValueAsString(new HubProjectParameters(TEST_PROJECTNAME, Optional.empty()));
+            hubProjectParametersJsonNoProject = JsonUtil.getObjectMapper().writeValueAsString(new HubProjectParameters(null, TEST_CODELOCATION));
+            hubProjectParametersJsonNoCodeLoc = JsonUtil.getObjectMapper().writeValueAsString(new HubProjectParameters(TEST_PROJECTNAME, null));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -67,8 +65,8 @@ public class HubProjectParametersTest {
         Assert.assertTrue(hubProjectParams.getProjectName().isPresent(), "HubProjectParameters projectName should be present");
         Assert.assertTrue(hubProjectParams.getCodeLocation().isPresent(), "HubProjectParameters codeLocations should be present");
 
-        Assert.assertEquals(hubProjectParams.getProjectName().get(), TEST_PROJECTNAME.get(), "HubProjectParameters projectName incorrect");
-        Assert.assertEquals(hubProjectParams.getCodeLocation().get(), TEST_CODELOCATION.get(), "HubProjectParameters codeLocation incorrect");
+        Assert.assertEquals(hubProjectParams.getProjectName().get(), TEST_PROJECTNAME, "HubProjectParameters projectName incorrect");
+        Assert.assertEquals(hubProjectParams.getCodeLocation().get(), TEST_CODELOCATION, "HubProjectParameters codeLocation incorrect");
     }
 
     @Test
@@ -79,7 +77,7 @@ public class HubProjectParametersTest {
         Assert.assertFalse(hubProjectParams.getProjectName().isPresent(), "HubProjectParameters projectName should not be present");
         Assert.assertTrue(hubProjectParams.getCodeLocation().isPresent(), "HubProjectParameters codeLoation should be present");
 
-        Assert.assertEquals(hubProjectParams.getCodeLocation().get(), TEST_CODELOCATION.get(), "HubProjectParameters codeLocation incorrect");
+        Assert.assertEquals(hubProjectParams.getCodeLocation().get(), TEST_CODELOCATION, "HubProjectParameters codeLocation incorrect");
     }
 
     @Test
@@ -90,7 +88,7 @@ public class HubProjectParametersTest {
         Assert.assertTrue(hubProjectParams.getProjectName().isPresent(), "HubProjectParameters projectName should be present");
         Assert.assertFalse(hubProjectParams.getCodeLocation().isPresent(), "HubProjectParameters codeLocation should not be present");
 
-        Assert.assertEquals(hubProjectParams.getProjectName().get(), TEST_PROJECTNAME.get(), "HubProjectParameters projectName incorrecrt");
+        Assert.assertEquals(hubProjectParams.getProjectName().get(), TEST_PROJECTNAME, "HubProjectParameters projectName incorrecrt");
     }
 
     @Test

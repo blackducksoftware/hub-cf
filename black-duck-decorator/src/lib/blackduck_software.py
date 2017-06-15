@@ -93,7 +93,17 @@ def validate_scan_data(scan_data):
         eprint("ERROR! Must specify a host")
         ret = 1
     if scan_data['project_release'] is None:
-        eprint("WARNING! Project scan version NOT found. Continuing with none.", "Please set applications.env.BLACK_DUCK_SCAN_VERSION in application manifest.yml", sep='\n')
+        eprint("WARNING! Project scan version NOT found. Continuing with none.", 
+               "Please set applications.env.BLACK_DUCK_SCAN_VERSION in application manifest.yml", 
+               "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
+    if scan_data['code_location'] is None:
+        eprint("WARNING! Code Location Name NOT found. Continuing with none.", 
+               "Please re-bind the application and add code_location to the JSON of the service specific parameters.", 
+               "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
+    if scan_data['project_name'] is None:
+        eprint("WARNING! Project Name NOT found. Continuing with none.", 
+               "Please re-bind the application and add project_name to the JSON of the service specific parameters.",
+               "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     return ret
 
 # Execute the Scan Client
@@ -164,6 +174,7 @@ def run_scan(scan_client_base, scan_data, appinfo):
     print("       Hub Host: " + str(scan_data['host']))
     print("       Hub Project Name: " + str(scan_data['project_name']))
     print("       Hub Project Version: " + str(scan_data['project_release']))
+    print("       Hub Code Location Name: " + str(scan_data['code_location']))
     sys.stdout.flush()
     
     run = Popen(scan_cmd, env=my_env, stdout=PIPE, stderr=PIPE)

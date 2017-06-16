@@ -38,3 +38,9 @@ dependencies {
 	}
 	testCompile('org.testng:testng:6.11')
 }
+
+test{
+  useTestNG() {
+    listeners << 'org.testng.reporters.XMLReporter'
+  }
+}

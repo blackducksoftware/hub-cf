@@ -90,36 +90,4 @@ public class BindingInstanceServiceTest {
 
         Assert.assertTrue(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID), "An internal error occurred and the binding was not created.");
     }
-
-    /*
-     * @Test
-     * public void testCreateWithNoHubProjectParams() {
-     * Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
-     *
-     * bindingInstanceService.create(BINDING_ID, SERVICE_ID, null);
-     *
-     * Assert.assertTrue(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID),
-     * "An internal error occurred and the binding was not created.");
-     * }
-     *
-     * @Test
-     * public void testCreateWithEmptyProjectParams() {
-     * Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
-     *
-     * bindingInstanceService.create(BINDING_ID, SERVICE_ID, new HubProjectParameters(null, null));
-     *
-     * Assert.assertTrue(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID),
-     * "An internal error occurred and the binding was not created.");
-     * }
-     *
-     * @Test
-     * public void testCreateWithProjectParams() {
-     * Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
-     *
-     * bindingInstanceService.create(BINDING_ID, SERVICE_ID, new HubProjectParameters(PROJ_NAME, CODE_LOC));
-     *
-     * Assert.assertTrue(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID),
-     * "An internal error occurred and the binding was not created.");
-     * }
-     */
 }

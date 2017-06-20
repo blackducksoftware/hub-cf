@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingInstance;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
@@ -44,9 +45,14 @@ public class BindingInstanceService {
         this.creds = creds;
     }
 
-    public BindingInstance create(String bindingId, String instanceId, HubProjectParameters parms) {
+    public BindingInstance create(String bindingId, String instanceId, Optional<HubProjectParameters> parms) {
+        if (parms == null) {
+            parms = Optional.empty();
+        }
+        String projName = parms.isPresent() ? parms.get().getProjectName().orElse(null) : null;
+        String codeLocName = parms.isPresent() ? parms.get().getCodeLocation().orElse(null) : null;
         BindingInstance bInst = new BindingInstance(creds.getScheme(), creds.getHost(), creds.getPort(), creds.getLoginInfo().getUsername(),
-                creds.getLoginInfo().getPassword(), parms.getProjectName().orElse(bindingId), parms.getCodeLocation().orElse(null));
+                creds.getLoginInfo().getPassword(), projName, codeLocName);
         bindingInstances.put(bindingId, bInst);
         return bInst;
     }

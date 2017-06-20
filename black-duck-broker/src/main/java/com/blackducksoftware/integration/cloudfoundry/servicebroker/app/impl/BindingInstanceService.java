@@ -49,8 +49,8 @@ public class BindingInstanceService {
         if (parms == null) {
             parms = Optional.empty();
         }
-        String projName = parms.isPresent() ? parms.get().getProjectName().orElse(null) : null;
-        String codeLocName = parms.isPresent() ? parms.get().getCodeLocation().orElse(null) : null;
+        String projName = parms.map((hubProjectParameters) -> hubProjectParameters.getProjectName().orElse(null)).orElse(null);
+        String codeLocName = parms.map((hubProjectParameters) -> hubProjectParameters.getCodeLocation().orElse(null)).orElse(null);
         BindingInstance bInst = new BindingInstance(creds.getScheme(), creds.getHost(), creds.getPort(), creds.getLoginInfo().getUsername(),
                 creds.getLoginInfo().getPassword(), projName, codeLocName);
         bindingInstances.put(bindingId, bInst);

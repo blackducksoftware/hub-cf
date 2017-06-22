@@ -3,16 +3,27 @@
 services:
 - name: black-duck-scan
   id: 835d9918-55b4-4b6c-aa67-ae6b16ab5867
-  description: Black Duck Software Scan Service
+  description: Scanning Service to secure and manage open source software in your CF applications
   tags:
     - black-duck-scan
     - bds-scan
   bindable: true
   metadata:
-    displayName: Black Duck Software Scan Service
-    imageUrl: ~
+    displayName: Black Duck Hub Scan Service
+    imageUrl: https://www.blackducksoftware.com/sites/default/files/images/Brand/Ducky128.png
+    providerDisplayName: Black Duck Software
+    documentationUrl: https://blackducksoftware.atlassian.net/wiki/display/INTDOCS/Black+Duck+Hub+Service+Broker+for+PCF
+    longDescription: "The Black Duck Software Scan Service integrates with the Pivotal Cloud Foundry (PCF) to add open-source software \
+    scanning to your PCF solution.  The Scan Service integrates into the “cf” command-line utility to initiate an open-source software \
+    scan during the cf push process.  The scan creates a Bill of Materials (BOM) of your open source contents."
   plan_updateable: false
   plans:
     - name: standard
       id: 6af287e5-0cd1-4eb7-a7ac-cc69db62323d
-      description: Standard scan with resulting BOM in Hub
+      description: Scan with resulting BOM in Hub
+      metadata:
+        bullets:
+          - Integrates with 'cf push' process
+          - Creates Bill of Materials (BOM)
+          - Analysis and Reporting occur on your organization's Black Duck Hub instance
+          - Provides security, license, and operational risk on Open Source components

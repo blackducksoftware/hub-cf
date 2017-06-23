@@ -12,7 +12,7 @@ services:
     displayName: Black Duck Hub Scan Service
     imageUrl: https://www.blackducksoftware.com/sites/default/files/images/Brand/Ducky128.png
     providerDisplayName: Black Duck Software
-    documentationUrl: https://blackducksoftware.atlassian.net/wiki/display/INTDOCS/Black+Duck+Hub+Service+Broker+for+PCF
+    documentationUrl: https://blackducksoftware.atlassian.net/wiki/display/PARTNERS/Black+Duck+Hub+Service+Broker+for+PCF
     longDescription: "The Black Duck Hub Scan Service adds open source security scanning to your Pivotal Cloud Foundry app.  
     The Scan Service integrates into the “cf” command line utility to initiate an open source software scan during the cf push.  
     The scan creates a Bill of Material (BOM) of your open source components and creates a risk report in the Black Duck Hub Web Console."

@@ -64,7 +64,7 @@ public class BindingInstancesRestServer {
         BindingInstance binding = null;
         if (serviceInstanceService.isExists(instanceId)) {
             if (!bindingInstanceService.isExists(instanceId, bindingId)) {
-                binding = bindingInstanceService.create(bindingId, instanceId, body.getHubProjectParams().orElse(null));
+                binding = bindingInstanceService.create(bindingId, instanceId, body.getHubProjectParams());
                 respCode = HttpStatus.CREATED;
                 logger.trace("Created binding");
             } else {

@@ -46,9 +46,6 @@ public class BindingInstanceService {
     }
 
     public BindingInstance create(String bindingId, String instanceId, Optional<HubProjectParameters> parms) {
-        if (parms == null) {
-            parms = Optional.empty();
-        }
         String projName = parms.map((hubProjectParameters) -> hubProjectParameters.getProjectName().orElse(null)).orElse(null);
         String codeLocName = parms.map((hubProjectParameters) -> hubProjectParameters.getCodeLocation().orElse(null)).orElse(null);
         BindingInstance bInst = new BindingInstance(creds.getScheme(), creds.getHost(), creds.getPort(), creds.getLoginInfo().getUsername(),

@@ -66,7 +66,7 @@ public class BindingInstanceServiceTest {
     @DataProvider(name = "TestHubProjectParameters")
     public Object[][] createTestHubProjectParameters() {
         return new Object[][] {
-                { null },
+                { Optional.empty() },
                 { Optional.ofNullable(null) },
                 { Optional.ofNullable(new HubProjectParameters(null, null)) },
                 { Optional.ofNullable(new HubProjectParameters(PROJ_NAME, CODE_LOC)) },

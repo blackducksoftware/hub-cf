@@ -76,10 +76,10 @@ def get_scan_data(appinfo, service):
     scan_data['host'] = credentials.get('host')
     scan_data['port'] = credentials.get('port')
     scan_data['project_name'] = credentials.get('projectName')
-    scan_data['project_release'] = os.environ.get('BLACK_DUCK_SCAN_VERSION', None)
+    scan_data['project_release'] = os.environ.get('BLACK_DUCK_PROJECT_VERSION', None)
     if scan_data['project_release'] is None:
         # If not set, try as lower-case
-        scan_data['project_release'] = os.environ.get('black_duck_scan_version', None)
+        scan_data['project_release'] = os.environ.get('black_duck_project_version', None)
     scan_data['code_location'] = credentials.get('codeLocationName')
     return scan_data
 
@@ -93,8 +93,8 @@ def validate_scan_data(scan_data):
         eprint("ERROR! Must specify a host")
         ret = 1
     if scan_data['project_release'] is None:
-        eprint("WARNING! Project scan version NOT found. Continuing with none.", 
-               "Please set applications.env.BLACK_DUCK_SCAN_VERSION in application manifest.yml", 
+        eprint("WARNING! Project version NOT found. Continuing with none.", 
+               "Please set applications.env.BLACK_DUCK_PROJECT_VERSION in application manifest.yml", 
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     if scan_data['code_location'] is None:
         eprint("WARNING! Code Location Name NOT found. Continuing with none.", 

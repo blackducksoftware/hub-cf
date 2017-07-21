@@ -81,6 +81,10 @@ def get_scan_data(appinfo, service):
         # If not set, try as lower-case
         scan_data['project_release'] = os.environ.get('black_duck_project_version', None)
     scan_data['code_location'] = credentials.get('codeLocationName')
+    if scan_data['code_location'] is None:
+        # No code location name came from the binding data.
+        # See if env variable was set in project manifest
+        scan_data['code_location'] = os.environ.get('BLACK_DUCK_CODE_LOCATION', None)
     return scan_data
 
 # Ensure the required elements were included in the VCAP_SERVICES
@@ -98,7 +102,8 @@ def validate_scan_data(scan_data):
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     if scan_data['code_location'] is None:
         eprint("WARNING! Code Location Name NOT found. Continuing with none.", 
-               "Please re-bind the application and add code_location to the JSON of the service specific parameters.", 
+               "Please re-bind the application and add code_location to the JSON of the service specific parameters or",
+               "set applications.env.BLACK_DUCK_CODE_LOCATION in application manifest.yml.", 
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     if scan_data['project_name'] is None:
         eprint("WARNING! Project Name NOT found. Continuing with none.", 

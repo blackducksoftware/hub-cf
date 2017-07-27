@@ -8,3 +8,4 @@ build/
 .DS_Store
 **/black-duck-decorator.zip
 /.pydevproject
+**/*.pyc

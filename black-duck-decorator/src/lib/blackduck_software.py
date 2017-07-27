@@ -8,8 +8,14 @@ import platform
 import sys
 import urllib
 from subprocess import Popen, PIPE
+from __builtin__ import str
+import re
 
 def main():
+    # ######### DEBUG: Remove before commit ############
+#     eprint("DEBUG: Environment Variables:",
+#            os.environ,
+#            sep='\n')
     appinfo = get_application_info()
     service = find_blackduck_service(appinfo)
     if service is None:
@@ -51,6 +57,9 @@ def get_application_info():
     if appinfo['name'] == None:
         eprint("VCAP_APPLICATION must specify application_name")
         sys.exit(1)
+    appinfo['space_name'] = vcap_application.get('space_name')
+    appinfo['space_id'] = vcap_application.get('space_id')
+    appinfo['api_endpoint'] = transform_api_endpoint(vcap_application.get('cf_api'))
     return appinfo
 
 # Ensure the user has opted-in to the scan
@@ -81,6 +90,9 @@ def get_scan_data(appinfo, service):
         # If not set, try as lower-case
         scan_data['project_release'] = os.environ.get('black_duck_project_version', None)
     scan_data['code_location'] = credentials.get('codeLocationName')
+    if scan_data['code_location'] is None:
+        scan_data['code_location'] = generate_default_code_location_name(appinfo)
+        scan_data['using_default_code_location'] = True
     return scan_data
 
 # Ensure the required elements were included in the VCAP_SERVICES
@@ -96,8 +108,8 @@ def validate_scan_data(scan_data):
         eprint("WARNING! Project version NOT found. Continuing with none.", 
                "Please set applications.env.BLACK_DUCK_PROJECT_VERSION in application manifest.yml", 
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
-    if scan_data['code_location'] is None:
-        eprint("WARNING! Code Location Name NOT found. Continuing with none.", 
+    if scan_data['using_default_code_location'] is not None and scan_data['using_default_code_location'] is True:
+        eprint("WARNING! Code Location Name NOT found. Continuing with default: " + scan_data['code_location'], 
                "Please re-bind the application and add code_location to the JSON of the service specific parameters.", 
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     if scan_data['project_name'] is None:
@@ -243,6 +255,20 @@ def unpack_scan_client(scan_client_zip):
                 print("  ...Setting scan client base:" + scan_base)
         sys.stdout.flush()
     return scan_base
+
+# Generate a default code location name
+# This takes the api endpoint, organization, user space and project name
+# Method returns a string with the default code location name
+def generate_default_code_location_name(appinfo):
+    return str(transform_api_endpoint(appinfo['api_endpoint']) + '/' + appinfo['space_id'] + '/' + appinfo['space_name'] + '/' + appinfo['name'])
+
+# Helper function to strip the http:// or https:// from the CF API Endpoint
+# Input: String containing the CF API Endpoint prefixed with http:// or https://
+# Return: String containing the CF API Enpoint with the http:// or https:// stripped
+def transform_api_endpoint(api_endpoint):
+    if api_endpoint is None:
+        return None
+    return re.sub(r"http[s]?://", "", api_endpoint, count=1)
 
 # Helper function to make outputting to stderr easier
 def eprint(*args, **kwargs):

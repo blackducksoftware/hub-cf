@@ -76,6 +76,10 @@ def get_scan_data(appinfo, service):
     scan_data['host'] = credentials.get('host')
     scan_data['port'] = credentials.get('port')
     scan_data['project_name'] = credentials.get('projectName')
+    if scan_data['project_name'] is None:
+        # No project name came from the binding data.
+        # See if env variable was set in project manifest
+        scan_data['project_name'] = os.environ.get('BLACK_DUCK_PROJECT_NAME', None)
     scan_data['project_release'] = os.environ.get('BLACK_DUCK_PROJECT_VERSION', None)
     if scan_data['project_release'] is None:
         # If not set, try as lower-case
@@ -107,7 +111,8 @@ def validate_scan_data(scan_data):
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     if scan_data['project_name'] is None:
         eprint("WARNING! Project Name NOT found. Continuing with none.", 
-               "Please re-bind the application and add project_name to the JSON of the service specific parameters.",
+               "Please re-bind the application and add project_name to the JSON of the service specific parameters. or",
+               "set applications.env.BLACK_DUCK_PROJECT_NAME in application manifest.yml.",
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     return ret
 

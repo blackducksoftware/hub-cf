@@ -12,10 +12,6 @@ from __builtin__ import str
 import re
 
 def main():
-    # ######### DEBUG: Remove before commit ############
-#     eprint("DEBUG: Environment Variables:",
-#            os.environ,
-#            sep='\n')
     appinfo = get_application_info()
     service = find_blackduck_service(appinfo)
     if service is None:
@@ -85,14 +81,25 @@ def get_scan_data(appinfo, service):
     scan_data['host'] = credentials.get('host')
     scan_data['port'] = credentials.get('port')
     scan_data['project_name'] = credentials.get('projectName')
+    if scan_data['project_name'] is None:
+        # No project name came from the binding data.
+        # See if env variable was set in project manifest
+        scan_data['project_name'] = os.environ.get('BLACK_DUCK_PROJECT_NAME', None)
     scan_data['project_release'] = os.environ.get('BLACK_DUCK_PROJECT_VERSION', None)
     if scan_data['project_release'] is None:
         # If not set, try as lower-case
         scan_data['project_release'] = os.environ.get('black_duck_project_version', None)
+    scan_data['using_default_code_location'] = False
     scan_data['code_location'] = credentials.get('codeLocationName')
     if scan_data['code_location'] is None:
-        scan_data['code_location'] = generate_default_code_location_name(appinfo)
-        scan_data['using_default_code_location'] = True
+        # No code location name came from the binding data.
+        # See if env variable was set in project manifest
+        scan_data['code_location'] = os.environ.get('BLACK_DUCK_CODE_LOCATION', None)
+        if scan_data['code_location'] is None:
+            # No code location name came from the environment variable
+            # Set a default code location
+            scan_data['code_location'] = generate_default_code_location_name(appinfo)
+            scan_data['using_default_code_location'] = True
     return scan_data
 
 # Ensure the required elements were included in the VCAP_SERVICES
@@ -108,13 +115,15 @@ def validate_scan_data(scan_data):
         eprint("WARNING! Project version NOT found. Continuing with none.", 
                "Please set applications.env.BLACK_DUCK_PROJECT_VERSION in application manifest.yml", 
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
-    if scan_data['using_default_code_location'] is not None and scan_data['using_default_code_location'] is True:
+    if scan_data['using_default_code_location'] is True:
         eprint("WARNING! Code Location Name NOT found. Continuing with default: " + scan_data['code_location'], 
-               "Please re-bind the application and add code_location to the JSON of the service specific parameters.", 
+               "Please re-bind the application and add code_location to the JSON of the service specific parameters or",
+               "set applications.env.BLACK_DUCK_CODE_LOCATION in application manifest.yml.", 
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     if scan_data['project_name'] is None:
         eprint("WARNING! Project Name NOT found. Continuing with none.", 
-               "Please re-bind the application and add project_name to the JSON of the service specific parameters.",
+               "Please re-bind the application and add project_name to the JSON of the service specific parameters. or",
+               "set applications.env.BLACK_DUCK_PROJECT_NAME in application manifest.yml.",
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
     return ret
 

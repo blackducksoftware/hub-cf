@@ -45,11 +45,14 @@ public class BindingInstanceTest {
 
     private static String TEST_CODELOCATIONNAME = "test/location";
 
+    private static boolean TEST_INSECURE = true;
+
     private BindingInstance testInstance;
 
     @BeforeClass
     public void setupObject() {
-        testInstance = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME);
+        testInstance = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
+                TEST_INSECURE);
     }
 
     @Test(priority = 0)
@@ -90,5 +93,10 @@ public class BindingInstanceTest {
     @Test(dependsOnMethods = { "testInstanceValid" })
     public void testCodeLocationNameValid() {
         Assert.assertEquals(testInstance.getCodeLocationName(), TEST_CODELOCATIONNAME, "BindingInstance codeLocationName incorrect");
+    }
+
+    @Test(dependsOnMethods = { "testInstanceValid" })
+    public void testIsInsecureValid() {
+        Assert.assertEquals(testInstance.getIsInsecure(), TEST_INSECURE, "BindingInstance isInsecure incorrect");
     }
 }

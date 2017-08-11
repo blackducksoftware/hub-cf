@@ -43,7 +43,10 @@ public final class BindingInstance {
 
     private final String codeLocationName;
 
-    public BindingInstance(String scheme, String host, int port, String username, String password, String projectName, String codeLocationName) {
+    private final boolean isInsecure;
+
+    public BindingInstance(String scheme, String host, int port, String username, String password, String projectName, String codeLocationName,
+            boolean isInsecure) {
         this.scheme = scheme;
         this.host = host;
         this.port = port;
@@ -51,6 +54,7 @@ public final class BindingInstance {
         this.password = password;
         this.projectName = projectName;
         this.codeLocationName = codeLocationName;
+        this.isInsecure = isInsecure;
     }
 
     /**
@@ -100,6 +104,13 @@ public final class BindingInstance {
      */
     public final String getCodeLocationName() {
         return codeLocationName;
+    }
+
+    /**
+     * @return the isInsecure
+     */
+    public final boolean getIsInsecure() {
+        return isInsecure;
     }
 
     public static final BindingProvisionResponse toBindingProvisionResponse(final BindingInstance bindingInstance) {

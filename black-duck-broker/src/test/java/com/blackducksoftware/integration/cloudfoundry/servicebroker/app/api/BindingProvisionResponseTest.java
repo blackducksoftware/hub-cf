@@ -62,6 +62,10 @@ public class BindingProvisionResponseTest {
 
     private static String TEST_CODELOCATIONNAME = "testCodeLocName";
 
+    private static String TEST_KEY_ISINSECURE = "isInsecure";
+
+    private static Boolean TEST_ISINSECURE = Boolean.FALSE;
+
     private static Map<String, Object> DATA_MAP = new HashMap<String, Object>() {
         {
             put(TEST_KEY_SCHEME, TEST_SCHEME);
@@ -71,6 +75,7 @@ public class BindingProvisionResponseTest {
             put(TEST_KEY_PASSWORD, TEST_PASSWORD);
             put(TEST_KEY_PROJECTNAME, TEST_PROJECTNAME);
             put(TEST_KEY_CODELOCATIONNAME, TEST_CODELOCATIONNAME);
+            put(TEST_KEY_ISINSECURE, TEST_ISINSECURE);
         }
     };
 
@@ -78,7 +83,8 @@ public class BindingProvisionResponseTest {
 
     @BeforeClass
     public void setupData() {
-        bindInst = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME);
+        bindInst = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
+                TEST_ISINSECURE);
     }
 
     @Test

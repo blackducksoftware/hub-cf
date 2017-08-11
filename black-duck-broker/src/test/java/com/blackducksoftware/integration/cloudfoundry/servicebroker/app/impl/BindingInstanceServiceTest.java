@@ -48,6 +48,8 @@ public class BindingInstanceServiceTest {
 
     private static final String HUB_LOGIN_JSON = "{\"identity\": \"testUser\", \"password\": \"testPass\"}";
 
+    private static final Boolean HUB_INSECURE = Boolean.TRUE;
+
     private static final String PROJ_NAME = "testProj";
 
     private static final String CODE_LOC = "codeLocationName";
@@ -77,7 +79,7 @@ public class BindingInstanceServiceTest {
     public void beforeMethod() {
         MockitoAnnotations.initMocks(this);
 
-        hubCreds = new HubCredentials(HUB_SCHEME, HUB_HOST, HUB_PORT, HUB_LOGIN_JSON);
+        hubCreds = new HubCredentials(HUB_SCHEME, HUB_HOST, HUB_PORT, HUB_LOGIN_JSON, HUB_INSECURE);
 
         bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds);
     }

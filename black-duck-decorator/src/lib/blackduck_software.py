@@ -10,8 +10,13 @@ import urllib
 from subprocess import Popen, PIPE
 from __builtin__ import str
 import re
+import shutil
+
+cert_alias = 'BlackDuckHub' # Global for the alias of the certificate in the Store
+store_pass = 'changeit' # Global for the Key Store password
 
 def main():
+    
     appinfo = get_application_info()
     service = find_blackduck_service(appinfo)
     if service is None:
@@ -33,6 +38,11 @@ def main():
         eprint("Error unpacking Black Duck Software Scan Client")
         sys.exit(1)
         
+    if scan_data['run_insecure'] is False:
+        if add_certificate(scan_data['host'], scan_client_base) is False:
+            eprint("Error adding server certificate to key store")
+            sys.exit(1)
+            
     scan_return = run_scan(scan_client_base, scan_data, appinfo)
     sys.exit(scan_return)
     
@@ -100,6 +110,7 @@ def get_scan_data(appinfo, service):
             # Set a default code location
             scan_data['code_location'] = generate_default_code_location_name(appinfo)
             scan_data['using_default_code_location'] = True
+    scan_data['run_insecure'] = credentials.get('isInsecure')
     return scan_data
 
 # Ensure the required elements were included in the VCAP_SERVICES
@@ -125,6 +136,11 @@ def validate_scan_data(scan_data):
                "Please re-bind the application and add project_name to the JSON of the service specific parameters. or",
                "set applications.env.BLACK_DUCK_PROJECT_NAME in application manifest.yml.",
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
+    if scan_data['run_insecure'] is True:
+        eprint("WARNING! ALL TLS/SSL ERRORS WILL BE IGNORED!",
+               "PLEASE HAVE YOUR PCF ADMIN UNCHECK THE 'Ignore TLS/SSL errors' CHECKBOX AS PART OF THE",
+               "BLACK DUCK SERVICE BROKER TILE CONFIGURATION",
+               "HAVE YOUR PCF ADMIN CONSULT THE BLACK DUCK SERVICE BROKER DOCUMENTATION FOR MORE DETAIL.", sep='\n')
     return ret
 
 # Execute the Scan Client
@@ -185,8 +201,10 @@ def run_scan(scan_client_base, scan_data, appinfo):
     if scan_data['code_location'] is not None:
         scan_cmd.append('--name')
         scan_cmd.append(str(scan_data['code_location']))
-        
-    scan_cmd.append('--insecure')
+
+    if scan_data['run_insecure'] is True:
+        # Ignore TLS/SSL errors
+        scan_cmd.append('--insecure')
         
     scan_cmd.append(sys.argv[2])
     
@@ -196,6 +214,8 @@ def run_scan(scan_client_base, scan_data, appinfo):
     print("       Hub Project Name: " + str(scan_data['project_name']))
     print("       Hub Project Version: " + str(scan_data['project_release']))
     print("       Hub Code Location Name: " + str(scan_data['code_location']))
+    if scan_data['run_insecure'] is True:
+        print("       IGNORING TLS/SSL ERRORS!")
     sys.stdout.flush()
     
     run = Popen(scan_cmd, env=my_env, stdout=PIPE, stderr=PIPE)
@@ -264,6 +284,62 @@ def unpack_scan_client(scan_client_zip):
                 print("  ...Setting scan client base:" + scan_base)
         sys.stdout.flush()
     return scan_base
+
+# Add a certificate to new Java Key Store for the Scan Client
+def add_certificate(host, scan_client_base):
+    print("  ...Adding certificate to Java Key Store")
+    sys.stdout.flush()
+        
+    sys_type = platform.uname()[0]
+    if sys_type == 'Darwin':
+        jre_path = os.path.join(scan_client_base, 'jre', 'Contents', 'Home')
+    elif sys_type == 'Linux':
+        jre_path = os.path.join(scan_client_base, 'jre')
+    elif sys_type == 'Windows':
+        jre_path = os.path.join(scan_client_base, 'jre')
+    else:
+        eprint("ERROR! Unknown system type:", sys_type)
+        return 1
+    
+    keytool = os.path.join(jre_path, 'bin', '') + 'keytool'
+    master_key_store = os.path.join(jre_path, 'lib', 'security', '') + 'cacerts'
+    key_store = os.path.join(jre_path, 'lib', 'security', '') + 'jssecacerts'
+
+    # Create a copy of the main key store so we update and use the copy
+    shutil.copy2(master_key_store, key_store)
+
+    gen_keystore_cmd = []
+    gen_keystore_cmd.append(keytool)
+    gen_keystore_cmd.append('-importcert')
+    gen_keystore_cmd.append('-storepass')
+    gen_keystore_cmd.append(store_pass)
+    gen_keystore_cmd.append('-keystore')
+    gen_keystore_cmd.append(key_store)
+    gen_keystore_cmd.append('-alias')
+    gen_keystore_cmd.append(cert_alias)
+    gen_keystore_cmd.append('-noprompt')
+    
+    gen_keyprint_cmd = []
+    gen_keyprint_cmd.append(keytool)
+    gen_keyprint_cmd.append('-printcert')
+    gen_keyprint_cmd.append('-rfc')
+    gen_keyprint_cmd.append('-sslserver')
+    gen_keyprint_cmd.append(host)
+ 
+    # Set up command to print the certificate (ie 'keytool -printcert -rfc -sslserver [host]')      
+    run_keyprint = Popen(gen_keyprint_cmd, stdout=PIPE, stderr=PIPE)
+
+    # Set up command to add the certificate to the key store
+    # This command gets its input from the stdout of the 'run_keyprint' command and is equivalent to
+    # keytool -printcert -rfc -sslserver [host] | keytool -importcert -storepass [pass] -keystore [store] -alias [alias] -noprompt
+    run_keystore = Popen(gen_keystore_cmd, stdin=run_keyprint.stdout, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = run_keystore.communicate()
+    print(stdout)
+    print(stderr)
+    sys.stdout.flush()
+    sys.stderr.flush()
+    
+    return run_keystore.returncode
 
 # Generate a default code location name
 # This takes the api endpoint, organization, user space and project name

@@ -42,8 +42,9 @@ public class ServiceBrokerConfiguration {
             @Value(value = "#{ @environment['HUB_SCHEME'] ?: '0' }") final String scheme,
             @Value(value = "#{ @environment['HUB_HOST'] ?: '0' }") final String host,
             @Value(value = "#{ @environment['HUB_PORT'] ?: -1 }") final int port,
-            @Value(value = "#{ @environment['HUB_LOGIN'] ?: '{}' }") final String loginInfo) {
-        return new HubCredentials(scheme, host, port, loginInfo);
+            @Value(value = "#{ @environment['HUB_LOGIN'] ?: '{}' }") final String loginInfo,
+            @Value(value = "#{ @environment['HUB_INSECURE'] ?: false }") final boolean insecure) {
+        return new HubCredentials(scheme, host, port, loginInfo, insecure);
     }
 
     @Bean

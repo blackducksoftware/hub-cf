@@ -48,14 +48,17 @@ public class HubCredentialsTest {
 
     private static HubLogin TEST_HUBLOGIN = new HubLogin(TEST_USERNAME, TEST_PASSWORD);
 
+    private static Boolean TEST_ISINSECURE = Boolean.TRUE;
+
     private String testHubLoginJson;
 
     @DataProvider(name = "testInvalidHubCredentials")
     public Object[][] createInvalidHubCredentials() {
         return new Object[][] {
-                { new Object[] { null, new String(TEST_HOST), new Integer(TEST_PORT), new String(testHubLoginJson) } },
-                { new Object[] { new String(TEST_SCHEME), null, new Integer(TEST_PORT), new String(testHubLoginJson) } },
-                { new Object[] { new String(TEST_SCHEME), new String(TEST_HOST), new Integer(TEST_PORT), null } },
+                { new Object[] { null, new String(TEST_HOST), new Integer(TEST_PORT), new String(testHubLoginJson), TEST_ISINSECURE } },
+                { new Object[] { new String(TEST_SCHEME), null, new Integer(TEST_PORT), new String(testHubLoginJson), TEST_ISINSECURE } },
+                { new Object[] { new String(TEST_SCHEME), new String(TEST_HOST), new Integer(TEST_PORT), null, TEST_ISINSECURE } },
+                { new Object[] { new String(TEST_SCHEME), new String(TEST_HOST), new Integer(TEST_PORT), new String(testHubLoginJson), null } },
         };
     }
 
@@ -66,7 +69,7 @@ public class HubCredentialsTest {
 
     @Test
     public void testValidHubCredentials() {
-        HubCredentials hubCreds = new HubCredentials(TEST_SCHEME, TEST_HOST, TEST_PORT, testHubLoginJson);
+        HubCredentials hubCreds = new HubCredentials(TEST_SCHEME, TEST_HOST, TEST_PORT, testHubLoginJson, TEST_ISINSECURE);
 
         Assert.assertNotNull(hubCreds, "HubCredentials object should not be null");
 
@@ -76,11 +79,12 @@ public class HubCredentialsTest {
         Assert.assertNotNull(hubCreds.getLoginInfo(), "HubCredentials loginInfo should not be null");
         Assert.assertEquals(hubCreds.getLoginInfo().getUsername(), TEST_USERNAME, "HubCredentials loginInfo.username incorrect");
         Assert.assertEquals(hubCreds.getLoginInfo().getPassword(), TEST_PASSWORD, "HubCredentials loginInfo.password incorrect");
+        Assert.assertEquals(hubCreds.isInsecure(), TEST_ISINSECURE.booleanValue(), "HubCredentials insecure incorrect");
     }
 
     @Test(dataProvider = "testInvalidHubCredentials", expectedExceptions = { NullPointerException.class, BlackDuckServiceBrokerException.class })
     public void testInvalidHubCredentials(Object[] args) {
-        HubCredentials hubCreds = new HubCredentials((String) args[0], (String) args[1], (Integer) args[2], (String) args[3]);
+        HubCredentials hubCreds = new HubCredentials((String) args[0], (String) args[1], (Integer) args[2], (String) args[3], (Boolean) args[4]);
 
         Assert.assertNull(hubCreds, "Should have thrown Exception during construction");
     }

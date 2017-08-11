@@ -49,7 +49,7 @@ public class BindingInstanceService {
         String projName = parms.map((hubProjectParameters) -> hubProjectParameters.getProjectName().orElse(null)).orElse(null);
         String codeLocName = parms.map((hubProjectParameters) -> hubProjectParameters.getCodeLocation().orElse(null)).orElse(null);
         BindingInstance bInst = new BindingInstance(creds.getScheme(), creds.getHost(), creds.getPort(), creds.getLoginInfo().getUsername(),
-                creds.getLoginInfo().getPassword(), projName, codeLocName);
+                creds.getLoginInfo().getPassword(), projName, codeLocName, creds.isInsecure());
         bindingInstances.put(bindingId, bInst);
         return bInst;
     }

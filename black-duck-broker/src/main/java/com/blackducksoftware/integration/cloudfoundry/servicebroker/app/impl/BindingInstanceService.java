@@ -40,16 +40,19 @@ public class BindingInstanceService {
 
     private final HubCredentials creds;
 
-    public BindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials creds) {
+    private final String pluginVersion;
+
+    public BindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials creds, String pluginVersion) {
         this.serviceInstanceService = serviceInstanceService;
         this.creds = creds;
+        this.pluginVersion = pluginVersion;
     }
 
     public BindingInstance create(String bindingId, String instanceId, Optional<HubProjectParameters> parms) {
         String projName = parms.map((hubProjectParameters) -> hubProjectParameters.getProjectName().orElse(null)).orElse(null);
         String codeLocName = parms.map((hubProjectParameters) -> hubProjectParameters.getCodeLocation().orElse(null)).orElse(null);
         BindingInstance bInst = new BindingInstance(creds.getScheme(), creds.getHost(), creds.getPort(), creds.getLoginInfo().getUsername(),
-                creds.getLoginInfo().getPassword(), projName, codeLocName, creds.isInsecure());
+                creds.getLoginInfo().getPassword(), projName, codeLocName, creds.isInsecure(), pluginVersion);
         bindingInstances.put(bindingId, bInst);
         return bInst;
     }

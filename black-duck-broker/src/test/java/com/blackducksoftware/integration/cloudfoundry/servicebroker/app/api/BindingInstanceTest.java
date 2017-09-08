@@ -47,12 +47,14 @@ public class BindingInstanceTest {
 
     private static boolean TEST_INSECURE = true;
 
+    private static String TEST_PLUGIN_VERSION = "testVer";
+
     private BindingInstance testInstance;
 
     @BeforeClass
     public void setupObject() {
         testInstance = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
-                TEST_INSECURE);
+                TEST_INSECURE, TEST_PLUGIN_VERSION);
     }
 
     @Test(priority = 0)
@@ -98,5 +100,10 @@ public class BindingInstanceTest {
     @Test(dependsOnMethods = { "testInstanceValid" })
     public void testIsInsecureValid() {
         Assert.assertEquals(testInstance.getIsInsecure(), TEST_INSECURE, "BindingInstance isInsecure incorrect");
+    }
+
+    @Test(dependsOnMethods = { "testInstanceValid" })
+    public void testPluginVersionValid() {
+        Assert.assertEquals(testInstance.getPluginVersion(), TEST_PLUGIN_VERSION, "BindingInstance pluginVersion incorrect");
     }
 }

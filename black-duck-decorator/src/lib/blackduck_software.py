@@ -2,18 +2,24 @@
 # Created on May 8, 2017
 
 from __future__ import print_function
-import os
-import json
-import platform
-import sys
-import urllib
-from subprocess import Popen, PIPE
+
 from __builtin__ import str
+import json
+import os
+import platform
 import re
 import shutil
+from subprocess import Popen, PIPE
+import sys
+import urllib
+from urlparse import urlunparse
+from phonehome import PhoneHome
+
 
 cert_alias = 'BlackDuckHub' # Global for the alias of the certificate in the Store
 store_pass = 'changeit' # Global for the Key Store password
+integration_source = 'Alliance Integrations'
+integration_third_party = 'Pivotal Scan Service Broker'
 
 def main():
     
@@ -42,6 +48,12 @@ def main():
         if add_certificate(scan_data['host'], scan_client_base) is False:
             eprint("Error adding server certificate to key store")
             sys.exit(1)
+            
+    hubloc = scan_data['host']
+    if scan_data['port'] != -1:
+        hubloc += ':' + str(scan_data['port'])
+    hub_url = urlunparse((scan_data['scheme'], hubloc, "", "", "", ""))
+    PhoneHome.call(hub_url, scan_data['username'], scan_data['password'], integration_source, scan_data['plugin_version'], integration_third_party)
             
     scan_return = run_scan(scan_client_base, scan_data, appinfo)
     sys.exit(scan_return)
@@ -111,6 +123,7 @@ def get_scan_data(appinfo, service):
             scan_data['code_location'] = generate_default_code_location_name(appinfo)
             scan_data['using_default_code_location'] = True
     scan_data['run_insecure'] = credentials.get('isInsecure')
+    scan_data['plugin_version'] = credentials.get('pluginVersion')
     return scan_data
 
 # Ensure the required elements were included in the VCAP_SERVICES

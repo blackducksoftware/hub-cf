@@ -11,3 +11,5 @@ application:
     basicAuth:
       userEnvVblName: SECURITY_USER_NAME
       passEnvVblName: SECURITY_USER_PASSWORD
+plugin:
+  version: ${version}

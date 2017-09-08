@@ -53,12 +53,17 @@ public class ServiceBrokerConfiguration {
     }
 
     @Bean
-    public BindingInstanceService bindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials hubCredentials) {
-        return new BindingInstanceService(serviceInstanceService, hubCredentials);
+    public BindingInstanceService bindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials hubCredentials, String pluginVersion) {
+        return new BindingInstanceService(serviceInstanceService, hubCredentials, pluginVersion);
     }
 
     @Bean
     public AuthenticationEntryPoint authEntryPoint(@Value(value = "${application.realm}") final String realm) {
         return new AuthenticationEntryPoint(realm);
+    }
+
+    @Bean
+    public String getPluginVersion(@Value(value = "${plugin.version}") final String pluginVersion) {
+        return pluginVersion;
     }
 }

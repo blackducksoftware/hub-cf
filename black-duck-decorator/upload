@@ -17,7 +17,7 @@
 # limitations under the License.
 
 SRCDIR=$(cd "$(dirname $0)/." && pwd)
-TGTDIR=$(cd "$(dirname $0)/." && pwd)
+TGTDIR=$(cd "$(dirname $0)/build/distributions/." && pwd)
 NAME="black-duck-decorator"  # $(basename "$SRCDIR" | sed s/-/_/g)
 ZIPFILE="$TGTDIR/$NAME.zip"
 

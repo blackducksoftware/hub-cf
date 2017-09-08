@@ -66,6 +66,10 @@ public class BindingProvisionResponseTest {
 
     private static Boolean TEST_ISINSECURE = Boolean.FALSE;
 
+    private static String TEST_KEY_PLUGINVERSION = "pluginVersion";
+
+    private static String TEST_PLUGIN_VERSION = "testPluginVer";
+
     private static Map<String, Object> DATA_MAP = new HashMap<String, Object>() {
         {
             put(TEST_KEY_SCHEME, TEST_SCHEME);
@@ -76,6 +80,7 @@ public class BindingProvisionResponseTest {
             put(TEST_KEY_PROJECTNAME, TEST_PROJECTNAME);
             put(TEST_KEY_CODELOCATIONNAME, TEST_CODELOCATIONNAME);
             put(TEST_KEY_ISINSECURE, TEST_ISINSECURE);
+            put(TEST_KEY_PLUGINVERSION, TEST_PLUGIN_VERSION);
         }
     };
 
@@ -84,7 +89,7 @@ public class BindingProvisionResponseTest {
     @BeforeClass
     public void setupData() {
         bindInst = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
-                TEST_ISINSECURE);
+                TEST_ISINSECURE, TEST_PLUGIN_VERSION);
     }
 
     @Test

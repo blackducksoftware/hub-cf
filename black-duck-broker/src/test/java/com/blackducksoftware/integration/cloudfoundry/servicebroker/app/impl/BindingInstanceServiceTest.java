@@ -58,6 +58,8 @@ public class BindingInstanceServiceTest {
 
     private static final String BINDING_ID = "testBindId";
 
+    private static final String PLUGIN_VERSION = "testPluginVer";
+
     @Mock
     private ServiceInstanceService serviceInstanceService;
 
@@ -81,7 +83,7 @@ public class BindingInstanceServiceTest {
 
         hubCreds = new HubCredentials(HUB_SCHEME, HUB_HOST, HUB_PORT, HUB_LOGIN_JSON, HUB_INSECURE);
 
-        bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds);
+        bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds, PLUGIN_VERSION);
     }
 
     @Test(dataProvider = "TestHubProjectParameters")

@@ -45,8 +45,10 @@ public final class BindingInstance {
 
     private final boolean isInsecure;
 
+    private final String pluginVersion;
+
     public BindingInstance(String scheme, String host, int port, String username, String password, String projectName, String codeLocationName,
-            boolean isInsecure) {
+            boolean isInsecure, String pluginVersion) {
         this.scheme = scheme;
         this.host = host;
         this.port = port;
@@ -55,6 +57,7 @@ public final class BindingInstance {
         this.projectName = projectName;
         this.codeLocationName = codeLocationName;
         this.isInsecure = isInsecure;
+        this.pluginVersion = pluginVersion;
     }
 
     /**
@@ -111,6 +114,13 @@ public final class BindingInstance {
      */
     public final boolean getIsInsecure() {
         return isInsecure;
+    }
+
+    /**
+     * @return the pluginVersion
+     */
+    public final String getPluginVersion() {
+        return pluginVersion;
     }
 
     public static final BindingProvisionResponse toBindingProvisionResponse(final BindingInstance bindingInstance) {

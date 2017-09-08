@@ -12,10 +12,10 @@ buildscript {
 
 apply plugin: 'application'
 apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin: 'eclipse-wtp'
 apply plugin: 'org.springframework.boot'
 
-version = '0.0.1-SNAPSHOT'
+version = '1.0.1'
 sourceCompatibility = 1.8
 mainClassName = 'com.blackducksoftware.integration.pivotal.BDServiceBrokerApplication'
 
@@ -43,4 +43,10 @@ test{
   useTestNG() {
     listeners << 'org.testng.reporters.XMLReporter'
   }
+}
+
+processResources { 
+	filesMatching("**/application.yml") { 
+		expand(project.properties)
+	}
 }

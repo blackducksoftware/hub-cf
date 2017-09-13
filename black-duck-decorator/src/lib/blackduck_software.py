@@ -53,7 +53,8 @@ def main():
     if scan_data['port'] != -1:
         hubloc += ':' + str(scan_data['port'])
     hub_url = urlunparse((scan_data['scheme'], hubloc, "", "", "", ""))
-    PhoneHome.call(hub_url, scan_data['username'], scan_data['password'], integration_source, scan_data['plugin_version'], integration_third_party)
+    phone_home = PhoneHome(hub_url, scan_data['username'], scan_data['password'])
+    phone_home.call(integration_source, scan_data['plugin_version'], integration_third_party)
             
     scan_return = run_scan(scan_client_base, scan_data, appinfo)
     sys.exit(scan_return)

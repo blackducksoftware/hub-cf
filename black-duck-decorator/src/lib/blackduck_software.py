@@ -356,7 +356,7 @@ def unpack_scan_client(scan_client_zip):
         __logging.debug("directories to search for newest: %s", dirs)
         for entry in dirs:
             dir_entry = os.path.join(unzip_root, entry)
-            __logging.debug("directory: %s; create time: %d", dir_entry, )
+            __logging.debug("directory: %s", dir_entry)
             if os.path.isdir(dir_entry) and os.stat(dir_entry).st_ctime > newestctime:
                 newestctime = os.stat(dir_entry).st_ctime
                 scan_base = dir_entry

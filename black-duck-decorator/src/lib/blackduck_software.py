@@ -5,6 +5,8 @@ from __future__ import print_function
 
 from __builtin__ import str
 import json
+from logging import getLogger
+import logging
 import os
 import platform
 import re
@@ -13,6 +15,7 @@ from subprocess import Popen, PIPE
 import sys
 import urllib
 from urlparse import urlunparse
+
 from phonehome import PhoneHome
 
 
@@ -21,34 +24,54 @@ store_pass = 'changeit' # Global for the Key Store password
 integration_source = 'Alliance Integrations'
 integration_third_party = 'Pivotal Scan Service Broker'
 
+# Get the numeric logging level based on the "__bds_debug_env_vbl_name" environment variable. If not set or not a valid debug level,
+# set numeric debug level to None and disable logging
+__bds_debug_env_vbl_name = 'BDS_DEBUG_LEVEL'
+__debug_level_name = os.environ.get(__bds_debug_env_vbl_name)
+__debug_level = None
+if __debug_level_name is not None:
+    __debug_level = getattr(logging, __debug_level_name.upper(), None)
+if not isinstance(__debug_level, int):
+    logging.disable(logging.CRITICAL)
+else:
+    logging.basicConfig(level=__debug_level)
+
+__logging = getLogger(__name__)
+
 def main():
     
     appinfo = get_application_info()
     service = find_blackduck_service(appinfo)
     if service is None:
         eprint("Black Duck Scan Service data not found in VCAP_SERVICES")
+        __logging.fatal("Black Duck Scan Service not found in VCAP_SERVICES structure")
         sys.exit(1)
         
     scan_data = get_scan_data(appinfo, service)
     if validate_scan_data(scan_data) != 0:
         eprint("Error validating scan data")
+        __logging.fatal("Invalid scan data received")
         sys.exit(1)
         
     scan_client_zip = retrieve_scan_client(scan_data)
     if scan_client_zip is None:
         eprint("Error retrieving Black Duck Software Scan Client from Hub")
+        __logging.fatal("Could not retrieve scan client from Hub")
         sys.exit(1)
         
     scan_client_base = unpack_scan_client(scan_client_zip)
     if scan_client_base is None:
         eprint("Error unpacking Black Duck Software Scan Client")
+        __logging.fatal("Could not unzip scan client")
         sys.exit(1)
         
     if scan_data['run_insecure'] is False:
         if add_certificate(scan_data['host'], scan_client_base) is False:
             eprint("Error adding server certificate to key store")
+            __logging.fatal("Could not add Hub server certificate to key store")
             sys.exit(1)
-            
+    
+    __logging.debug("Attempting to phone home")        
     hubloc = scan_data['host']
     if scan_data['port'] != -1:
         hubloc += ':' + str(scan_data['port'])
@@ -70,30 +93,40 @@ def detect():
 #
 # Collect the about the current application    
 def get_application_info():
+    __logging.info("entering get_application_info")
     appinfo = {}
     vcap_application = json.loads(os.getenv('VCAP_APPLICATION', '{}'))
+    __logging.debug("retrieved VCAP_APPLICATION: %s", vcap_application)
     appinfo['name'] = vcap_application.get('application_name')
     if appinfo['name'] == None:
         eprint("VCAP_APPLICATION must specify application_name")
+        __logging.fatal("application_name not specified in VCAP_APPLICATION structure")
         sys.exit(1)
     appinfo['space_name'] = vcap_application.get('space_name')
     appinfo['space_id'] = vcap_application.get('space_id')
     appinfo['api_endpoint'] = transform_api_endpoint(vcap_application.get('cf_api'))
+    __logging.debug("found appinfo['name']: %s; appinfo['space_name']: %s; appinfo['space_id']: %s; appinfo['api_endpoint']: %s", 
+                    appinfo['name'], appinfo['space_name'], appinfo['space_id'], appinfo['api_endpoint'])
+    __logging.info("exiting get_application_info")
     return appinfo
 
 # Ensure the user has opted-in to the scan
 def find_blackduck_service(appinfo):
+    __logging.info("entering find_blackduck_service")
     vcap_services = json.loads(os.getenv('VCAP_SERVICES', '{}'))
     for service in vcap_services:
         service_instances = vcap_services[service]
         for instance in service_instances:
             tags = instance.get('tags', [])
             if 'black-duck-scan' in tags or 'black-duck-scan' == instance.get('name'):
+                __logging.info("exiting find_blackduck_service")
                 return instance
+    __logging.info("exiting find_blackduck_service (None)")
     return None
 
 # Retrieve Hub credentials from the VCAP_SERVICES
 def get_scan_data(appinfo, service):
+    __logging.info("entering get_scan_data")
     print("  ...Retrieving Hub credentials")
     sys.stdout.flush()
     scan_data = {}
@@ -125,40 +158,53 @@ def get_scan_data(appinfo, service):
             scan_data['using_default_code_location'] = True
     scan_data['run_insecure'] = credentials.get('isInsecure')
     scan_data['plugin_version'] = credentials.get('pluginVersion')
+    if __logging.isEnabledFor(logging.DEBUG):
+        for key,value in scan_data.items():
+            __logging.debug("found %s: %s", key, value)
+    __logging.info("exiting get_scan_data")
     return scan_data
 
 # Ensure the required elements were included in the VCAP_SERVICES
 def validate_scan_data(scan_data):
+    __logging.info("entering validate_scan_data")
     ret = 0
     if not scan_data['username']:
         eprint("ERROR! Must specify a username")
+        __logging.error("username not specified")
         ret = 1
     if not scan_data['host']:
         eprint("ERROR! Must specify a host")
+        __logging.error("host not specified")
         ret = 1
     if scan_data['project_release'] is None:
         eprint("WARNING! Project version NOT found. Continuing with none.", 
                "Please set applications.env.BLACK_DUCK_PROJECT_VERSION in application manifest.yml", 
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
+        __logging.warning("project_release not specified; Hub default will be used")
     if scan_data['using_default_code_location'] is True:
         eprint("WARNING! Code Location Name NOT found. Continuing with default: " + scan_data['code_location'], 
                "Please re-bind the application and add code_location to the JSON of the service specific parameters or",
                "set applications.env.BLACK_DUCK_CODE_LOCATION in application manifest.yml.", 
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
+        __logging.warning("code_location not specified; using generated code_location: %s", scan_data['code_location'])
     if scan_data['project_name'] is None:
         eprint("WARNING! Project Name NOT found. Continuing with none.", 
                "Please re-bind the application and add project_name to the JSON of the service specific parameters. or",
                "set applications.env.BLACK_DUCK_PROJECT_NAME in application manifest.yml.",
                "Consult Black Duck Service Broker documentation for more detail.", sep='\n')
+        __logging.warning("project_name not specified; Hub default will be used")
     if scan_data['run_insecure'] is True:
         eprint("WARNING! ALL TLS/SSL ERRORS WILL BE IGNORED!",
                "PLEASE HAVE YOUR PCF ADMIN UNCHECK THE 'Ignore TLS/SSL errors' CHECKBOX AS PART OF THE",
                "BLACK DUCK SERVICE BROKER TILE CONFIGURATION",
                "HAVE YOUR PCF ADMIN CONSULT THE BLACK DUCK SERVICE BROKER DOCUMENTATION FOR MORE DETAIL.", sep='\n')
+        __logging.warning("IGNORING TLS/SSL ERRORS")
+    __logging.info("exiting validate_scan_data")
     return ret
 
 # Execute the Scan Client
 def run_scan(scan_client_base, scan_data, appinfo):
+    __logging.info("entering run_scan")
     print("  ...Executing scan")
     sys_type = platform.uname()[0]
     my_env = os.environ.copy()
@@ -174,6 +220,7 @@ def run_scan(scan_client_base, scan_data, appinfo):
         scan_ext = '.bat'
     else:
         eprint("ERROR! Unknown system type:", sys_type)
+        __logging.error("OS type: %s unknown")
         return 1
     
     my_env['BDS_JAVA_HOME'] = jre_path
@@ -232,17 +279,23 @@ def run_scan(scan_client_base, scan_data, appinfo):
         print("       IGNORING TLS/SSL ERRORS!")
     sys.stdout.flush()
     
+    __logging.debug("running scan with command: %s", scan_cmd)
+    __logging.debug("scan command using env: %s", my_env)
     run = Popen(scan_cmd, env=my_env, stdout=PIPE, stderr=PIPE)
     stdout, stderr = run.communicate()
     print(stdout)
     print(stderr)
     sys.stdout.flush()
     sys.stderr.flush()
+    __logging.debug("scan command output: %s", stdout)
+    __logging.error("scan command error: %s", stderr)
+    __logging.info("exiting run_scan")
     return run.returncode
 
 # Retrieve the Scan Client from the configured Hub instance
 # Scan Client is retrieved as a ZIP file
 def retrieve_scan_client(scan_data):
+    __logging.info("entering retrieve_scan_client")
     scan_client_loc = None
     if scan_data['scheme'] is not None:
         scan_client_loc = str(scan_data['scheme']) + "://"
@@ -255,17 +308,22 @@ def retrieve_scan_client(scan_data):
     print("  ...Retrieving Scan Client from " + scan_client_loc)
     sys.stdout.flush()
     try:
+        __logging.debug("retrieve scan client from: %s", scan_client_loc)
         scan_client_zip, _ = urllib.urlretrieve(scan_client_loc)
     except IOError as e:
         eprint(e.errno, e.strerror, sep=': ')
+        __logging.error("scan client retrieve failed: %s", e, exc_info=1)
         scan_client_zip = None
+        __logging.error("scan client NOT retrieved; returning None")
         pass
+    __logging.info("exiting retrieve_scan_client")
     return scan_client_zip
 
 # Explode the retrieved Scan Client into the directory
 # Invoking shell command unzip over Python's ZipFile.extractall() because file permissions
 # are NOT preserved correctly with extractall().
 def unpack_scan_client(scan_client_zip):
+    __logging.info("entering unpack_scan_client")
     unzip_root = str(sys.argv[1])
     my_env = os.environ.copy()
     unzip_cmd = []
@@ -276,31 +334,40 @@ def unpack_scan_client(scan_client_zip):
     unzip_cmd.append(unzip_root)
     print("  ...Exploding " + scan_client_zip + " to " + unzip_root)
     sys.stdout.flush()
+    __logging.debug("unpacking scan client with command: %s", unzip_cmd)
+    __logging.debug("unpacking scan client using env: %s", my_env)
     run = Popen(unzip_cmd, env=my_env, stdout=PIPE, stderr=PIPE)
     stdout, stderr = run.communicate()
     print(stdout)
     print(stderr)
     sys.stdout.flush()
     sys.stderr.flush()
+    __logging.debug("unzip output: %s", stdout)
+    __logging.error("unzip error: %s", stderr)
     
     scan_base = None
     if run.returncode == 0:
+        __logging.debug("unzip successful....")
         print("  ...Exploded " + scan_client_zip)
         # Get directory with latest creation time as that should be the newly unzipped scan client
         # NOTE: There SHOULD only be one directory
         newestctime = 0
         dirs = os.listdir(unzip_root)
+        __logging.debug("directories to search for newest: %s", dirs)
         for entry in dirs:
             dir_entry = os.path.join(unzip_root, entry)
+            __logging.debug("directory: %s; create time: %d", dir_entry, )
             if os.path.isdir(dir_entry) and os.stat(dir_entry).st_ctime > newestctime:
                 newestctime = os.stat(dir_entry).st_ctime
                 scan_base = dir_entry
                 print("  ...Setting scan client base:" + scan_base)
         sys.stdout.flush()
+    __logging.info("exiting unpack_scan_client")
     return scan_base
 
 # Add a certificate to new Java Key Store for the Scan Client
 def add_certificate(host, scan_client_base):
+    __logging.info("entering add_certificate")
     print("  ...Adding certificate to Java Key Store")
     sys.stdout.flush()
         
@@ -313,11 +380,15 @@ def add_certificate(host, scan_client_base):
         jre_path = os.path.join(scan_client_base, 'jre')
     else:
         eprint("ERROR! Unknown system type:", sys_type)
+        __logging.error("OS type: %s unknown")
         return 1
     
     keytool = os.path.join(jre_path, 'bin', '') + 'keytool'
+    __logging.debug("using keytool: %s", keytool)
     master_key_store = os.path.join(jre_path, 'lib', 'security', '') + 'cacerts'
+    __logging.debug("master keystore: %s", master_key_store)
     key_store = os.path.join(jre_path, 'lib', 'security', '') + 'jssecacerts'
+    __logging.debug("working keystore: %s", key_store)
 
     # Create a copy of the main key store so we update and use the copy
     shutil.copy2(master_key_store, key_store)
@@ -332,6 +403,7 @@ def add_certificate(host, scan_client_base):
     gen_keystore_cmd.append('-alias')
     gen_keystore_cmd.append(cert_alias)
     gen_keystore_cmd.append('-noprompt')
+    __logging.debug("command to import certificate: %s", gen_keystore_cmd)
     
     gen_keyprint_cmd = []
     gen_keyprint_cmd.append(keytool)
@@ -339,6 +411,7 @@ def add_certificate(host, scan_client_base):
     gen_keyprint_cmd.append('-rfc')
     gen_keyprint_cmd.append('-sslserver')
     gen_keyprint_cmd.append(host)
+    __logging.debug("command to get certificate: %s", gen_keyprint_cmd)
  
     # Set up command to print the certificate (ie 'keytool -printcert -rfc -sslserver [host]')      
     run_keyprint = Popen(gen_keyprint_cmd, stdout=PIPE, stderr=PIPE)
@@ -352,20 +425,27 @@ def add_certificate(host, scan_client_base):
     print(stderr)
     sys.stdout.flush()
     sys.stderr.flush()
+    __logging.debug("import certificate output: %s", stdout)
+    __logging.error("improt certificate error: %s", stderr)
     
+    __logging.debug("returning %d from importing certificate", run_keystore.returncode)
+    __logging.info("exiting add_certificate")
     return run_keystore.returncode
 
 # Generate a default code location name
 # This takes the api endpoint, organization, user space and project name
 # Method returns a string with the default code location name
 def generate_default_code_location_name(appinfo):
+    __logging.info("using generate_default_code_location_name")
     return str(transform_api_endpoint(appinfo['api_endpoint']) + '/' + appinfo['space_id'] + '/' + appinfo['space_name'] + '/' + appinfo['name'])
 
 # Helper function to strip the http:// or https:// from the CF API Endpoint
 # Input: String containing the CF API Endpoint prefixed with http:// or https://
 # Return: String containing the CF API Enpoint with the http:// or https:// stripped
 def transform_api_endpoint(api_endpoint):
+    __logging.info("using transform_api_endpoint")
     if api_endpoint is None:
+        __logging.debug("api_endpoint is None; returing None")
         return None
     return re.sub(r"http[s]?://", "", api_endpoint, count=1)
 

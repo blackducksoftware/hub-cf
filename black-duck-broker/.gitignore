@@ -1,7 +1,7 @@
 .gradle
-/build/**
-/bin/**
-/test-output/**
+/build/
+/bin/
+/test-output/
 
 ### STS ###
 .apt_generated

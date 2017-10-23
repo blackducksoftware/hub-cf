@@ -15,4 +15,4 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'pivotal.decorator'
+rootProject.name = 'black-duck-decorator'

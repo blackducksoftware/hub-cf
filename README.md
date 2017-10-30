@@ -1,6 +1,7 @@
 ## Overview ##
 The hub-cf project supplies the Cloud Foundry Service Broker and Decorator Buildpack necessary to integrate Black Duck Software's scan service with the `cf push` process.
-<p>This guide is meant for DevOps, IT, or Build Administrators wishing to integrate Black Duck Software scan service into their `cf push` process on their open source Cloud Foundry system.
+
+This guide is meant for DevOps, IT, or Build Administrators wishing to integrate Black Duck Software scan service into their `cf push` process on their open source Cloud Foundry system.
 
 ## Build ##
 

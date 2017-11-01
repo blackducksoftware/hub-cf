@@ -4,8 +4,10 @@ python:
 jdk:
   - 'oraclejdk8'
   
-before_install:
-  - 'java install oraclejdk8'
+addons:
+  apt:
+    packages:
+      - oracle-java8-set-default
   
 install:
   - 'cd black-duck-broker && ./gradlew clean build -x test && cd ..'

@@ -10,14 +10,19 @@ buildscript {
 	}
 }
 
-apply plugin: 'application'
-apply plugin: 'java'
-apply plugin: 'eclipse-wtp'
+plugins {
+	id 'application'
+	id 'java'
+	id 'eclipse-wtp'
+	id 'jacoco'
+	id 'com.github.kt3k.coveralls' version '2.8.1'
+}
+
 apply plugin: 'org.springframework.boot'
 
 version = '1.0.1'
 sourceCompatibility = 1.8
-mainClassName = 'com.blackducksoftware.integration.pivotal.BDServiceBrokerApplication'
+mainClassName = 'com.blackducksoftware.integration.cloudfoundry.BDServiceBrokerApplication'
 
 repositories {
 	mavenCentral()
@@ -49,4 +54,8 @@ processResources {
 	filesMatching("**/application.yml") { 
 		expand(project.properties)
 	}
+}
+
+jacocoTestReport {
+	reports { xml.enabled = true }
 }

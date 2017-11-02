@@ -18,10 +18,10 @@ before_script:
   
 script:
   - 'cd black-duck-broker && ./gradlew test && cd ..'
-  - 'cd black-duck-decorator/test && python run_tests.py && cd ..'
+  - 'cd black-duck-decorator/test && python run_tests.py && cd ../..'
 
 after_success:
-  - 'cd black-duck-broker && ./gradlew test jacocoTestReport coveralls'
+  - 'cd black-duck-broker && ./gradlew test jacocoTestReport coveralls && cd ..'
   - 'curl https://copilot.blackducksoftware.com/scripts/init/gradle -o bds_init.gradle'
   - './gradlew --init-script bds_init.gradle buildBom -DbdsPluginVersion=5.0.2'
   - 'bash <(curl -s https://copilot.blackducksoftware.com/bash/travis) ./build/blackduck/*_bdio.jsonld'

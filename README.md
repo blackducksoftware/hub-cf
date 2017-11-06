@@ -5,7 +5,9 @@ This guide is meant for DevOps, IT, or Build Administrators wishing to integrate
 
 ## Build ##
 
+[![Build Status](https://travis-ci.org/blackducksoftware/hub-cf.svg?branch=master)](https://travis-ci.org/blackducksoftware/hub-cf)
 [![Coverage Status](https://coveralls.io/repos/github/blackducksoftware/hub-cf/badge.svg?branch=master)](https://coveralls.io/github/blackducksoftware/hub-cf?branch=master)
+[![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/blackducksoftware/hub-cf/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/blackducksoftware/hub-cf/branches/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Documentation ##

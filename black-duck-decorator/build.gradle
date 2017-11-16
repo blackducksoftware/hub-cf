@@ -32,8 +32,6 @@ dependencies {
 
 apply plugin: 'distribution'
 
-distTar.enabled = false
-
 distributions {
 	main {
 		baseName = 'black-duck-decorator'

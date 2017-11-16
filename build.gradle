@@ -1,0 +1,19 @@
+buildscript { scriptHandler ->
+        repositories{
+                maven{ url "http://artifactory.blackducksoftware.com/artifactory/blackduck-builder-repos" }
+        }
+        apply from: 'https://bitbucket.dc1.lan/projects/INF/repos/configuration_management/browse/gradle/blackduckGradleInit.gradle?raw', to: scriptHandler
+
+	ext {
+		springBootVersion = '1.5.3.RELEASE'
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.0.0"
+	}
+}
+apply from: 'https://bitbucket.dc1.lan/projects/INF/repos/configuration_management/browse/gradle/blackduckGradleInit.gradle?raw'
+
+allprojects{
+        apply plugin: "com.jfrog.artifactory"
+}

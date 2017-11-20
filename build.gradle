@@ -6,12 +6,16 @@ buildscript {
 
 	ext {
 		springBootVersion = '1.5.3.RELEASE'
-		buildName = 'hub-cf'
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.0.0"
 	}
+}
+
+ext{
+	buildName='hub-cf'
+	uploadRepoKey = System.properties['uploadRepoKey'] ?: 'bds-alliance-snapshot'
 }
 
 allprojects{

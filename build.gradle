@@ -19,5 +19,6 @@ ext{
 }
 
 allprojects{
+	apply plugin: "maven-publish"
         apply plugin: "com.jfrog.artifactory"
 }

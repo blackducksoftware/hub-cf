@@ -32,8 +32,6 @@ dependencies {
 
 apply plugin: 'distribution'
 
-distTar.enabled = false
-
 distributions {
 	main {
 		baseName = 'black-duck-decorator'
@@ -43,4 +41,13 @@ distributions {
 			exclude( '**/*.pyc' )
 		}
 	}
+}
+
+publishing{
+        publications {
+                maven(MavenPublication){
+                        artifact distZip
+                        artifact distTar
+                }
+        }
 }

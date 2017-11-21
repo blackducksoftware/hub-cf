@@ -14,11 +14,17 @@ buildscript {
 }
 
 ext{
+	buildName = rootProject.allprojects.findAll{it.name == 'appmgr.hub'} ? 'hub-appmgr' : 'hub'
+        uploadRepoKey = System.properties['uploadRepoKey'] ?: 'bds-hub-snapshot'
+
 	buildName='hub-cf'
 	uploadRepoKey = System.properties['uploadRepoKey'] ?: 'bds-alliance-snapshot'
 }
 
 allprojects{
 	apply plugin: "maven-publish"
+	apply plugin: "maven"
         apply plugin: "com.jfrog.artifactory"
+
+	group = 'com.blackducksoftware.integration.hub.cf'
 }

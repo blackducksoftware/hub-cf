@@ -42,3 +42,12 @@ distributions {
 		}
 	}
 }
+
+publishing{
+        publications {
+                maven(MavenPublication){
+                        artifact distZip
+                        artifact distTar
+                }
+        }
+}

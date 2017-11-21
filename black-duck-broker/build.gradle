@@ -46,3 +46,13 @@ processResources {
 jacocoTestReport {
 	reports { xml.enabled = true }
 }
+
+publishing{
+        publications {
+                maven(MavenPublication){
+                        artifact distZip
+                        artifact distTar
+                }
+        }
+}
+

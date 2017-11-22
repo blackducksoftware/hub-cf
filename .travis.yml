@@ -10,18 +10,17 @@ addons:
       - oracle-java8-set-default
   
 install:
-  - 'cd black-duck-broker && ./gradlew clean build -x test && cd ..'
-  - 'cd black-duck-decorator && ./gradlew clean build && cd ..'
+  - './gradlew clean build -x test'
   
 before_script:
   - 'pip install proboscis'
   
 script:
-  - 'cd black-duck-broker && ./gradlew test && cd ..'
+  - './gradlew :black-duck-broker:test'
   - 'cd black-duck-decorator/test && python run_tests.py && cd ../..'
 
 after_success:
-  - 'cd black-duck-broker && ./gradlew test jacocoTestReport coveralls'
+  - './gradlew :black-duck-broker:test :black-duck-broker:jacocoTestReport :black-duck-broker:coveralls'
   - 'curl https://copilot.blackducksoftware.com/scripts/init/gradle -o bds_init.gradle'
   - './gradlew --init-script bds_init.gradle buildBom -DbdsPluginVersion=5.0.2'
   - 'bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)'

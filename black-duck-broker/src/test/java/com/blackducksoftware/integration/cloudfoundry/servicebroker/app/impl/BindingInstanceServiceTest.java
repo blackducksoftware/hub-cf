@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParameters;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParameters;
 
 /**
  *
@@ -60,10 +61,16 @@ public class BindingInstanceServiceTest {
 
     private static final String PLUGIN_VERSION = "testPluginVer";
 
+    private static final String INTEGRATION_SOURCE = "testIntegrationSource";
+
+    private static final String INTEGRATION_VENDOR = "testIntegrationVendor";
+
     @Mock
     private ServiceInstanceService serviceInstanceService;
 
     private HubCredentials hubCreds;
+
+    private PhoneHomeParameters phoneHomeParms;
 
     private BindingInstanceService bindingInstanceService;
 
@@ -83,7 +90,9 @@ public class BindingInstanceServiceTest {
 
         hubCreds = new HubCredentials(HUB_SCHEME, HUB_HOST, HUB_PORT, HUB_LOGIN_JSON, HUB_INSECURE);
 
-        bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds, PLUGIN_VERSION);
+        phoneHomeParms = new PhoneHomeParameters(INTEGRATION_SOURCE, INTEGRATION_VENDOR);
+
+        bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds, PLUGIN_VERSION, phoneHomeParms);
     }
 
     @Test(dataProvider = "TestHubProjectParameters")

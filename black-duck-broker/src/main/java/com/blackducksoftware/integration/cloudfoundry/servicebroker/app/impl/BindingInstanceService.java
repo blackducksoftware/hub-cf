@@ -28,6 +28,9 @@ import java.util.Optional;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingInstance;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParameters;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParameters;
+import com.blackducksoftware.integration.phonehome.enums.PhoneHomeSource;
+import com.blackducksoftware.integration.phonehome.enums.ThirdPartyName;
 
 /**
  * @author jfisher
@@ -42,17 +45,23 @@ public class BindingInstanceService {
 
     private final String pluginVersion;
 
-    public BindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials creds, String pluginVersion) {
+    private final PhoneHomeParameters phoneHomeParms;
+
+    public BindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials creds, String pluginVersion,
+            PhoneHomeParameters phoneHomeParms) {
         this.serviceInstanceService = serviceInstanceService;
         this.creds = creds;
         this.pluginVersion = pluginVersion;
+        this.phoneHomeParms = phoneHomeParms;
     }
 
     public BindingInstance create(String bindingId, String instanceId, Optional<HubProjectParameters> parms) {
         String projName = parms.map((hubProjectParameters) -> hubProjectParameters.getProjectName().orElse(null)).orElse(null);
         String codeLocName = parms.map((hubProjectParameters) -> hubProjectParameters.getCodeLocation().orElse(null)).orElse(null);
         BindingInstance bInst = new BindingInstance(creds.getScheme(), creds.getHost(), creds.getPort(), creds.getLoginInfo().getUsername(),
-                creds.getLoginInfo().getPassword(), projName, codeLocName, creds.isInsecure(), pluginVersion);
+                creds.getLoginInfo().getPassword(), projName, codeLocName, creds.isInsecure(), pluginVersion,
+                (phoneHomeParms.getSource().orElse(PhoneHomeSource.ALLIANCES)).getName(),
+                (phoneHomeParms.getVendor().orElse(ThirdPartyName.OSCF_SCANNER)).getName());
         bindingInstances.put(bindingId, bInst);
         return bInst;
     }

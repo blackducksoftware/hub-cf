@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParameters;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl.BindingInstanceService;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl.ServiceInstanceService;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.security.AuthenticationEntryPoint;
@@ -53,8 +54,9 @@ public class ServiceBrokerConfiguration {
     }
 
     @Bean
-    public BindingInstanceService bindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials hubCredentials, String pluginVersion) {
-        return new BindingInstanceService(serviceInstanceService, hubCredentials, pluginVersion);
+    public BindingInstanceService bindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials hubCredentials, String pluginVersion,
+            PhoneHomeParameters phoneHomeParms) {
+        return new BindingInstanceService(serviceInstanceService, hubCredentials, pluginVersion, phoneHomeParms);
     }
 
     @Bean
@@ -65,5 +67,12 @@ public class ServiceBrokerConfiguration {
     @Bean
     public String getPluginVersion(@Value(value = "${plugin.version}") final String pluginVersion) {
         return pluginVersion;
+    }
+
+    @Bean
+    public PhoneHomeParameters phoneHomeParameters(
+            @Value(value = "#{ @environment['INTEGRATION_SOURCE'] ?: '0' }") final String source,
+            @Value(value = "#{ @environment['INTEGRATION_VENDOR'] ?: '0' }") final String vendor) {
+        return new PhoneHomeParameters(source, vendor);
     }
 }

@@ -70,6 +70,14 @@ public class BindingProvisionResponseTest {
 
     private static String TEST_PLUGIN_VERSION = "testPluginVer";
 
+    private static String TEST_KEY_INTEGRATIONSOURCE = "integrationSource";
+
+    private static String TEST_INTEGRATION_SOURCE = "testIntegrationSource";
+
+    private static String TEST_KEY_INTEGRATIONVENDOR = "integrationVendor";
+
+    private static String TEST_INTEGRATION_VENDOR = "integrationVendor";
+
     private static Map<String, Object> DATA_MAP = new HashMap<String, Object>() {
         {
             put(TEST_KEY_SCHEME, TEST_SCHEME);
@@ -81,6 +89,8 @@ public class BindingProvisionResponseTest {
             put(TEST_KEY_CODELOCATIONNAME, TEST_CODELOCATIONNAME);
             put(TEST_KEY_ISINSECURE, TEST_ISINSECURE);
             put(TEST_KEY_PLUGINVERSION, TEST_PLUGIN_VERSION);
+            put(TEST_KEY_INTEGRATIONSOURCE, TEST_INTEGRATION_SOURCE);
+            put(TEST_KEY_INTEGRATIONVENDOR, TEST_INTEGRATION_VENDOR);
         }
     };
 
@@ -89,7 +99,7 @@ public class BindingProvisionResponseTest {
     @BeforeClass
     public void setupData() {
         bindInst = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
-                TEST_ISINSECURE, TEST_PLUGIN_VERSION);
+                TEST_ISINSECURE, TEST_PLUGIN_VERSION, TEST_INTEGRATION_SOURCE, TEST_INTEGRATION_VENDOR);
     }
 
     @Test

@@ -41,8 +41,6 @@ from phonehome import PhoneHome
 
 cert_alias = 'BlackDuckHub' # Global for the alias of the certificate in the Store
 store_pass = 'changeit' # Global for the Key Store password
-integration_source = 'Alliance Integrations'
-integration_third_party = 'Pivotal Scan Service Broker'
 
 # Get the numeric logging level based on the "__bds_debug_env_vbl_name" environment variable. If not set or not a valid debug level,
 # set numeric debug level to None and disable logging
@@ -59,37 +57,43 @@ else:
 __logging = getLogger(__name__)
 
 def main():
-    
+    '''
+    Perform the following steps:
+        * Ensure the decorator is supposed to execute
+        * Retrieve and validate the data
+        * Retrieve the Scan Client from the configured Hub Server
+        * Unpack the Scan Client into the configured directory
+        * [Optional] Add certificates from the Hub Server
+        * Send usage information back to Black Duck
+        * Execute the Scan Client against the configured directory
+    :return: Exit code from executing the Scan Client or 1 for internal errors
+    :rtype: int
+    '''   
     appinfo = get_application_info()
     service = find_blackduck_service(appinfo)
     if service is None:
-        eprint("Black Duck Scan Service data not found in VCAP_SERVICES")
         __logging.fatal("Black Duck Scan Service not found in VCAP_SERVICES structure")
-        sys.exit(1)
+        sys.exit("Black Duck Scan Service data not found in VCAP_SERVICES")
         
     scan_data = get_scan_data(appinfo, service)
     if validate_scan_data(scan_data) != 0:
-        eprint("Error validating scan data")
         __logging.fatal("Invalid scan data received")
-        sys.exit(1)
+        sys.exit("Error validating scan data")
         
     scan_client_zip = retrieve_scan_client(scan_data)
     if scan_client_zip is None:
-        eprint("Error retrieving Black Duck Software Scan Client from Hub")
         __logging.fatal("Could not retrieve scan client from Hub")
-        sys.exit(1)
+        sys.exit("Error retrieving Black Duck Software Scan Client from Hub")
         
     scan_client_base = unpack_scan_client(scan_client_zip)
     if scan_client_base is None:
-        eprint("Error unpacking Black Duck Software Scan Client")
         __logging.fatal("Could not unzip scan client")
-        sys.exit(1)
+        sys.exit("Error unpacking Black Duck Software Scan Client")
         
     if scan_data['run_insecure'] is False:
         if add_certificate(scan_data['host'], scan_client_base) is False:
-            eprint("Error adding server certificate to key store")
             __logging.fatal("Could not add Hub server certificate to key store")
-            sys.exit(1)
+            sys.exit("Error adding server certificate to key store")
     
     __logging.debug("Attempting to phone home")        
     hubloc = scan_data['host']
@@ -97,7 +101,7 @@ def main():
         hubloc += ':' + str(scan_data['port'])
     hub_url = urlunparse((scan_data['scheme'], hubloc, "", "", "", ""))
     phone_home = PhoneHome(hub_url, scan_data['username'], scan_data['password'])
-    phone_home.call(integration_source, scan_data['plugin_version'], integration_third_party)
+    phone_home.call(scan_data['integration_source'], scan_data['plugin_version'], scan_data['integration_vendor'])
             
     scan_return = run_scan(scan_client_base, scan_data, appinfo)
     sys.exit(scan_return)
@@ -119,9 +123,8 @@ def get_application_info():
     __logging.debug("retrieved VCAP_APPLICATION: %s", vcap_application)
     appinfo['name'] = vcap_application.get('application_name')
     if appinfo['name'] == None:
-        eprint("VCAP_APPLICATION must specify application_name")
         __logging.fatal("application_name not specified in VCAP_APPLICATION structure")
-        sys.exit(1)
+        sys.exit("VCAP_APPLICATION must specify application_name")
     appinfo['space_name'] = vcap_application.get('space_name')
     appinfo['space_id'] = vcap_application.get('space_id')
     appinfo['api_endpoint'] = transform_api_endpoint(vcap_application.get('cf_api'))
@@ -146,6 +149,11 @@ def find_blackduck_service(appinfo):
 
 # Retrieve Hub credentials from the VCAP_SERVICES
 def get_scan_data(appinfo, service):
+    '''
+    Retrieve the Hub credentials and project information from the VCAP_SERVICES structure or the staging environment
+    :return: Dictionary containing the Hub credentials and Hub project information
+    :rtype: Dictionary
+    '''
     __logging.info("entering get_scan_data")
     print("  ...Retrieving Hub credentials")
     sys.stdout.flush()
@@ -178,6 +186,9 @@ def get_scan_data(appinfo, service):
             scan_data['using_default_code_location'] = True
     scan_data['run_insecure'] = credentials.get('isInsecure')
     scan_data['plugin_version'] = credentials.get('pluginVersion')
+    scan_data['integration_source'] = credentials.get('integrationSource')
+    scan_data['integration_vendor'] = credentials.get('integrationVendor')
+    
     if __logging.isEnabledFor(logging.DEBUG):
         for key,value in scan_data.items():
             __logging.debug("found %s: %s", key, value)
@@ -186,6 +197,11 @@ def get_scan_data(appinfo, service):
 
 # Ensure the required elements were included in the VCAP_SERVICES
 def validate_scan_data(scan_data):
+    '''
+    Ensure the required elements were included in the VCAP_SERVICES. Print warning or error messages based on the severity.
+    :return: 0 if all items verified or only warning message(s) printed; 1 if error message(s) printed
+    :rtype: int
+    '''
     __logging.info("entering validate_scan_data")
     ret = 0
     if not scan_data['username']:

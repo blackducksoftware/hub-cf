@@ -49,12 +49,16 @@ public class BindingInstanceTest {
 
     private static String TEST_PLUGIN_VERSION = "testVer";
 
+    private static String TEST_INTEGRATION_SOURCE = "testIntegrationSource";
+
+    private static String TEST_INTEGRATION_VENDOR = "testIntegrationVendor";
+
     private BindingInstance testInstance;
 
     @BeforeClass
     public void setupObject() {
         testInstance = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
-                TEST_INSECURE, TEST_PLUGIN_VERSION);
+                TEST_INSECURE, TEST_PLUGIN_VERSION, TEST_INTEGRATION_SOURCE, TEST_INTEGRATION_VENDOR);
     }
 
     @Test(priority = 0)
@@ -105,5 +109,15 @@ public class BindingInstanceTest {
     @Test(dependsOnMethods = { "testInstanceValid" })
     public void testPluginVersionValid() {
         Assert.assertEquals(testInstance.getPluginVersion(), TEST_PLUGIN_VERSION, "BindingInstance pluginVersion incorrect");
+    }
+
+    @Test(dependsOnMethods = { "testInstanceValid" })
+    public void testIntegrationSourceValid() {
+        Assert.assertEquals(testInstance.getIntegrationSource(), TEST_INTEGRATION_SOURCE, "BindingInstance integrationSource incorrect");
+    }
+
+    @Test(dependsOnMethods = { "testInstanceValid" })
+    public void testIntegrationVendorValid() {
+        Assert.assertEquals(testInstance.getIntegrationVendor(), TEST_INTEGRATION_VENDOR, "BindingInstance integrationVendor incorrect");
     }
 }

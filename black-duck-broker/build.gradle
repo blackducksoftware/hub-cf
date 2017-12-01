@@ -25,6 +25,7 @@ dependencies {
 	compile('com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.6')
 	compile('org.yaml:snakeyaml:1.18')
 	compile('com.google.code.findbugs:jsr305:3.0.2')
+	compile('com.blackducksoftware.integration:phone-home-api:5.+')
 	testCompile('org.springframework.boot:spring-boot-starter-test') { 
 		exclude group: 'junit', module: 'junit'
 	}

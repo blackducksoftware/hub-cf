@@ -1,6 +1,6 @@
 plugins {
-	id 'application'
 	id 'java'
+	id 'application'
 	id 'eclipse-wtp'
 	id 'jacoco'
 	id 'com.github.kt3k.coveralls' version '2.8.1'
@@ -38,8 +38,8 @@ test{
   }
 }
 
-processResources { 
-	filesMatching("**/application.yml") { 
+processResources {
+	filesMatching("**/application.yml") {
 		expand(project.properties)
 	}
 }
@@ -47,13 +47,3 @@ processResources {
 jacocoTestReport {
 	reports { xml.enabled = true }
 }
-
-publishing{
-        publications {
-                maven(MavenPublication){
-                        artifact distZip
-                        artifact distTar
-                }
-        }
-}
-

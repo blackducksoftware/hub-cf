@@ -31,6 +31,7 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.Bind
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentialsTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubLoginTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParametersTest;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParametersTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl.BindingInstanceServiceTest;
 
 /**
@@ -50,6 +51,7 @@ public class ServiceBrokerTestFactory {
                 new HubProjectParametersTest(),
                 new BindResourceTest(),
                 new BindingInstanceServiceTest(),
+                new PhoneHomeParametersTest(),
         };
     }
 }

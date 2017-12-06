@@ -1,0 +1,7 @@
+---
+applications:
+- name: black-duck-broker
+  memory: 1G
+  disk_quota: 1G
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
+  host: black-duck-broker

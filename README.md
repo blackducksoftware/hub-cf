@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="25%" height="25%" src="https://www.blackducksoftware.com/sites/default/files/images/Logos/BD-S.png">
+</p>
+
 ## Overview ##
 The hub-cf project supplies the Cloud Foundry Service Broker and Decorator Buildpack necessary to integrate Black Duck Software's scan service with the `cf push` process.
 

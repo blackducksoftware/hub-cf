@@ -4,7 +4,7 @@ buildscript {
 		jcenter()
   }
 	dependencies {
-		classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: '1.5.3.RELEASE'
+		classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: '1.5.4.RELEASE'
 		classpath group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4.0.0'
 	}
 }

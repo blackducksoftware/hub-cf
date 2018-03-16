@@ -13,9 +13,9 @@ ext{
   buildName='hub-cf'
 	uploadRepoKey = System.properties['uploadRepoKey'] ?: 'bds-alliance-snapshot'
 }
-apply plugin: 'com.jfrog.artifactory'
 
 allprojects{
+  apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'maven-publish'
 }
 

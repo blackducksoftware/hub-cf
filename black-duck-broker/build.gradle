@@ -21,7 +21,7 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web') {
 		exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
 	}
-	compile('com.fasterxml.jackson.core:jackson-databind:2.8.11')
+	compile('com.fasterxml.jackson.core:jackson-databind:2.8.11.1')
 	compile('com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.6')
 	compile('org.yaml:snakeyaml:1.18')
 	compile('com.google.code.findbugs:jsr305:3.0.2')

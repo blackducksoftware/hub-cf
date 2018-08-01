@@ -31,9 +31,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindResource;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParameters;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParameters;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.ICloudControllerEventMonitorService;
 
 /**
  *
@@ -53,6 +55,10 @@ public class BindingInstanceServiceTest {
 
     private static final String PROJ_NAME = "testProj";
 
+    private static final String APP_GUID = "testAppGuid";
+
+    private static final String ROUTE = "testRoute";
+
     private static final String CODE_LOC = "codeLocationName";
 
     private static final String SERVICE_ID = "testServiceId";
@@ -67,6 +73,9 @@ public class BindingInstanceServiceTest {
 
     @Mock
     private ServiceInstanceService serviceInstanceService;
+
+    @Mock
+    private ICloudControllerEventMonitorService ccEventMonitorHandler;
 
     private HubCredentials hubCreds;
 
@@ -84,6 +93,16 @@ public class BindingInstanceServiceTest {
         };
     }
 
+    @DataProvider(name = "TestInvalidBindResource")
+    public Object[][] createTestInvalidBindResource() {
+        return new Object[][] {
+                { Optional.empty() },
+                { Optional.ofNullable(null) },
+                { Optional.ofNullable(new BindResource(null, ROUTE)) },
+                { Optional.ofNullable(new BindResource(null, null)) },
+        };
+    }
+
     @BeforeMethod
     public void beforeMethod() {
         MockitoAnnotations.initMocks(this);
@@ -92,15 +111,41 @@ public class BindingInstanceServiceTest {
 
         phoneHomeParms = new PhoneHomeParameters(INTEGRATION_SOURCE, INTEGRATION_VENDOR);
 
-        bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds, PLUGIN_VERSION, phoneHomeParms);
+        bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds, PLUGIN_VERSION, phoneHomeParms, ccEventMonitorHandler);
     }
 
     @Test(dataProvider = "TestHubProjectParameters")
-    public void testCreate(Optional<HubProjectParameters> hpp) {
+    public void testCreateWithHubProjectParameters(Optional<HubProjectParameters> hpp) {
         Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
 
-        bindingInstanceService.create(BINDING_ID, SERVICE_ID, hpp);
+        Optional<BindResource> bind = Optional.of(Mockito.mock(BindResource.class));
+
+        bindingInstanceService.create(BINDING_ID, SERVICE_ID, bind, hpp);
 
         Assert.assertTrue(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID), "An internal error occurred and the binding was not created.");
+    }
+
+    @Test
+    public void testCreateWithValidAppGuid() {
+        Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
+
+        Optional<HubProjectParameters> hpp = Optional.of(Mockito.mock(HubProjectParameters.class));
+
+        Optional<BindResource> bind = Optional.of(Mockito.mock(BindResource.class));
+
+        bindingInstanceService.create(BINDING_ID, SERVICE_ID, bind, hpp);
+
+        Assert.assertTrue(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID), "An internal error occurred and the binding was not created.");
+    }
+
+    @Test(dataProvider = "TestInvalidBindResource")
+    public void testCreateWithInvalidAppGuid(Optional<BindResource> bind) {
+        Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
+
+        Optional<HubProjectParameters> hpp = Optional.of(Mockito.mock(HubProjectParameters.class));
+
+        bindingInstanceService.create(BINDING_ID, SERVICE_ID, bind, hpp);
+
+        Assert.assertFalse(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID), "Binding created in error.");
     }
 }

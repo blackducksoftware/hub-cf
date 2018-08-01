@@ -45,4 +45,8 @@ public class ServiceInstanceService {
     public boolean isExists(String id) {
         return serviceInstances.contains(id);
     }
+
+    public Set<String> getServiceInstances() {
+        return new HashSet<String>(serviceInstances);
+    }
 }

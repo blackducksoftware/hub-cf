@@ -64,9 +64,14 @@ public class BindingInstancesRestServer {
         BindingInstance binding = null;
         if (serviceInstanceService.isExists(instanceId)) {
             if (!bindingInstanceService.isExists(instanceId, bindingId)) {
-                binding = bindingInstanceService.create(bindingId, instanceId, body.getHubProjectParams());
-                respCode = HttpStatus.CREATED;
-                logger.trace("Created binding");
+                binding = bindingInstanceService.create(bindingId, instanceId, body.getBindResource(), body.getHubProjectParams());
+                if (binding != null) {
+                    respCode = HttpStatus.CREATED;
+                    logger.trace("Created binding");
+                } else {
+                    respCode = HttpStatus.INTERNAL_SERVER_ERROR;
+                    logger.warn("Unable to create binding {} for service instance {}", bindingId, instanceId);
+                }
             } else {
                 respCode = HttpStatus.OK;
                 logger.warn("Binding: " + instanceId + " already exists");

@@ -21,6 +21,8 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
+import java.util.UUID;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,6 +43,8 @@ public class BindingInstanceTest {
 
     private static String TEST_PASSWORD = "not_private";
 
+    private static UUID TEST_APPGUID = UUID.randomUUID();
+
     private static String TEST_PROJECTNAME = "test project";
 
     private static String TEST_CODELOCATIONNAME = "test/location";
@@ -57,7 +61,8 @@ public class BindingInstanceTest {
 
     @BeforeClass
     public void setupObject() {
-        testInstance = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
+        testInstance = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_APPGUID, TEST_PROJECTNAME,
+                TEST_CODELOCATIONNAME,
                 TEST_INSECURE, TEST_PLUGIN_VERSION, TEST_INTEGRATION_SOURCE, TEST_INTEGRATION_VENDOR);
     }
 
@@ -89,6 +94,11 @@ public class BindingInstanceTest {
     @Test(dependsOnMethods = { "testInstanceValid" })
     public void testPasswordValid() {
         Assert.assertEquals(testInstance.getPassword(), TEST_PASSWORD, "BindingInstance password incorrect");
+    }
+
+    @Test(dependsOnMethods = { "testInstanceValid" })
+    public void testAppGuid() {
+        Assert.assertEquals(testInstance.getAppGuid(), TEST_APPGUID, "BindingInstance appGuid incorrect");
     }
 
     @Test(dependsOnMethods = { "testInstanceValid" })

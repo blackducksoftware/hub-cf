@@ -21,6 +21,7 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -33,6 +34,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public final class HubProjectParameters {
+    private static String CODE_LOCATION_ENV_NAME = "BLACK_DUCK_CODE_LOCATION";
+
+    private static String PROJECT_NAME_ENV_NAME = "BLACK_DUCK_PROJECT_NAME";
 
     private Optional<String> projectName = Optional.empty();
 
@@ -75,5 +79,10 @@ public final class HubProjectParameters {
      */
     public final void setCodeLocation(Optional<String> codeLocation) {
         this.codeLocation = codeLocation;
+    }
+
+    public static HubProjectParameters fromCloudFoundryEnvironment(Map<String, Object> cfEnv) {
+        return new HubProjectParameters(Optional.ofNullable(cfEnv.get(PROJECT_NAME_ENV_NAME)).map(String::valueOf).orElse(null),
+                Optional.ofNullable(cfEnv.get(CODE_LOCATION_ENV_NAME)).map(String::valueOf).orElse(null));
     }
 }

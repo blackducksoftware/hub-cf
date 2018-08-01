@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -53,6 +54,10 @@ public class BindingProvisionResponseTest {
     private static String TEST_KEY_PASSWORD = "password";
 
     private static String TEST_PASSWORD = "testPassword";
+
+    private static String TEST_KEY_APPGUID = "appGuid";
+
+    private static UUID TEST_APPGUID = UUID.randomUUID();
 
     private static String TEST_KEY_PROJECTNAME = "projectName";
 
@@ -85,6 +90,7 @@ public class BindingProvisionResponseTest {
             put(TEST_KEY_PORT, TEST_PORT);
             put(TEST_KEY_USERNAME, TEST_USERNAME);
             put(TEST_KEY_PASSWORD, TEST_PASSWORD);
+            put(TEST_KEY_APPGUID, TEST_APPGUID);
             put(TEST_KEY_PROJECTNAME, TEST_PROJECTNAME);
             put(TEST_KEY_CODELOCATIONNAME, TEST_CODELOCATIONNAME);
             put(TEST_KEY_ISINSECURE, TEST_ISINSECURE);
@@ -98,7 +104,7 @@ public class BindingProvisionResponseTest {
 
     @BeforeClass
     public void setupData() {
-        bindInst = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
+        bindInst = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_APPGUID, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
                 TEST_ISINSECURE, TEST_PLUGIN_VERSION, TEST_INTEGRATION_SOURCE, TEST_INTEGRATION_VENDOR);
     }
 

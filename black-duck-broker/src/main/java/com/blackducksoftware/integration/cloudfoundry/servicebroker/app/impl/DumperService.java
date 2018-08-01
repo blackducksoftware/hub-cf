@@ -103,7 +103,7 @@ public class DumperService {
     }
 
     @Scheduled(fixedRateString = "#{${application.dumper-service.polling-period-seconds} * 1000}")
-    public void execute() {
+    public void execute() throws Throwable {
         logger.debug("Starting data dump to perceptor");
 
         // Retrieve the Service Ids the broker knows about, if any

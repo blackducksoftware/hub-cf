@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -55,7 +56,7 @@ public class BindingInstanceServiceTest {
 
     private static final String PROJ_NAME = "testProj";
 
-    private static final String APP_GUID = "testAppGuid";
+    private static final UUID APP_GUID = UUID.randomUUID();
 
     private static final String ROUTE = "testRoute";
 
@@ -117,8 +118,9 @@ public class BindingInstanceServiceTest {
     @Test(dataProvider = "TestHubProjectParameters")
     public void testCreateWithHubProjectParameters(Optional<HubProjectParameters> hpp) {
         Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
+        Mockito.when(ccEventMonitorHandler.registerId(Mockito.any(UUID.class))).thenReturn(true);
 
-        Optional<BindResource> bind = Optional.of(Mockito.mock(BindResource.class));
+        Optional<BindResource> bind = Optional.of(new BindResource(APP_GUID.toString(), null));
 
         bindingInstanceService.create(BINDING_ID, SERVICE_ID, bind, hpp);
 
@@ -128,10 +130,11 @@ public class BindingInstanceServiceTest {
     @Test
     public void testCreateWithValidAppGuid() {
         Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
+        Mockito.when(ccEventMonitorHandler.registerId(Mockito.any(UUID.class))).thenReturn(true);
 
         Optional<HubProjectParameters> hpp = Optional.of(Mockito.mock(HubProjectParameters.class));
 
-        Optional<BindResource> bind = Optional.of(Mockito.mock(BindResource.class));
+        Optional<BindResource> bind = Optional.of(new BindResource(APP_GUID.toString(), null));
 
         bindingInstanceService.create(BINDING_ID, SERVICE_ID, bind, hpp);
 
@@ -141,6 +144,7 @@ public class BindingInstanceServiceTest {
     @Test(dataProvider = "TestInvalidBindResource")
     public void testCreateWithInvalidAppGuid(Optional<BindResource> bind) {
         Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
+        Mockito.when(ccEventMonitorHandler.registerId(Mockito.any(UUID.class))).thenReturn(true);
 
         Optional<HubProjectParameters> hpp = Optional.of(Mockito.mock(HubProjectParameters.class));
 

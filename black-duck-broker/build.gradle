@@ -19,9 +19,15 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.boot:spring-boot-starter-web') {
-	  exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core'
+	  exclude group: 'org.apache.tomcat', module: 'tomcat-annotations-api'
+    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-el'
+    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core'
+    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-websocket'
 	}
+	compile('org.apache.tomcat:tomcat-annotations-api:8.5.32') // Update version based on Co-Pilot report
+	compile('org.apache.tomcat.embed:tomcat-embed-el:8.5.32') // Update version based on Co-Pilot report
 	compile('org.apache.tomcat.embed:tomcat-embed-core:8.5.32') // Update version based on Co-Pilot report
+	compile('org.apache.tomcat.embed:tomcat-embed-websocket:8.5.32') // Update version based on Co-Pilot report
 	compile('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.0.1.RELEASE') {
 	  exclude group: 'org.springframework.security.oauth', module: 'spring-security-oauth2'
 	}

@@ -54,6 +54,8 @@ public class BindingInstanceServiceTest {
 
     private static final Boolean HUB_INSECURE = Boolean.TRUE;
 
+    private static final String HUB_API_TOKEN = "test_api_token";
+
     private static final String PROJ_NAME = "testProj";
 
     private static final UUID APP_GUID = UUID.randomUUID();
@@ -108,7 +110,7 @@ public class BindingInstanceServiceTest {
     public void beforeMethod() {
         MockitoAnnotations.initMocks(this);
 
-        hubCreds = new HubCredentials(HUB_SCHEME, HUB_HOST, HUB_PORT, HUB_LOGIN_JSON, HUB_INSECURE);
+        hubCreds = new HubCredentials(HUB_SCHEME, HUB_HOST, HUB_PORT, HUB_LOGIN_JSON, HUB_INSECURE, HUB_API_TOKEN);
 
         phoneHomeParms = new PhoneHomeParameters(INTEGRATION_SOURCE, INTEGRATION_VENDOR);
 

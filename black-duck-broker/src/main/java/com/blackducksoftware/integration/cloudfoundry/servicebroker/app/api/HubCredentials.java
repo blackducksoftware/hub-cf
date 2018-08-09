@@ -46,12 +46,15 @@ public final class HubCredentials {
 
     private final boolean insecure;
 
+    private final String apiToken;
+
     public HubCredentials(
             String scheme,
             String host,
             int port,
             String loginInfo,
-            boolean insecure) {
+            boolean insecure,
+            String apiToken) {
         // HUB_SCHEME environment variable must exist
         this.scheme = Objects.requireNonNull(scheme, "HUB_SCHEME environment variable not provided");
 
@@ -71,6 +74,9 @@ public final class HubCredentials {
 
         // HUB_INSECURE environment variable will always exist
         this.insecure = insecure;
+
+        // HUB_API_TOKEN environment variable may not be present (null)
+        this.apiToken = apiToken;
 
         logger.debug(
                 "Using: scheme: " + scheme + "; host: " + host + "; port: " + port + "; username: " + getLoginInfo().getUsername()
@@ -110,5 +116,12 @@ public final class HubCredentials {
      */
     public boolean isInsecure() {
         return insecure;
+    }
+
+    /**
+     * @return the apiToken
+     */
+    public String getApiToken() {
+        return apiToken;
     }
 }

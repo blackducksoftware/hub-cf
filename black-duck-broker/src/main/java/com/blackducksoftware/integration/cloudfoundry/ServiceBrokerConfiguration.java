@@ -51,10 +51,10 @@ import com.blackducksoftware.integration.cloudfoundry.v2.model.Catalog;
 import com.blackducksoftware.integration.exception.EncryptionException;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfig;
 import com.blackducksoftware.integration.hub.configuration.HubServerConfigBuilder;
-import com.blackducksoftware.integration.hub.rest.CredentialsRestConnection;
 import com.blackducksoftware.integration.hub.service.HubServicesFactory;
 import com.blackducksoftware.integration.log.IntLogger;
 import com.blackducksoftware.integration.log.Slf4jIntLogger;
+import com.blackducksoftware.integration.rest.connection.RestConnection;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,8 +73,9 @@ public class ServiceBrokerConfiguration {
             @Value(value = "#{ @environment['HUB_HOST'] ?: '0' }") final String host,
             @Value(value = "#{ @environment['HUB_PORT'] ?: -1 }") final int port,
             @Value(value = "#{ @environment['HUB_LOGIN'] ?: '{}' }") final String loginInfo,
-            @Value(value = "#{ @environment['HUB_INSECURE'] ?: false }") final boolean insecure) {
-        return new HubCredentials(scheme, host, port, loginInfo, insecure);
+            @Value(value = "#{ @environment['HUB_INSECURE'] ?: false }") final boolean insecure,
+            @Value(value = "#{ @environment['HUB_API_TOKEN'] ?: '0' }") final String apiToken) {
+        return new HubCredentials(scheme, host, port, loginInfo, insecure, apiToken);
     }
 
     @Bean
@@ -92,12 +93,13 @@ public class ServiceBrokerConfiguration {
         hubServerConfigBuilder.setUsername(hubCredentials.getLoginInfo().getUsername());
         hubServerConfigBuilder.setPassword(hubCredentials.getLoginInfo().getPassword());
         hubServerConfigBuilder.setTrustCert(hubCredentials.isInsecure());
+        hubServerConfigBuilder.setApiToken(hubCredentials.getApiToken());
         hubServerConfigBuilder.setLogger(slf4jIntLogger);
         final HubServerConfig hubServerConfig = hubServerConfigBuilder.build();
 
-        final CredentialsRestConnection credentialsRestConnection = hubServerConfig.createCredentialsRestConnection(slf4jIntLogger);
+        final RestConnection restConnection = hubServerConfig.createRestConnection(slf4jIntLogger);
 
-        return new HubServicesFactory(credentialsRestConnection);
+        return new HubServicesFactory(restConnection);
     }
 
     @Bean

@@ -29,6 +29,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
@@ -58,7 +60,9 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
         // TODO jfisher Ensure environment variable values are legal (not null). Throw exception otherwise.
 
-        builder.inMemoryAuthentication().withUser(brokerUsername).password(brokerPassword).roles("USER");
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+        builder.inMemoryAuthentication().passwordEncoder(encoder).withUser(brokerUsername).password("{noop}" + brokerPassword).roles("USER");
     }
 
     @Override

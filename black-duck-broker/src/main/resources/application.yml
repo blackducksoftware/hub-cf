@@ -11,5 +11,28 @@ application:
     basicAuth:
       userEnvVblName: SECURITY_USER_NAME
       passEnvVblName: SECURITY_USER_PASSWORD
+  event-monitor-service:
+    polling-period-seconds: 5
+  dumper-service:
+    polling-period-seconds: 1800
+  scan-results-service:
+    polling-period-seconds: 1200
+cf:
+  baseUrl: https://api.bosh-lite.com
+  skip-ssl-validation: false
+  oauth2:
+    client:
+      id: Cloud Foundry
+      grantType: client_credentials
+      clientId: black-duck-broker
+      clientSecret: 'cf_pass'
+      accessTokenUri: https://uaa.bosh-lite.com/oauth/token
+      scope: cloud_controller.admin
+perceptor:
+  baseUrl: http://localhost
+  port: 3001
+logging:
+  level:
+    root: WARN
 plugin:
   version: ${version}

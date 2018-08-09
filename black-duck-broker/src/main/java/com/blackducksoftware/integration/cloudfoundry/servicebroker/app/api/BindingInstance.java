@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -39,6 +40,8 @@ public final class BindingInstance {
 
     private final String password;
 
+    private final UUID appGuid;
+
     private final String projectName;
 
     private final String codeLocationName;
@@ -51,13 +54,14 @@ public final class BindingInstance {
 
     private final String integrationVendor;
 
-    public BindingInstance(String scheme, String host, int port, String username, String password, String projectName, String codeLocationName,
+    public BindingInstance(String scheme, String host, int port, String username, String password, UUID appGuid, String projectName, String codeLocationName,
             boolean isInsecure, String pluginVersion, String integrationSource, String integrationVendor) {
         this.scheme = scheme;
         this.host = host;
         this.port = port;
         this.username = username;
         this.password = password;
+        this.appGuid = appGuid;
         this.projectName = projectName;
         this.codeLocationName = codeLocationName;
         this.isInsecure = isInsecure;
@@ -106,6 +110,13 @@ public final class BindingInstance {
      */
     public final String getProjectName() {
         return projectName;
+    }
+
+    /**
+     * @return the appGuid
+     */
+    public final UUID getAppGuid() {
+        return appGuid;
     }
 
     /**

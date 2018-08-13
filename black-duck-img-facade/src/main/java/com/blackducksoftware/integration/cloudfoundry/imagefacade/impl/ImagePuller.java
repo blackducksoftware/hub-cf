@@ -58,7 +58,7 @@ public class ImagePuller {
     public ListenableFuture<ImagePullerResult> pull(Image image) throws Exception {
         logger.trace("start pull of image for app: {}", image.asAppId());
 
-        Path location = Paths.get(dropletLocation, image.getPullSpec());
+        Path location = Paths.get(dropletLocation, image.getPullSpec() + ".tar");
         logger.trace("image pull, file location: {}", location);
 
         Status status = new Status(retries);

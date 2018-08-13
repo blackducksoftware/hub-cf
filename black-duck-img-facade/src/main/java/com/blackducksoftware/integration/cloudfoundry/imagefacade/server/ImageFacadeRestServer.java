@@ -62,6 +62,6 @@ public class ImageFacadeRestServer {
     public ResponseEntity<CheckImageResponse> checkImage(@Valid @RequestBody Image body) {
         logger.info("Entered POST check image");
         logger.trace("Checking pullSpec: {}", body);
-        return new ResponseEntity<>(new CheckImageResponse(body.getPullSpec(), imageFacadeService.checkImage(body).value()), HttpStatus.OK);
+        return new ResponseEntity<>(new CheckImageResponse(body.getPullSpec(), imageFacadeService.checkImage(body).ordinal()), HttpStatus.OK);
     }
 }

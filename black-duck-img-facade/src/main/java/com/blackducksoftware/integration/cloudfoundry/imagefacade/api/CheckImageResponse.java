@@ -21,10 +21,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class CheckImageResponse {
     private final String pullSpec;
 
-    private final String imageStatus;
+    private final int imageStatus;
 
     @JsonCreator
-    public CheckImageResponse(String pullSpec, String imageStatus) {
+    public CheckImageResponse(String pullSpec, int imageStatus) {
         this.pullSpec = pullSpec;
         this.imageStatus = imageStatus;
     }
@@ -35,7 +35,7 @@ public final class CheckImageResponse {
     }
 
     @JsonProperty(value = "ImageStatus")
-    public final String getImageStatus() {
+    public final int getImageStatus() {
         return imageStatus;
     }
 }

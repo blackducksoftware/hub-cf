@@ -1,0 +1,26 @@
+server:
+  port: 8891
+spring:
+  main:
+    banner-mode: 'OFF'
+  application:
+    name: black-duck-img-facade
+application:
+  realm: BlackDuckSoftware
+  dropletLocation: '/tmp/cf/droplets'
+  pullRetries: 3
+  pullTimeoutSeconds: 300
+cf:
+  baseUrl: https://api.bosh-lite.com
+  skip-ssl-validation: false
+  oauth2:
+    client:
+      id: Cloud Foundry
+      grantType: client_credentials
+      clientId: black-duck-broker
+      clientSecret: 'cf_pass'
+      accessTokenUri: https://uaa.bosh-lite.com/oauth/token
+      scope: cloud_controller.admin
+logging:
+  level:
+    root: WARN

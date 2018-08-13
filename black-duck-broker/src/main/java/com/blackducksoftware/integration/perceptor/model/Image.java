@@ -11,9 +11,6 @@
  */
 package com.blackducksoftware.integration.perceptor.model;
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -21,15 +18,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public final class Image {
-    @JsonProperty("DockerImage")
+    @JsonProperty("Repository")
     private String repository;
 
-    // @JsonProperty("Tags")
-    @JsonIgnore
-    private List<String> tags;
-
-    @JsonProperty("Name")
-    private String name;
+    @JsonProperty("Tag")
+    private String tag;
 
     @JsonProperty("Sha")
     private String sha;
@@ -46,20 +39,12 @@ public final class Image {
         this.repository = repository;
     }
 
-    public final List<String> getTags() {
-        return tags;
+    public final String getTag() {
+        return tag;
     }
 
-    public final void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    public final String getName() {
-        return name;
-    }
-
-    public final void setName(String name) {
-        this.name = name;
+    public final void setTag(String tag) {
+        this.tag = tag;
     }
 
     public final String getSha() {

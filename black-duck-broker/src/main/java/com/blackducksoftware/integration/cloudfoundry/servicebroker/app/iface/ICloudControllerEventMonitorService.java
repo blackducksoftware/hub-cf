@@ -17,7 +17,7 @@ import java.util.UUID;
  * @author fisherj
  *
  */
-public interface ICloudControllerEventMonitorService extends IControllerService {
+public interface ICloudControllerEventMonitorService {
     public boolean registerId(UUID appId);
 
     public boolean unregisterId(UUID appId);

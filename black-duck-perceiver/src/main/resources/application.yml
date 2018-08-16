@@ -25,8 +25,11 @@ cf:
       accessTokenUri: https://uaa.bosh-lite.com/oauth/token
       scope: cloud_controller.admin
 perceptor:
-  baseUrl: http://localhost
+  baseUrl: http://host.docker.internal
   port: 3001
 logging:
   level:
     root: WARN
+    com:
+      blackducksoftware:
+        integration: DEBUG

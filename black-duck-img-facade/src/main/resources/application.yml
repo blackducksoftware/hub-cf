@@ -1,5 +1,5 @@
 server:
-  port: 8891
+  port: 8893
 spring:
   main:
     banner-mode: 'OFF'
@@ -7,7 +7,7 @@ spring:
     name: black-duck-img-facade
 application:
   realm: BlackDuckSoftware
-  dropletLocation: '/tmp/cf/droplets'
+  dropletLocation: '/var/images'
   pullRetries: 3
   pullTimeoutSeconds: 300
 cf:
@@ -24,3 +24,6 @@ cf:
 logging:
   level:
     root: WARN
+    com:
+      blackducksoftware:
+        integration: DEBUG

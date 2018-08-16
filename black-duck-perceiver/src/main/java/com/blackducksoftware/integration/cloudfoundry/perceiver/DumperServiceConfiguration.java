@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.blackducksoftware.integration.cloudfoundry.perceiver.impl.BindingInstanceService;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.impl.ServiceInstanceService;
+import com.blackducksoftware.integration.cloudfoundry.v2.model.Catalog;
 
 /**
  * @author fisherj
@@ -30,6 +31,11 @@ public class DumperServiceConfiguration {
 
     @Bean
     public BindingInstanceService getBindingInstanceService() {
-        throw new IllegalStateException("Not yet implemented");
+        return new BindingInstanceService();
+    }
+
+    @Bean
+    public Catalog getCatalog() {
+        return new Catalog();
     }
 }

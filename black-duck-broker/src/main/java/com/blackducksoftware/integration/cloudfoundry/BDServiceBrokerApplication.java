@@ -21,17 +21,12 @@
  */
 package com.blackducksoftware.integration.cloudfoundry;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
-
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.ICloudControllerEventMonitorService;
 
 @SpringBootApplication
 @EnableAsync
@@ -39,21 +34,8 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.IC
 @EnableOAuth2Client
 public class BDServiceBrokerApplication {
 
-    private ICloudControllerEventMonitorService cloudControllerEventMonitorHandler;
-
-    @Autowired
-    public BDServiceBrokerApplication(ICloudControllerEventMonitorService cloudControllerEventMonitorHandler) {
-        this.cloudControllerEventMonitorHandler = cloudControllerEventMonitorHandler;
-    }
-
     public static void main(String[] args) {
         @SuppressWarnings("unused")
         ConfigurableApplicationContext ctx = SpringApplication.run(BDServiceBrokerApplication.class, args);
-    }
-
-    @EventListener
-    public void onApplicationEvent(ContextRefreshedEvent appEvent) {
-        // Kickoff background threads
-        cloudControllerEventMonitorHandler.run();
     }
 }

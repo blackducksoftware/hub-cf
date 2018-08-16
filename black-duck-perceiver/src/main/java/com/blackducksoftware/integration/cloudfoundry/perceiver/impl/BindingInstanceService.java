@@ -24,10 +24,10 @@ import com.blackducksoftware.integration.cloudfoundry.perceiver.api.HubProjectPa
  */
 public class BindingInstanceService {
     public Optional<Map<String, UUID>> toAppIdByBindingId() {
-        throw new IllegalStateException("Not yet implemented");
+        return null;
     }
 
     public boolean create(String bindingId, String resourceId, Optional<BindResource> bindResource, Optional<HubProjectParameters> hubProjParams) {
-        throw new IllegalStateException("Not yet implemented");
+        return false;
     }
 }

@@ -20,10 +20,10 @@ import java.util.Set;
 public class ServiceInstanceService {
 
     public Set<String> getServiceInstances() {
-        throw new IllegalStateException("Not yet implemented");
+        return null;
     }
 
     public boolean create(String id) {
-        throw new IllegalStateException("Not yet implemented");
+        return false;
     }
 }

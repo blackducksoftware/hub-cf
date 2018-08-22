@@ -51,7 +51,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.BindResource;
@@ -67,7 +67,7 @@ import reactor.core.publisher.Mono;
  * @author fisherj
  *
  */
-@Component
+@Service
 public class DumperService {
     private static final Logger logger = LoggerFactory.getLogger(DumperService.class);
 
@@ -79,25 +79,27 @@ public class DumperService {
 
     private final BindingInstanceService bindingInstanceService;
 
-    private final Catalog brokerCatalog;
+    private final CatalogService catalogService;
 
     private final String perceptorBaseUrlString;
 
     private final int perceptorPort;
+
+    private Catalog cacheCatalog = null;
 
     @Autowired
     public DumperService(ReactorCloudFoundryClient reactorCloudFoundryClient,
             RestTemplate perceptorRestTemplate,
             ServiceInstanceService serviceInstanceService,
             BindingInstanceService bindingInstanceService,
-            Catalog brokerCatalog,
+            CatalogService catalogService,
             @Value("${perceptor.baseUrl}") String perceptorBaseUrlString,
             @Value("${perceptor.port}") int perceptorPort) {
         this.reactorCloudFoundryClient = reactorCloudFoundryClient;
         this.perceptorRestTemplate = perceptorRestTemplate;
         this.serviceInstanceService = serviceInstanceService;
         this.bindingInstanceService = bindingInstanceService;
-        this.brokerCatalog = brokerCatalog;
+        this.catalogService = catalogService;
         this.perceptorBaseUrlString = perceptorBaseUrlString;
         this.perceptorPort = perceptorPort;
     }
@@ -115,7 +117,11 @@ public class DumperService {
         logger.debug("Retrieved the following binding id/app ids from broker: {}", brokerAppIdByBindingId);
 
         // Get the Service Instances from the CF Cloud Controller whose Plan Id matches ours
-        String uniquePlanId = brokerCatalog.findFirstServiceByName("black-duck-scan")
+        String uniquePlanId = getCatalog(false)
+                .orElseThrow(() -> {
+                    throw new IllegalStateException("Could not retrieve Broker Catalog");
+                })
+                .findFirstServiceByName("black-duck-scan")
                 .orElseThrow(() -> {
                     throw new IllegalStateException("Broker Catalog does not contain entry for service: black-duck-scan");
                 })
@@ -263,5 +269,15 @@ public class DumperService {
         } else {
             logger.debug("No Pod data to send to perceptor");
         }
+    }
+
+    private Optional<Catalog> getCatalog(boolean forceUpdate) {
+        // If catalog in cache not forcing update, use cache value
+        if (!forceUpdate && null != cacheCatalog) {
+            logger.info("Getting catalog from cache");
+            return Optional.of(cacheCatalog);
+        }
+
+        return Optional.ofNullable(catalogService.getCatalog());
     }
 }

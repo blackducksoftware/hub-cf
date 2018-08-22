@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IControllerService;
@@ -29,6 +30,7 @@ import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IControlle
  */
 @SpringBootApplication
 @EnableAsync
+@EnableScheduling
 @EnableOAuth2Client
 public class BDServiceBrokerPerceiver {
     private static final Logger logger = LoggerFactory.getLogger(BDServiceBrokerPerceiver.class);

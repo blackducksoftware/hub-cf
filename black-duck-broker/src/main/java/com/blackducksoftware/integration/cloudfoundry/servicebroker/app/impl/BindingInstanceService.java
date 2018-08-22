@@ -98,7 +98,12 @@ public class BindingInstanceService {
         return serviceInstanceService.isExists(serviceId) ? bindingInstances.containsKey(bindingId) : false;
     }
 
+    @Deprecated
     public Optional<Map<String, UUID>> toAppIdByBindingId() {
         return Optional.ofNullable(bindingInstances.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().getAppGuid())));
+    }
+
+    public Map<String, BindingInstance> getBindingInstancesById() {
+        return bindingInstances;
     }
 }

@@ -9,16 +9,29 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  */
-package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface;
+package com.blackducksoftware.integration.cloudfoundry.v2.model;
 
-import java.util.UUID;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author fisherj
  *
  */
-public interface ICloudControllerEventMonitorService {
-    public boolean registerId(UUID appId);
+public final class PlanMetadata {
+    @JsonProperty("bullets")
+    private List<String> bullets;
 
-    public boolean unregisterId(UUID appId);
+    public PlanMetadata() {
+
+    }
+
+    public final List<String> getBullets() {
+        return bullets;
+    }
+
+    public final void setBullets(List<String> bullets) {
+        this.bullets = bullets;
+    }
 }

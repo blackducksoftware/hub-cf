@@ -77,7 +77,10 @@ public class BindingInstanceService {
                     creds.getLoginInfo().getPassword(), appGuid.get(), projName, codeLocName, creds.isInsecure(), pluginVersion,
                     (phoneHomeParms.getSource().orElse(PhoneHomeSource.ALLIANCES)).getName(),
                     (phoneHomeParms.getVendor().orElse(ThirdPartyName.OSCF_SCANNER)).getName());
-            ccEventMonitorHandler.registerId(appGuid.get());
+            if (!ccEventMonitorHandler.registerId(appGuid.get())) {
+                logger.warn("appId registration with event monitor failed for {}, not monitoring for app events", appGuid.get());
+            }
+            // TODO fisherj Do something with return code from registerId other than log
             bindingInstances.put(bindingId, bInst);
         } else {
             logger.warn("Could not creating binding for {}. appGuid missing", bindingId);
@@ -95,7 +98,12 @@ public class BindingInstanceService {
         return serviceInstanceService.isExists(serviceId) ? bindingInstances.containsKey(bindingId) : false;
     }
 
+    @Deprecated
     public Optional<Map<String, UUID>> toAppIdByBindingId() {
         return Optional.ofNullable(bindingInstances.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().getAppGuid())));
+    }
+
+    public Map<String, BindingInstance> getBindingInstancesById() {
+        return bindingInstances;
     }
 }

@@ -9,7 +9,7 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  */
-package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface;
+package com.blackducksoftware.integration.cloudfoundry.perceiver.iface;
 
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ import java.util.UUID;
  * @author fisherj
  *
  */
-public interface ICloudControllerEventMonitorService {
+public interface IEventMonitorService {
     public boolean registerId(UUID appId);
 
     public boolean unregisterId(UUID appId);

@@ -10,7 +10,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 sourceCompatibility = 1.8
-mainClassName = 'com.blackducksoftware.integration.cloudfoundry.imagefacade.BDServiceBrokerImageFacade'
+mainClassName = 'com.blackducksoftware.integration.cloudfoundry.perceiver.BDServiceBrokerPerceiver'
 
 // In this section you declare where to find the dependencies of your project
 repositories {

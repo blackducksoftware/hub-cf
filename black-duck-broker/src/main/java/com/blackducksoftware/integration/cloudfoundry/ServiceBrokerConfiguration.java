@@ -27,17 +27,12 @@ import java.net.URL;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.cloudfoundry.reactor.DefaultConnectionContext;
-import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
-import org.cloudfoundry.reactor.tokenprovider.ClientCredentialsGrantTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -149,34 +144,7 @@ public class ServiceBrokerConfiguration {
     }
 
     @Bean
-    @ConfigurationProperties("cf.oauth2.client")
-    protected ClientCredentialsResourceDetails oAuthDetails() {
-        return new ClientCredentialsResourceDetails();
-    }
-
-    @Bean
-    public RestTemplate perceptorRestTemplate() {
+    public RestTemplate perceiverRestTemplate() {
         return new RestTemplate(clientHttpRequestFactory());
-    }
-
-    @Bean
-    public ReactorCloudFoundryClient reactorCloudFoundryClient(
-            @Value("${cf.baseUrl}") String baseUrlString,
-            @Value("${cf.skip-ssl-validation}") boolean insecure,
-            ClientCredentialsResourceDetails oauthDetails) throws MalformedURLException {
-        URL baseUrl = new URL(baseUrlString);
-        DefaultConnectionContext.Builder conxCtxBuilder = DefaultConnectionContext.builder()
-                .apiHost(baseUrl.getHost())
-                .port(baseUrl.getPort())
-                .skipSslValidation(insecure);
-
-        ClientCredentialsGrantTokenProvider.Builder oauthTokenProviderBuilder = ClientCredentialsGrantTokenProvider.builder()
-                .clientId(oauthDetails.getClientId())
-                .clientSecret(oauthDetails.getClientSecret());
-
-        return ReactorCloudFoundryClient.builder()
-                .connectionContext(conxCtxBuilder.build())
-                .tokenProvider(oauthTokenProviderBuilder.build())
-                .build();
     }
 }

@@ -9,7 +9,7 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  */
-package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl;
+package com.blackducksoftware.integration.cloudfoundry.perceiver.impl;
 
 import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.slf4j.Logger;

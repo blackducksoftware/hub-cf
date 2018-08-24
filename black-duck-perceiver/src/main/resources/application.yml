@@ -1,15 +1,18 @@
 server:
-  port: 8893
+  port: 8891
 spring:
   main:
     banner-mode: 'OFF'
   application:
-    name: black-duck-img-facade
+    name: black-duck-perceiver
 application:
   realm: BlackDuckSoftware
-  dropletLocation: '/var/images'
-  pullRetries: 3
-  pullTimeoutSeconds: 300
+  event-monitor-service:
+    polling-period-seconds: 5
+  dumper-service:
+    polling-period-seconds: 1800
+  scan-results-service:
+    polling-period-seconds: 1200
 cf:
   baseUrl: https://api.bosh-lite.com
   skip-ssl-validation: false
@@ -21,6 +24,15 @@ cf:
       clientSecret: 'cf_pass'
       accessTokenUri: https://uaa.bosh-lite.com/oauth/token
       scope: cloud_controller.admin
+perceptor:
+  baseUrl: http://localhost # http://host.docker.internal
+  port: 3001
+broker:
+  baseUrl: http://localhost # http://host.docker.internal
+  port: 8890
+  basicAuth:
+    user: cf_user
+    pass: cf_pass
 logging:
   level:
     root: WARN

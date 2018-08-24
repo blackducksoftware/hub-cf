@@ -9,16 +9,21 @@
  * accordance with the terms of the license agreement you entered into
  * with Black Duck Software.
  */
-package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface;
+package com.blackducksoftware.integration.cloudfoundry.perceiver;
 
-import java.util.UUID;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 /**
  * @author fisherj
  *
  */
-public interface ICloudControllerEventMonitorService {
-    public boolean registerId(UUID appId);
+public class PerceiverTestFactory {
+    @Factory
+    @Test
+    public Object[] tests() {
+        return new Object[] {
 
-    public boolean unregisterId(UUID appId);
+        };
+    }
 }

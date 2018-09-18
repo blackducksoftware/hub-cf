@@ -64,7 +64,7 @@ public class ServiceBrokerConfiguration {
 
     @Bean
     public HubCredentials hubCredentials(
-            @Value(value = "#{ @environment['HUB_SCHEME'] ?: '0' }") final String scheme,
+            @Value(value = "#{ @environment['HUB_SCHEME'] ?: 'https' }") final String scheme,
             @Value(value = "#{ @environment['HUB_HOST'] ?: '0' }") final String host,
             @Value(value = "#{ @environment['HUB_PORT'] ?: -1 }") final int port,
             @Value(value = "#{ @environment['HUB_LOGIN'] ?: '{}' }") final String loginInfo,

@@ -13,7 +13,6 @@ package com.blackducksoftware.integration.cloudfoundry.imagefacade;
 
 import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,21 +28,19 @@ import com.blackducksoftware.integration.cloudfoundry.imagefacade.model.ImageMod
 @Configuration
 @Import(CloudControllerConfiguration.class)
 public class ImageFacadeConfiguration {
-    @Value("${application.dropletLocation}")
-    private String dropletLocation;
+    private final ReactorCloudFoundryClient cloudFoundryClient;
 
-    @Value("${application.pullRetries}")
-    private int retries;
-
-    @Value("${application.pullTimeoutSeconds}")
-    private int pullTimeoutSeconds;
+    private final ApplicationProperties applicationProperties;
 
     @Autowired
-    ReactorCloudFoundryClient cloudFoundryClient;
+    public ImageFacadeConfiguration(ReactorCloudFoundryClient cloudFoundryClient, ApplicationProperties applicationProperties) {
+        this.cloudFoundryClient = cloudFoundryClient;
+        this.applicationProperties = applicationProperties;
+    }
 
     @Bean
     public ImageFacadeService imageFacadeService() {
-        return new ImageFacadeService(imageModel(), dropletLocation);
+        return new ImageFacadeService(imageModel(), applicationProperties.getDropletLocation());
     }
 
     @Bean
@@ -53,6 +50,7 @@ public class ImageFacadeConfiguration {
 
     @Bean
     public ImagePuller imagePuller() {
-        return new ImagePuller(cloudFoundryClient, dropletLocation, retries, pullTimeoutSeconds);
+        return new ImagePuller(cloudFoundryClient, applicationProperties.getDropletLocation(), applicationProperties.getPullRetries(),
+                applicationProperties.getPullTimeoutSeconds());
     }
 }

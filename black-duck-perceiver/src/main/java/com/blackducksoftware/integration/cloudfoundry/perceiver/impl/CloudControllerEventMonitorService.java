@@ -32,7 +32,6 @@ import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -42,6 +41,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.blackducksoftware.integration.cloudfoundry.perceiver.ApplicationProperties;
+import com.blackducksoftware.integration.cloudfoundry.perceiver.PerceptorProperties;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.CfResourceData;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IControllerService;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IEventMonitorService;
@@ -59,15 +60,13 @@ import reactor.core.publisher.Mono;
 public class CloudControllerEventMonitorService implements IEventMonitorService, IControllerService {
     private static final Logger logger = LoggerFactory.getLogger(CloudControllerEventMonitorService.class);
 
-    private final long pollPeriodSeconds;
+    private final ApplicationProperties applicationProperties;
 
     private final ReactorCloudFoundryClient reactorCloudFoundryClient;
 
     private final RestTemplate perceptorRestTemplate;
 
-    private final String perceptorBaseUrlString;
-
-    private final int perceptorPort;
+    private final PerceptorProperties perceptorProperties;
 
     private boolean exit = false;
 
@@ -76,16 +75,14 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
     private Instant timeLastEventCheck;
 
     @Autowired
-    public CloudControllerEventMonitorService(@Value("${application.event-monitor-service.polling-period-seconds}") long pollPeriodSeconds,
+    public CloudControllerEventMonitorService(ApplicationProperties applicationProperties,
             ReactorCloudFoundryClient reactorCloudFoundryClient,
             RestTemplate perceptorRestTemplate,
-            @Value("${perceptor.baseUrl}") String perceptorBaseUrlString,
-            @Value("${perceptor.port}") int perceptorPort) {
-        this.pollPeriodSeconds = pollPeriodSeconds;
+            PerceptorProperties perceptorProperties) {
+        this.applicationProperties = applicationProperties;
         this.reactorCloudFoundryClient = reactorCloudFoundryClient;
         this.perceptorRestTemplate = perceptorRestTemplate;
-        this.perceptorBaseUrlString = perceptorBaseUrlString;
-        this.perceptorPort = perceptorPort;
+        this.perceptorProperties = perceptorProperties;
 
         timeLastEventCheck = Instant.now(); // Get the current time
     }
@@ -143,7 +140,7 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
 
             // Sleep
             try {
-                Thread.sleep(pollPeriodSeconds * 1000L);
+                Thread.sleep(applicationProperties.getEventMonitorService().getPollingPeriodSeconds() * 1000L);
             } catch (InterruptedException e) {
                 // TODO jfisher Auto-generated catch block
                 throw new RuntimeException(e);
@@ -175,11 +172,11 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
         logger.debug("Sending Pod data to perceptor: {}", pod);
         URI perceptorUri;
         try {
-            URI perceptorBaseUri = new URI(perceptorBaseUrlString);
+            URI perceptorBaseUri = new URI(perceptorProperties.getBaseUrl());
             perceptorUri = new URI(perceptorBaseUri.getScheme(),
                     null,
                     perceptorBaseUri.getHost(),
-                    perceptorPort,
+                    perceptorProperties.getPort(),
                     "/pod",
                     null, null);
         } catch (URISyntaxException e) {

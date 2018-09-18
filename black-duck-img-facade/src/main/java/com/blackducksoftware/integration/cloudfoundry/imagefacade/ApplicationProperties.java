@@ -11,7 +11,11 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.imagefacade;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.DurationUnit;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -27,7 +31,8 @@ public class ApplicationProperties {
 
     private int pullRetries;
 
-    private int pullTimeoutSeconds;
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration pullTimeout;
 
     public String getRealm() {
         return realm;
@@ -53,11 +58,11 @@ public class ApplicationProperties {
         this.pullRetries = pullRetries;
     }
 
-    public int getPullTimeoutSeconds() {
-        return pullTimeoutSeconds;
+    public Duration getPullTimeout() {
+        return pullTimeout;
     }
 
-    public void setPullTimeoutSeconds(int pullTimeoutSeconds) {
-        this.pullTimeoutSeconds = pullTimeoutSeconds;
+    public void setPullTimeout(Duration pullTimeout) {
+        this.pullTimeout = pullTimeout;
     }
 }

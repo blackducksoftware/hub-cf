@@ -11,7 +11,11 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.perceiver;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.DurationUnit;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,11 +27,11 @@ import org.springframework.stereotype.Component;
 public class ApplicationProperties {
     private String realm;
 
-    private ServiceProperties eventMonitorService;
+    private ServiceProperties eventMonitorService = new ServiceProperties();
 
-    private ServiceProperties dumperService;
+    private ServiceProperties dumperService = new ServiceProperties();
 
-    private ServiceProperties scanResultsService;
+    private ServiceProperties scanResultsService = new ServiceProperties();
 
     public String getRealm() {
         return realm;
@@ -62,14 +66,15 @@ public class ApplicationProperties {
     }
 
     public static class ServiceProperties {
-        private int pollingPeriodSeconds;
+        @DurationUnit(ChronoUnit.SECONDS)
+        private Duration pollingPeriod;
 
-        public int getPollingPeriodSeconds() {
-            return pollingPeriodSeconds;
+        public Duration getPollingPeriod() {
+            return pollingPeriod;
         }
 
-        public void setPollingPeriodSeconds(int pollingPeriodSeconds) {
-            this.pollingPeriodSeconds = pollingPeriodSeconds;
+        public void setPollingPeriod(Duration pollingPeriod) {
+            this.pollingPeriod = pollingPeriod;
         }
     }
 }

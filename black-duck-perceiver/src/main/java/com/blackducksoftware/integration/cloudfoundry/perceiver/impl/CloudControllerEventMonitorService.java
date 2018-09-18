@@ -140,7 +140,7 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
 
             // Sleep
             try {
-                Thread.sleep(applicationProperties.getEventMonitorService().getPollingPeriodSeconds() * 1000L);
+                Thread.sleep(applicationProperties.getEventMonitorService().getPollingPeriod().toMillis());
             } catch (InterruptedException e) {
                 // TODO jfisher Auto-generated catch block
                 throw new RuntimeException(e);

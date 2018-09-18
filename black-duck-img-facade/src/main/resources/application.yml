@@ -9,7 +9,7 @@ application:
   realm: ${APPLICATION_REALM}
   dropletLocation: ${APPLICATION_DROPLETLOCATION}
   pullRetries: ${APPLICATION_PULLRETRIES}
-  pullTimeoutSeconds: ${APPLICATION_PULLTIMEOUTSECONDS}
+  pullTimeout: ${APPLICATION_PULLTIMEOUT}
 cf:
   baseUrl: ${CF_BASEURL}
   skipSslValidation: ${CF_SKIPSSLVALIDATION}

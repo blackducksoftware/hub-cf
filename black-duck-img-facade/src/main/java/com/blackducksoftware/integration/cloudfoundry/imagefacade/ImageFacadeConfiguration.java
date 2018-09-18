@@ -51,6 +51,6 @@ public class ImageFacadeConfiguration {
     @Bean
     public ImagePuller imagePuller() {
         return new ImagePuller(cloudFoundryClient, applicationProperties.getDropletLocation(), applicationProperties.getPullRetries(),
-                applicationProperties.getPullTimeoutSeconds());
+                applicationProperties.getPullTimeout());
     }
 }

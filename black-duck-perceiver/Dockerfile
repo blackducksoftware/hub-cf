@@ -1,12 +1,11 @@
-FROM centos:centos7
+FROM openjdk:8-jdk-alpine
 ARG VERSION
 
-RUN yum install -y java-1.8.0-openjdk && yum clean all
+# RUN yum install -y java-1.8.0-openjdk && yum clean all
 
-ENV JAVA_HOME /etc/alternatives/jre
+# ENV JAVA_HOME /etc/alternatives/jre
 
-COPY ./perceiver.sh /perceiver.sh
-COPY ./build/libs/black-duck-perceiver-${VERSION}.jar /opt/perceiver/perceiver.jar
-RUN chmod 755 /perceiver.sh
+COPY ./build/distributions/black-duck-perceiver-boot-${VERSION}.tar /black-duck-perceiver-boot-${VERSION}.tar
+RUN mkdir -p /blackducksoftware/perceiver && tar xvf /black-duck-perceiver-boot-${VERSION}.tar -C /blackducksoftware/perceiver --strip-components=1 && rm /black-duck-perceiver-boot-${VERSION}.tar
 
-CMD ["/perceiver.sh"]
+CMD ["/blackducksoftware/perceiver/bin/black-duck-perceiver"]

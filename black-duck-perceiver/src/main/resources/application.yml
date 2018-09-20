@@ -26,10 +26,10 @@ cf:
       scope: ${CF_OAUTH2_CLIENT_SCOPE}
 perceptor:
   baseUrl: ${PERCEPTOR_BASEURL}
-  port: ${PERCEPTOR_PORT}
+  port: ${PERCEPTOR_PORT:-1}
 broker:
   baseUrl: ${BROKER_BASEURL}
-  port: ${BROKER_PORT}
+  port: ${BROKER_PORT:-1}
   basicAuth:
     userEnvVblName: SECURITY_USER_NAME
     passEnvVblName: SECURITY_USER_PASSWORD

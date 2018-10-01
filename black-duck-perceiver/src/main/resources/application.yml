@@ -1,41 +1,43 @@
 server:
-  port: 8891
+  port: ${SERVER_PORT:8891}
 spring:
   main:
     banner-mode: 'OFF'
   application:
     name: black-duck-perceiver
 application:
-  realm: BlackDuckSoftware
-  event-monitor-service:
-    polling-period-seconds: 5
-  dumper-service:
-    polling-period-seconds: 1800
-  scan-results-service:
-    polling-period-seconds: 1200
+  realm: ${APPLICATION_REALM}
+  eventMonitorService:
+    pollingPeriod: ${APPLICATION_EVENTMONITORSERVICE_POLLINGPERIOD}
+  dumperService:
+    pollingPeriod: ${APPLICATION_DUMPERSERVICE_POLLINGPERIOD}
+  scanResultsService:
+    pollingPeriod: ${APPLICATION_SCANRESULTSSERVICE_POLLINGPERIOD}
 cf:
-  baseUrl: https://api.bosh-lite.com
-  skip-ssl-validation: false
+  baseUrl: ${CF_BASEURL}
+  skipSslValidation: ${CF_SKIPSSLVALIDATION}
   oauth2:
     client:
-      id: Cloud Foundry
-      grantType: client_credentials
-      clientId: black-duck-broker
-      clientSecret: 'cf_pass'
-      accessTokenUri: https://uaa.bosh-lite.com/oauth/token
-      scope: cloud_controller.admin
+      id: ${CF_OAUTH2_CLIENT_ID}
+      grantType: ${CF_OAUTH2_CLIENT_GRANTTYPE}
+      clientId: ${CF_OAUTH2_CLIENT_CLIENTID}
+      clientSecret: ${CF_OAUTH2_CLIENT_CLIENTSECRET}
+      accessTokenUri: ${CF_OAUTH2_CLIENT_ACCESSTOKENURI}
+      scope: ${CF_OAUTH2_CLIENT_SCOPE}
 perceptor:
-  baseUrl: http://localhost # http://host.docker.internal
-  port: 3001
+  baseUrl: ${PERCEPTOR_BASEURL}
+  port: ${PERCEPTOR_PORT:-1}
 broker:
-  baseUrl: http://localhost # http://host.docker.internal
-  port: 8890
+  baseUrl: ${BROKER_BASEURL}
+  port: ${BROKER_PORT:-1}
   basicAuth:
-    user: cf_user
-    pass: cf_pass
+    userEnvVblName: SECURITY_USER_NAME
+    passEnvVblName: SECURITY_USER_PASSWORD
 logging:
   level:
     root: WARN
     com:
       blackducksoftware:
-        integration: DEBUG
+        integration:
+          cloudfoundry:
+            perceiver: ${LOGGING_LEVEL_COM_BLACKDUCKSOFTWARE_INTEGRATION_CLOUDFOUNDRY_PERCEIVER:WARN}

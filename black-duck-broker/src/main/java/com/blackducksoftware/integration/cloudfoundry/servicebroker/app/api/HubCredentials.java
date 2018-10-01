@@ -36,6 +36,7 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.json.JsonUti
 public final class HubCredentials {
     private final Logger logger = LoggerFactory.getLogger(HubCredentials.class);
 
+    @Deprecated
     private final String scheme;
 
     private final String host;

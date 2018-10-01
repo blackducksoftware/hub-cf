@@ -1,12 +1,7 @@
-FROM centos:centos7
+FROM openjdk:8-jdk-alpine
 ARG VERSION
 
-RUN yum install -y java-1.8.0-openjdk && yum clean all
+COPY ./build/distributions/black-duck-img-facade-boot-${VERSION}.tar /black-duck-img-facade-boot-${VERSION}.tar
+RUN mkdir -p /blackducksoftware/image-facade && tar xvf /black-duck-img-facade-boot-${VERSION}.tar -C /blackducksoftware/image-facade --strip-components=1 && rm /black-duck-img-facade-boot-${VERSION}.tar
 
-ENV JAVA_HOME /etc/alternatives/jre
-
-COPY ./image-facade.sh /image-facade.sh
-COPY ./build/libs/black-duck-img-facade-${VERSION}.jar /opt/image-facade/image-facade.jar
-RUN chmod 755 /image-facade.sh
-
-CMD ["/image-facade.sh"]
+CMD ["/blackducksoftware/image-facade/bin/black-duck-img-facade"]

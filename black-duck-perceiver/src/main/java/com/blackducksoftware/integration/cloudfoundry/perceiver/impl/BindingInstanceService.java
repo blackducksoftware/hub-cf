@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,8 +43,8 @@ public class BindingInstanceService {
     private final int brokerPort;
 
     public BindingInstanceService(RestTemplate restTemplate,
-            @Value("${broker.baseUrl}") String brokerBaseUrlString,
-            @Value("${broker.port") int brokerPort) {
+            String brokerBaseUrlString,
+            int brokerPort) {
         this.restTemplate = restTemplate;
         this.brokerBaseUrlString = brokerBaseUrlString;
         this.brokerPort = brokerPort;

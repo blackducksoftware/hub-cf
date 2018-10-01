@@ -1,29 +1,31 @@
 server:
-  port: 8893
+  port: ${SERVER_PORT:8893}
 spring:
   main:
     banner-mode: 'OFF'
   application:
     name: black-duck-img-facade
 application:
-  realm: BlackDuckSoftware
-  dropletLocation: '/var/images'
-  pullRetries: 3
-  pullTimeoutSeconds: 300
+  realm: ${APPLICATION_REALM}
+  dropletLocation: ${APPLICATION_DROPLETLOCATION}
+  pullRetries: ${APPLICATION_PULLRETRIES}
+  pullTimeout: ${APPLICATION_PULLTIMEOUT}
 cf:
-  baseUrl: https://api.bosh-lite.com
-  skip-ssl-validation: false
+  baseUrl: ${CF_BASEURL}
+  skipSslValidation: ${CF_SKIPSSLVALIDATION}
   oauth2:
     client:
-      id: Cloud Foundry
-      grantType: client_credentials
-      clientId: black-duck-broker
-      clientSecret: 'cf_pass'
-      accessTokenUri: https://uaa.bosh-lite.com/oauth/token
-      scope: cloud_controller.admin
+      id: ${CF_OAUTH2_CLIENT_ID}
+      grantType: ${CF_OAUTH2_CLIENT_GRANTTYPE}
+      clientId: ${CF_OAUTH2_CLIENT_CLIENTID}
+      clientSecret: ${CF_OAUTH2_CLIENT_CLIENTSECRET}
+      accessTokenUri: ${CF_OAUTH2_CLIENT_ACCESSTOKENURI}
+      scope: ${CF_OAUTH2_CLIENT_SCOPE}
 logging:
   level:
     root: WARN
     com:
       blackducksoftware:
-        integration: DEBUG
+        integration: 
+          cloudfoundry:
+            imagefacade: ${LOGGING_LEVEL_COM_BLACKDUCKSOFTWARE_INTEGRATION_CLOUDFOUNDRY_IMAGEFACADE:WARN}

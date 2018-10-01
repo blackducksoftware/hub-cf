@@ -35,8 +35,8 @@ public class ScanResultsService {
         this.reactorCloudFoundryClient = reactorCloudFoundryClient;
     }
 
-    @Scheduled(fixedRateString = "#{${application.scan-results-service.polling-period-seconds} * 1000}")
-    public void HandleScanResults() {
+    @Scheduled(fixedRateString = "#{applicationProperties.scanResultsService.pollingPeriod}")
+    public void execute() {
         logger.debug("Starting query perceptor for scan results");
     }
 }

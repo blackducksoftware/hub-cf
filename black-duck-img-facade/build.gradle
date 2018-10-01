@@ -1,5 +1,4 @@
 plugins {
-  id 'java'
   id 'application'
   id 'eclipse-wtp'
   id 'jacoco'
@@ -8,6 +7,12 @@ plugins {
 
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+
+ext {
+  dkrLabelCommit = project.hasProperty('dkrLabelCommit') ? dkrLabelCommit : '--empty--'
+  dkrLabelDate = project.hasProperty('dkrLabelDate') ? dkrLabelDate : '--empty--'
+  dkrLabelVersion = project.hasProperty('dkrLabelVersion') ? dkrLabelVersion : version
+}
 
 sourceCompatibility = 1.8
 mainClassName = 'com.blackducksoftware.integration.cloudfoundry.imagefacade.BDServiceBrokerImageFacade'
@@ -18,16 +23,11 @@ repositories {
 }
 
 dependencies {
-  compile('org.springframework.boot:spring-boot-starter-web') {
-    exclude group: 'org.apache.tomcat', module: 'tomcat-annotations-api'
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-el'
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core'
-    exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-websocket'
-  }
-  compile('org.apache.tomcat:tomcat-annotations-api:8.5.32') // Update version based on Co-Pilot report
-  compile('org.apache.tomcat.embed:tomcat-embed-el:8.5.32') // Update version based on Co-Pilot report
-  compile('org.apache.tomcat.embed:tomcat-embed-core:8.5.32') // Update version based on Co-Pilot report
-  compile('org.apache.tomcat.embed:tomcat-embed-websocket:8.5.32') // Update version based on Co-Pilot report
+  compile('org.springframework.boot:spring-boot-starter-web') 
+//  compile('org.apache.tomcat:tomcat-annotations-api:8.5.32') // Update version based on Co-Pilot report
+//  compile('org.apache.tomcat.embed:tomcat-embed-el:8.5.32') // Update version based on Co-Pilot report
+//  compile('org.apache.tomcat.embed:tomcat-embed-core:8.5.32') // Update version based on Co-Pilot report
+//  compile('org.apache.tomcat.embed:tomcat-embed-websocket:8.5.32') // Update version based on Co-Pilot report
   compile('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.0.1.RELEASE') {
     exclude group: 'org.springframework.security.oauth', module: 'spring-security-oauth2'
   }
@@ -52,4 +52,45 @@ test{
 
 jacocoTestReport {
   reports { xml.enabled = true }
+}
+
+def dockerResourcesDir = "${projectDir}"
+
+//task dockerClean{
+//  delete fileTree("${dockerResourcesDir}") {
+//    include '**/*.jar'
+//  }
+//}
+
+//task dockerStage(dependsOn: assemble){
+//  inputs.files buildFatJar
+
+//  outputs.dir "${dockerResourcesDir}"
+
+//  doLast{
+//    copy {
+//      into "${dockerResourcesDir}"
+//      from buildFatJar
+//      eachFile { println it.name + " copied to ${dockerResourcesDir}"}
+//    }
+//  }
+//}
+
+task dockerBuild(type: Exec, dependsOn: assemble) {
+  group 'Publishing'
+  description 'Generate a docker image'
+ 
+  // Convert any '-' to '_' so pivotal can run 'docker load' correctly
+  def tagversion = "${version}"
+  tagversion = tagversion.replaceAll(/\-/, '_')
+  
+  executable = 'docker'
+  args = ['build',
+          '--pull',
+          "--build-arg=version=${version}",
+          "--build-arg=LASTCOMMIT=${dkrLabelCommit}",
+          "--build-arg=BUILDTIME=${dkrLabelDate}",
+          "--build-arg=VERSION=${dkrLabelVersion}",
+          "${dockerResourcesDir}",
+          "--tag=blackducksoftware/image_facade_cf:${tagversion}"]
 }

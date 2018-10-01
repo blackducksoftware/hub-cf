@@ -44,7 +44,6 @@ import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -54,6 +53,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.blackducksoftware.integration.cloudfoundry.perceiver.PerceptorProperties;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.BindResource;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.CfResourceData;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.HubProjectParameters;
@@ -81,9 +81,7 @@ public class DumperService {
 
     private final CatalogService catalogService;
 
-    private final String perceptorBaseUrlString;
-
-    private final int perceptorPort;
+    private final PerceptorProperties perceptorProperties;
 
     private Catalog cacheCatalog = null;
 
@@ -93,19 +91,17 @@ public class DumperService {
             ServiceInstanceService serviceInstanceService,
             BindingInstanceService bindingInstanceService,
             CatalogService catalogService,
-            @Value("${perceptor.baseUrl}") String perceptorBaseUrlString,
-            @Value("${perceptor.port}") int perceptorPort) {
+            PerceptorProperties perceptorProperties) {
         this.reactorCloudFoundryClient = reactorCloudFoundryClient;
         this.perceptorRestTemplate = perceptorRestTemplate;
         this.serviceInstanceService = serviceInstanceService;
         this.bindingInstanceService = bindingInstanceService;
         this.catalogService = catalogService;
-        this.perceptorBaseUrlString = perceptorBaseUrlString;
-        this.perceptorPort = perceptorPort;
+        this.perceptorProperties = perceptorProperties;
     }
 
-    @Scheduled(fixedRateString = "#{${application.dumper-service.polling-period-seconds} * 1000}")
-    public void execute() throws Throwable {
+    @Scheduled(fixedRateString = "#{applicationProperties.dumperService.pollingPeriod}")
+    public void execute() {
         logger.debug("Starting data dump to perceptor");
 
         // Retrieve the Service Ids the broker knows about, if any
@@ -117,28 +113,34 @@ public class DumperService {
         logger.debug("Retrieved the following binding id/app ids from broker: {}", brokerAppIdByBindingId);
 
         // Get the Service Instances from the CF Cloud Controller whose Plan Id matches ours
-        String uniquePlanId = getCatalog(false)
-                .orElseThrow(() -> {
-                    throw new IllegalStateException("Could not retrieve Broker Catalog");
-                })
-                .findFirstServiceByName("black-duck-scan")
-                .orElseThrow(() -> {
-                    throw new IllegalStateException("Broker Catalog does not contain entry for service: black-duck-scan");
-                })
-                .findFirstPlanByName("standard")
-                .orElseThrow(() -> {
-                    throw new IllegalStateException("Broker Catalog does not contain entry for plan: standard");
-                })
-                .getId().toString();
-        ServicePlanResource servicePlanResource = requestServicePlans(reactorCloudFoundryClient, createListServicePlansRequest())
-                .log()
-                .switchIfEmpty(Mono.empty())
-                .filter(spr -> uniquePlanId.equals(spr.getEntity().getUniqueId()))
-                .single()
-                .blockOptional()
-                .orElseThrow(() -> {
-                    throw new IllegalStateException("Service plan: standard, service: black-duck-scan not found");
-                });
+        ServicePlanResource servicePlanResource = null;
+        try {
+            String uniquePlanId = getCatalog(false)
+                    .orElseThrow(() -> {
+                        throw new IllegalStateException("Could not retrieve Broker Catalog");
+                    })
+                    .findFirstServiceByName("black-duck-scan")
+                    .orElseThrow(() -> {
+                        throw new IllegalStateException("Broker Catalog does not contain entry for service: black-duck-scan");
+                    })
+                    .findFirstPlanByName("standard")
+                    .orElseThrow(() -> {
+                        throw new IllegalStateException("Broker Catalog does not contain entry for plan: standard");
+                    })
+                    .getId().toString();
+            servicePlanResource = requestServicePlans(reactorCloudFoundryClient, createListServicePlansRequest())
+                    .log()
+                    .switchIfEmpty(Mono.empty())
+                    .filter(spr -> uniquePlanId.equals(spr.getEntity().getUniqueId()))
+                    .single()
+                    .blockOptional()
+                    .orElseThrow(() -> {
+                        throw new IllegalStateException("Service plan: standard, service: black-duck-scan not found");
+                    });
+        } catch (Throwable e) {
+            logger.warn("Exiting DumperService with exception", e);
+            return;
+        }
 
         ListServiceInstancesRequest listServiceInstancesRequest = ListServiceInstancesRequest.builder()
                 .servicePlanId(servicePlanResource.getMetadata().getId())
@@ -249,11 +251,11 @@ public class DumperService {
             logger.debug("Sending Pods data to perceptor: {}", allPods);
             URI perceptorUri;
             try {
-                URI perceptorBaseUri = new URI(perceptorBaseUrlString);
+                URI perceptorBaseUri = new URI(perceptorProperties.getBaseUrl());
                 perceptorUri = new URI(perceptorBaseUri.getScheme(),
                         null,
                         perceptorBaseUri.getHost(),
-                        perceptorPort,
+                        perceptorProperties.getPort(),
                         "/allpods",
                         null, null);
             } catch (URISyntaxException e) {

@@ -45,13 +45,13 @@ public class ImagePuller {
 
     private final int retries;
 
-    private final int pullTimeoutSeconds;
+    private final Duration pullTimeout;
 
-    public ImagePuller(CloudFoundryClient cloudFoundryClient, String dropletLocation, int retries, int pullTimeoutSeconds) {
+    public ImagePuller(CloudFoundryClient cloudFoundryClient, String dropletLocation, int retries, Duration pullTimeout) {
         this.cloudFoundryClient = cloudFoundryClient;
         this.dropletLocation = dropletLocation;
         this.retries = retries;
-        this.pullTimeoutSeconds = pullTimeoutSeconds;
+        this.pullTimeout = pullTimeout;
     }
 
     @Async
@@ -117,7 +117,7 @@ public class ImagePuller {
                         logger.error("image pull fatal error:", e);
                     })
                     .map(out -> location)
-                    .block(Duration.ofSeconds(pullTimeoutSeconds));
+                    .block(pullTimeout);
             if (retPath == null) {
                 logger.debug("image pull of image: {} timed out", image);
                 status.timeout();

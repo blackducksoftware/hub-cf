@@ -11,11 +11,14 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.perceiver;
 
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.web.client.RestTemplate;
@@ -30,55 +33,60 @@ import com.blackducksoftware.integration.cloudfoundry.perceiver.impl.ServiceInst
  */
 @Configuration
 public class PerceiverConfiguration {
-    private final String brokerBaseUrlString;
+    private final BrokerProperties brokerProperties;
 
-    private final int brokerPort;
+    private final Environment env;
 
-    private final String brokerUser;
+    @Autowired
+    public PerceiverConfiguration(Environment env, BrokerProperties brokerProperties) {
+        this.env = env;
+        this.brokerProperties = brokerProperties;
+    }
 
-    private final String brokerPass;
+    @Bean
+    protected PoolingHttpClientConnectionManager getPoolinHttpClientConnectionManager() {
+        PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager();
 
-    public PerceiverConfiguration(@Value("${broker.baseUrl}") String brokerBaseUrlString,
-            @Value("${broker.port}") int brokerPort,
-            @Value("${broker.basicAuth.user}") String brokerUser,
-            @Value("${broker.basicAuth.pass}") String brokerPass) {
-        this.brokerBaseUrlString = brokerBaseUrlString;
-        this.brokerPort = brokerPort;
-        this.brokerUser = brokerUser;
-        this.brokerPass = brokerPass;
+        return connMgr;
+    }
+
+    @Bean
+    protected RequestConfig getRequestConfig() {
+        return RequestConfig.DEFAULT;
     }
 
     @Bean
     protected CloseableHttpClient httpClient() {
-        return HttpClients.createDefault();
-    }
-
-    @Bean
-    protected HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
-        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-        clientHttpRequestFactory.setHttpClient(httpClient());
-        return clientHttpRequestFactory;
+        return HttpClients.custom().setConnectionManager(getPoolinHttpClientConnectionManager())
+                .setDefaultRequestConfig(getRequestConfig()).build();
     }
 
     @Bean
     public RestTemplate getRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory());
-        restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(brokerUser, brokerPass));
+        String brokerUsername = env.getProperty(brokerProperties.getBasicAuth().getUserEnvVblName());
+        String brokerPassword = env.getProperty(brokerProperties.getBasicAuth().getPassEnvVblName());
+
+        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        clientHttpRequestFactory.setHttpClient(httpClient());
+
+        RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory);
+        restTemplate.getInterceptors()
+                .add(new BasicAuthorizationInterceptor(brokerUsername, brokerPassword));
         return restTemplate;
     }
 
     @Bean
     public ServiceInstanceService getServiceInstanceService() {
-        return new ServiceInstanceService(getRestTemplate(), brokerBaseUrlString, brokerPort);
+        return new ServiceInstanceService(getRestTemplate(), brokerProperties.getBaseUrl(), brokerProperties.getPort());
     }
 
     @Bean
     public BindingInstanceService getBindingInstanceService() {
-        return new BindingInstanceService(getRestTemplate(), brokerBaseUrlString, brokerPort);
+        return new BindingInstanceService(getRestTemplate(), brokerProperties.getBaseUrl(), brokerProperties.getPort());
     }
 
     @Bean
     public CatalogService getCatalogService() {
-        return new CatalogService(getRestTemplate(), brokerBaseUrlString, brokerPort);
+        return new CatalogService(getRestTemplate(), brokerProperties.getBaseUrl(), brokerProperties.getPort());
     }
 }

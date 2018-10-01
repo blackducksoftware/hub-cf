@@ -19,11 +19,9 @@ import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.cloudfoundry.reactor.tokenprovider.ClientCredentialsGrantTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 
 /**
  * @author fisherj
@@ -33,28 +31,27 @@ import org.springframework.security.oauth2.client.token.grant.client.ClientCrede
 public class CloudControllerConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(CloudControllerConfiguration.class);
 
-    @Bean
-    @ConfigurationProperties("cf.oauth2.client")
-    protected ClientCredentialsResourceDetails oAuthDetails() {
-        return new ClientCredentialsResourceDetails();
+    private final CloudFoundryProperties cfProperties;
+
+    @Autowired
+    public CloudControllerConfiguration(CloudFoundryProperties cfProperties) {
+        this.cfProperties = cfProperties;
     }
 
     @Bean
-    public ReactorCloudFoundryClient reactorCloudFoundryClient(
-            @Value("${cf.baseUrl}") String baseUrlString,
-            @Value("${cf.skip-ssl-validation}") boolean insecure,
-            ClientCredentialsResourceDetails oauthDetails) throws MalformedURLException {
-        logger.trace("In reactorCloudFoundryClient with args: baseUrl: {}, insecure: {}, oauthClientId: {}", baseUrlString, insecure,
-                oauthDetails.getClientId());
-        URL baseUrl = new URL(baseUrlString);
+    public ReactorCloudFoundryClient reactorCloudFoundryClient() throws MalformedURLException {
+        logger.trace("In reactorCloudFoundryClient with args: baseUrl: {}, insecure: {}, oauthClientId: {}", cfProperties.getBaseUrl(),
+                cfProperties.isSkipSslValidation(),
+                cfProperties.getOauth2().getClient().getClientId());
+        URL baseUrl = new URL(cfProperties.getBaseUrl());
         DefaultConnectionContext.Builder conxCtxBuilder = DefaultConnectionContext.builder()
                 .apiHost(baseUrl.getHost())
                 .port(baseUrl.getPort())
-                .skipSslValidation(insecure);
+                .skipSslValidation(cfProperties.isSkipSslValidation());
 
         ClientCredentialsGrantTokenProvider.Builder oauthTokenProviderBuilder = ClientCredentialsGrantTokenProvider.builder()
-                .clientId(oauthDetails.getClientId())
-                .clientSecret(oauthDetails.getClientSecret());
+                .clientId(cfProperties.getOauth2().getClient().getClientId())
+                .clientSecret(cfProperties.getOauth2().getClient().getClientSecret());
 
         return ReactorCloudFoundryClient.builder()
                 .connectionContext(conxCtxBuilder.build())

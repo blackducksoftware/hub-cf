@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8890}
+  port: ${PORT:8890}
 spring:
   main:
     banner-mode: 'OFF'
@@ -12,7 +12,7 @@ application:
       userEnvVblName: SECURITY_USER_NAME
       passEnvVblName: SECURITY_USER_PASSWORD
 perceiver:
-  baseUrl: ${PERCEIVER_BASEURL}
+  baseUrl: ${DOCKER_HOST}
   port: ${PERCEIVER_PORT}
 logging:
   level:

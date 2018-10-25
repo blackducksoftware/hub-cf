@@ -35,7 +35,9 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.IC
 public class CloudControllerEventMonitorService implements ICloudControllerEventMonitorService {
     private static final Logger logger = LoggerFactory.getLogger(CloudControllerEventMonitorService.class);
 
-    private static final String APPS_ENDPOINT = "apps";
+    private static final String APPS_ENDPOINT = "/apps";
+
+    private static final String PERCEIVER_SCHEME = "http";
 
     private RestTemplate perceiverRestTemplate;
 
@@ -46,7 +48,7 @@ public class CloudControllerEventMonitorService implements ICloudControllerEvent
             @Value("${perceiver.baseUrl}") String perceiverBaseUrlString,
             @Value("${perceiver.port}") int perceiverPort) {
         this.perceiverRestTemplate = perceiverRestTemplate;
-        perceiverUriBuilder = UriComponentsBuilder.fromUriString(perceiverBaseUrlString).port(perceiverPort).path(APPS_ENDPOINT);
+        perceiverUriBuilder = UriComponentsBuilder.newInstance().scheme(PERCEIVER_SCHEME).host(perceiverBaseUrlString).port(perceiverPort).path(APPS_ENDPOINT);
     }
 
     @Override

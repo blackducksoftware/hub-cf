@@ -45,6 +45,7 @@ public class PerceiverConfiguration {
 
     @Bean
     protected PoolingHttpClientConnectionManager getPoolinHttpClientConnectionManager() {
+
         PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager();
 
         return connMgr;

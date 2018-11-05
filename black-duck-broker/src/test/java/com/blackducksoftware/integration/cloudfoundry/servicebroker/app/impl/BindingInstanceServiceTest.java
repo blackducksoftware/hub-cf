@@ -33,9 +33,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindResource;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParameters;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParameters;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.ICloudControllerEventMonitorService;
 
 /**
@@ -44,18 +42,6 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.IC
  *
  */
 public class BindingInstanceServiceTest {
-    private static final String HUB_SCHEME = "https";
-
-    private static final String HUB_HOST = "test_host";
-
-    private static final Integer HUB_PORT = 1;
-
-    private static final String HUB_LOGIN_JSON = "{\"identity\": \"testUser\", \"password\": \"testPass\"}";
-
-    private static final Boolean HUB_INSECURE = Boolean.TRUE;
-
-    private static final String HUB_API_TOKEN = "test_api_token";
-
     private static final String PROJ_NAME = "testProj";
 
     private static final UUID APP_GUID = UUID.randomUUID();
@@ -70,19 +56,11 @@ public class BindingInstanceServiceTest {
 
     private static final String PLUGIN_VERSION = "testPluginVer";
 
-    private static final String INTEGRATION_SOURCE = "testIntegrationSource";
-
-    private static final String INTEGRATION_VENDOR = "testIntegrationVendor";
-
     @Mock
     private ServiceInstanceService serviceInstanceService;
 
     @Mock
     private ICloudControllerEventMonitorService ccEventMonitorHandler;
-
-    private HubCredentials hubCreds;
-
-    private PhoneHomeParameters phoneHomeParms;
 
     private BindingInstanceService bindingInstanceService;
 
@@ -110,11 +88,7 @@ public class BindingInstanceServiceTest {
     public void beforeMethod() {
         MockitoAnnotations.initMocks(this);
 
-        hubCreds = new HubCredentials(HUB_SCHEME, HUB_HOST, HUB_PORT, HUB_LOGIN_JSON, HUB_INSECURE, HUB_API_TOKEN);
-
-        phoneHomeParms = new PhoneHomeParameters(INTEGRATION_SOURCE, INTEGRATION_VENDOR);
-
-        bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds, PLUGIN_VERSION, phoneHomeParms, ccEventMonitorHandler);
+        bindingInstanceService = new BindingInstanceService(serviceInstanceService, PLUGIN_VERSION, ccEventMonitorHandler);
     }
 
     @Test(dataProvider = "TestHubProjectParameters")

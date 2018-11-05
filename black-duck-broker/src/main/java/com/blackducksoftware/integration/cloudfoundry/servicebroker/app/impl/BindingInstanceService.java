@@ -32,12 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindResource;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingInstance;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParameters;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParameters;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.ICloudControllerEventMonitorService;
-import com.blackducksoftware.integration.phonehome.enums.PhoneHomeSource;
-import com.blackducksoftware.integration.phonehome.enums.ThirdPartyName;
 
 /**
  * @author jfisher
@@ -50,20 +46,14 @@ public class BindingInstanceService {
 
     private final ServiceInstanceService serviceInstanceService;
 
-    private final HubCredentials creds;
-
     private final String pluginVersion;
-
-    private final PhoneHomeParameters phoneHomeParms;
 
     private final ICloudControllerEventMonitorService ccEventMonitorHandler;
 
-    public BindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials creds, String pluginVersion,
-            PhoneHomeParameters phoneHomeParms, ICloudControllerEventMonitorService ccEventMonitorHandler) {
+    public BindingInstanceService(ServiceInstanceService serviceInstanceService, String pluginVersion,
+            ICloudControllerEventMonitorService ccEventMonitorHandler) {
         this.serviceInstanceService = serviceInstanceService;
-        this.creds = creds;
         this.pluginVersion = pluginVersion;
-        this.phoneHomeParms = phoneHomeParms;
         this.ccEventMonitorHandler = ccEventMonitorHandler;
     }
 
@@ -73,10 +63,7 @@ public class BindingInstanceService {
         Optional<UUID> appGuid = Optional.ofNullable(bind.map((bindResource) -> bindResource.getAppGuid().orElse(null)).map(UUID::fromString).orElse(null));
         BindingInstance bInst = null;
         if (appGuid.isPresent()) {
-            bInst = new BindingInstance(creds.getScheme(), creds.getHost(), creds.getPort(), creds.getLoginInfo().getUsername(),
-                    creds.getLoginInfo().getPassword(), appGuid.get(), projName, codeLocName, creds.isInsecure(), pluginVersion,
-                    (phoneHomeParms.getSource().orElse(PhoneHomeSource.ALLIANCES)).getName(),
-                    (phoneHomeParms.getVendor().orElse(ThirdPartyName.OSCF_SCANNER)).getName());
+            bInst = new BindingInstance(appGuid.get(), projName, codeLocName, pluginVersion);
             if (!ccEventMonitorHandler.registerId(appGuid.get())) {
                 logger.warn("appId registration with event monitor failed for {}, not monitoring for app events", appGuid.get());
             }

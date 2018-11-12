@@ -46,11 +46,8 @@ subprojects{
   }
 
   afterEvaluate(){
-    artifacts { 
-      archives bootDistZip
+    jar {
+      enabled = true
     }
-    //jar {
-      //enabled = true
-    //}
   }
 }

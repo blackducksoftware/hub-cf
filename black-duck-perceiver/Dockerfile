@@ -1,13 +1,13 @@
 FROM openjdk:8-jdk-alpine
 ARG VERSION
 
-COPY ./build/distributions/black-duck-perceiver-boot-${VERSION}.tar /black-duck-perceiver-boot-${VERSION}.tar
+COPY ./build/distributions/black-duck-perceiver-${VERSION}-boot.tar /black-duck-perceiver-${VERSION}-boot.tar
 COPY ./docker-entrypoint.sh /usr/local/bin/.
 RUN set -e \
     \
     && mkdir -p /blackducksoftware/perceiver \
-    && tar xvf /black-duck-perceiver-boot-${VERSION}.tar -C /blackducksoftware/perceiver --strip-components=1 \
-    && rm /black-duck-perceiver-boot-${VERSION}.tar \
+    && tar xvf /black-duck-perceiver-${VERSION}-boot.tar -C /blackducksoftware/perceiver --strip-components=1 \
+    && rm /black-duck-perceiver-${VERSION}-boot.tar \
     \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
     

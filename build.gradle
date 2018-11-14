@@ -22,16 +22,29 @@ allprojects{
 subprojects{
   apply plugin: 'maven'
   apply plugin: 'java'
+  apply plugin: 'application'
+  apply plugin: 'org.springframework.boot'
+  apply plugin: 'io.spring.dependency-management'
 
+  bootDistZip {
+    baseName = "${project.name}"
+    classifier = 'boot'
+  }
+
+  bootDistTar {
+    baseName = "${project.name}"
+    classifier = 'boot'
+  }
   publishing{
     publications {
       maven(MavenPublication){
         artifact distZip
         artifact distTar
+        artifact bootDistZip
       }
     }
   }
-  
+
   afterEvaluate(){
     jar {
       enabled = true

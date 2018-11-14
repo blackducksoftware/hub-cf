@@ -1,13 +1,13 @@
 FROM openjdk:8-jdk-alpine
 ARG VERSION
 
-COPY ./build/distributions/black-duck-img-facade-boot-${VERSION}.tar /black-duck-img-facade-boot-${VERSION}.tar
+COPY ./build/distributions/black-duck-img-facade-${VERSION}-boot.tar /black-duck-img-facade-${VERSION}-boot.tar
 COPY ./docker-entrypoint.sh /usr/local/bin/.
 RUN set -e \
     \
     && mkdir -p /blackducksoftware/image-facade \
-    && tar xvf /black-duck-img-facade-boot-${VERSION}.tar -C /blackducksoftware/image-facade --strip-components=1 \
-    && rm /black-duck-img-facade-boot-${VERSION}.tar \
+    && tar xvf /black-duck-img-facade-${VERSION}-boot.tar -C /blackducksoftware/image-facade --strip-components=1 \
+    && rm /black-duck-img-facade-${VERSION}-boot.tar \
     \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
     

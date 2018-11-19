@@ -11,6 +11,8 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.perceiver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +25,8 @@ import org.springframework.security.oauth2.client.token.grant.client.ClientCrede
 @Configuration
 @ConfigurationProperties(prefix = "cf")
 public class CloudFoundryProperties {
+    private static final Logger logger = LoggerFactory.getLogger(CloudFoundryProperties.class);
+
     private String baseUrl;
 
     private boolean skipSslValidation;
@@ -64,5 +68,47 @@ public class CloudFoundryProperties {
         public void setClient(ClientCredentialsResourceDetails client) {
             this.client = client;
         }
+
+        public static final String encodeSecretForLog(CloudFoundryProperties.Oauth2 oauth) {
+            String ret = null;
+            String workerPasswd = oauth.getClient().getClientSecret();
+            if (workerPasswd != null && !workerPasswd.isEmpty()) {
+                StringBuffer encoded = new StringBuffer();
+                for (int i = 0; i < workerPasswd.length(); i++) {
+                    encoded.append("*");
+                }
+                encoded.replace(0, 3, workerPasswd.substring(0, 3));
+                ret = encoded.toString();
+            }
+            return ret;
+        }
+
+        @Override
+        public String toString() {
+            StringBuffer sb = new StringBuffer();
+            sb.append("    ").append("client:").append("\n");
+            sb.append("      ").append("id: ").append(client.getId()).append("\n");
+            sb.append("      ").append("grantType: ").append(client.getGrantType()).append("\n");
+            sb.append("      ").append("clientId: ").append(client.getClientId()).append("\n");
+            sb.append("      ").append("accessTokenUri: ").append(client.getAccessTokenUri()).append("\n");
+            sb.append("      ").append("scope: ").append(client.getScope()).append("\n");
+            sb.append("      ").append("clientSecret: ").append(CloudFoundryProperties.Oauth2.encodeSecretForLog(this)).append("\n");
+            sb.append("      ").append("clientAuthenticationScheme: ").append(client.getClientAuthenticationScheme()).append("\n");
+            sb.append("      ").append("authorizationScheme: ").append(client.getAuthenticationScheme()).append("\n");
+            sb.append("      ").append("tokenName: ").append(client.getTokenName()).append("\n");
+
+            return sb.toString();
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("  ").append("baseUrl: ").append(baseUrl).append("\n");
+        sb.append("  ").append("skipSslValidation: ").append(skipSslValidation).append("\n");
+        sb.append("  ").append("oauth2:").append("\n");
+        sb.append(oauth2.toString());
+
+        return sb.toString();
     }
 }

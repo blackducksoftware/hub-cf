@@ -21,6 +21,7 @@ import static com.blackducksoftware.integration.cloudfoundry.v3.util.ApiV3Utils.
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -48,6 +49,9 @@ import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IControlle
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IEventMonitorService;
 import com.blackducksoftware.integration.cloudfoundry.v2.model.EventType;
 import com.blackducksoftware.integration.perceptor.model.Pod;
+import com.synopsys.integration.phonehome.PhoneHomeClient;
+import com.synopsys.integration.phonehome.PhoneHomeRequestBody;
+import com.synopsys.integration.phonehome.exception.PhoneHomeException;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -68,6 +72,10 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
 
     private final PerceptorProperties perceptorProperties;
 
+    private final PhoneHomeClient phoneHomeClient;
+
+    private final PhoneHomeRequestBody phoneHomeRequestBody;
+
     private boolean exit = false;
 
     private Set<UUID> appIds = new HashSet<UUID>();
@@ -78,11 +86,15 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
     public CloudControllerEventMonitorService(ApplicationProperties applicationProperties,
             ReactorCloudFoundryClient reactorCloudFoundryClient,
             RestTemplate perceptorRestTemplate,
-            PerceptorProperties perceptorProperties) {
+            PerceptorProperties perceptorProperties,
+            PhoneHomeClient phoneHomeClient,
+            PhoneHomeRequestBody phoneHomeRequestBody) {
         this.applicationProperties = applicationProperties;
         this.reactorCloudFoundryClient = reactorCloudFoundryClient;
         this.perceptorRestTemplate = perceptorRestTemplate;
         this.perceptorProperties = perceptorProperties;
+        this.phoneHomeClient = phoneHomeClient;
+        this.phoneHomeRequestBody = phoneHomeRequestBody;
 
         timeLastEventCheck = Instant.now(); // Get the current time
     }
@@ -130,9 +142,10 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
                             logger.debug("Processing: {}", cfrd);
                             // Remove app id from "waiting" list
                             appIdsWaitingStaged.remove(cfrd.getApplicationId());
-                            // TODO PhoneHome usage stats
                             // Send to perceptor
                             sendToPerceptor(cfrd);
+                            // Record analytics
+                            sendAnalyticData();
                         });
             } else {
                 logger.debug("Skipped query for events. No application id(s) registered");
@@ -189,5 +202,20 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
         HttpEntity<Pod> httpEntity = new HttpEntity<>(pod, headers);
         ResponseEntity<String> dumpResponse = perceptorRestTemplate.exchange(perceptorUri, HttpMethod.POST, httpEntity, String.class);
         logger.debug("Post data to perceptor returned: {}", dumpResponse);
+    }
+
+    private void sendAnalyticData() {
+        if (phoneHomeRequestBody == PhoneHomeRequestBody.DO_NOT_PHONE_HOME) {
+            logger.debug("Analytic data capture disabled");
+            return;
+        }
+
+        logger.info("Sending analytic data");
+        try {
+            phoneHomeClient.postPhoneHomeRequest(phoneHomeRequestBody, Collections.emptyMap());
+        } catch (PhoneHomeException e) {
+            logger.error("Failed to send analytic data", e);
+            return;
+        }
     }
 }

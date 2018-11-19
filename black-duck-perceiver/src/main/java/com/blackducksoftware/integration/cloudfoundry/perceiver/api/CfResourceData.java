@@ -71,6 +71,10 @@ public class CfResourceData {
     }
 
     public Pod toPod() {
+        // Repository -> Blackduck Project
+        // Sha -> Application Id + Checksum
+        // Tag -> Blackduck Project Version
+
         Image img = new Image();
         img.setRepository(getApplicationId()); // This is the application Id...this is the only
         // piece required to download the actual droplet

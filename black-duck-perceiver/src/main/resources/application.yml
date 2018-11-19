@@ -13,6 +13,11 @@ application:
     pollingPeriod: ${APPLICATION_DUMPERSERVICE_POLLINGPERIOD}
   scanResultsService:
     pollingPeriod: ${APPLICATION_SCANRESULTSSERVICE_POLLINGPERIOD}
+  analytics:
+    enabled: ${APPLICATION_ANALYTICS_ENABLED:false}
+    artifactId: ${APPLICATION_ANALYTICS_ARTIFACTID:"OPENSOURCE_CF"}
+    artifactVersion: "@version@"
+    integrationSource: ${APPLICATION_ANALYTICS_INTEGRATIONSOURCE:"<unknown>"}
 cf:
   baseUrl: ${CF_BASEURL}
   skipSslValidation: ${CF_SKIPSSLVALIDATION}
@@ -33,6 +38,11 @@ broker:
   basicAuth:
     userEnvVblName: SECURITY_USER_NAME
     passEnvVblName: SECURITY_USER_PASSWORD
+blackduck:
+  host: ${BLACKDUCK_HOST}
+  port: ${BLACKDUCK_PORT:-1}
+  user: ${BLACKDUCK_USER}
+  userpassword: ${BLACKDUCK_USERPASSWORD}
 logging:
   level:
     root: WARN

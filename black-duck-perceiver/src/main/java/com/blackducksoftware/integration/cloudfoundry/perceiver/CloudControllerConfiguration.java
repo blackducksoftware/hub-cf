@@ -40,9 +40,7 @@ public class CloudControllerConfiguration {
 
     @Bean
     public ReactorCloudFoundryClient reactorCloudFoundryClient() throws MalformedURLException {
-        logger.trace("In reactorCloudFoundryClient with args: baseUrl: {}, insecure: {}, oauthClientId: {}", cfProperties.getBaseUrl(),
-                cfProperties.isSkipSslValidation(),
-                cfProperties.getOauth2().getClient().getClientId());
+        logger.trace("In reactorCloudFoundryClient with properties: \n{}", cfProperties);
         URL baseUrl = new URL(cfProperties.getBaseUrl());
         DefaultConnectionContext.Builder conxCtxBuilder = DefaultConnectionContext.builder()
                 .apiHost(baseUrl.getHost())

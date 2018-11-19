@@ -33,6 +33,8 @@ public class ApplicationProperties {
 
     private ServiceProperties scanResultsService = new ServiceProperties();
 
+    private AnalyticsProperties analytics = new AnalyticsProperties();
+
     public String getRealm() {
         return realm;
     }
@@ -65,6 +67,14 @@ public class ApplicationProperties {
         this.scanResultsService = scanResultsService;
     }
 
+    public AnalyticsProperties getAnalytics() {
+        return analytics;
+    }
+
+    public void setAnalytics(AnalyticsProperties analytics) {
+        this.analytics = analytics;
+    }
+
     public static class ServiceProperties {
         @DurationUnit(ChronoUnit.SECONDS)
         private Duration pollingPeriod;
@@ -75,6 +85,56 @@ public class ApplicationProperties {
 
         public void setPollingPeriod(Duration pollingPeriod) {
             this.pollingPeriod = pollingPeriod;
+        }
+    }
+
+    public static class AnalyticsProperties {
+        private boolean enabled;
+
+        private IntegrationVendor artifactId;
+
+        private String artifactVersion;
+
+        private IntegrationSource integrationSource;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public IntegrationVendor getArtifactId() {
+            return artifactId;
+        }
+
+        public void setArtifactId(String artifactId) {
+            try {
+                this.artifactId = IntegrationVendor.valueOf(artifactId);
+            } catch (IllegalArgumentException e) {
+                this.artifactId = IntegrationVendor.UNKNOWN;
+            }
+        }
+
+        public String getArtifactVersion() {
+            return artifactVersion;
+        }
+
+        public void setArtifactVersion(String artifactVersion) {
+            this.artifactVersion = artifactVersion;
+        }
+
+        public IntegrationSource getIntegrationSource() {
+            return integrationSource;
+        }
+
+        public void setIntegrationSource(String integrationSource) {
+            try {
+                this.integrationSource = IntegrationSource.valueOf(integrationSource);
+            } catch (IllegalArgumentException e) {
+                this.integrationSource = IntegrationSource.UNKNOWN;
+            }
         }
     }
 }

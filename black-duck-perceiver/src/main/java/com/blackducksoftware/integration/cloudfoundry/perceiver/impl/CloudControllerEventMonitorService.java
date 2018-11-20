@@ -21,7 +21,6 @@ import static com.blackducksoftware.integration.cloudfoundry.v3.util.ApiV3Utils.
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -49,9 +48,6 @@ import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IControlle
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IEventMonitorService;
 import com.blackducksoftware.integration.cloudfoundry.v2.model.EventType;
 import com.blackducksoftware.integration.perceptor.model.Pod;
-import com.synopsys.integration.phonehome.PhoneHomeClient;
-import com.synopsys.integration.phonehome.PhoneHomeRequestBody;
-import com.synopsys.integration.phonehome.exception.PhoneHomeException;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -72,29 +68,21 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
 
     private final PerceptorProperties perceptorProperties;
 
-    private final PhoneHomeClient phoneHomeClient;
-
-    private final PhoneHomeRequestBody phoneHomeRequestBody;
-
     private boolean exit = false;
 
-    private Set<UUID> appIds = new HashSet<UUID>();
+    private final Set<UUID> appIds = new HashSet<>();
 
     private Instant timeLastEventCheck;
 
     @Autowired
-    public CloudControllerEventMonitorService(ApplicationProperties applicationProperties,
-            ReactorCloudFoundryClient reactorCloudFoundryClient,
-            RestTemplate perceptorRestTemplate,
-            PerceptorProperties perceptorProperties,
-            PhoneHomeClient phoneHomeClient,
-            PhoneHomeRequestBody phoneHomeRequestBody) {
+    public CloudControllerEventMonitorService(final ApplicationProperties applicationProperties,
+            final ReactorCloudFoundryClient reactorCloudFoundryClient,
+            final RestTemplate perceptorRestTemplate,
+            final PerceptorProperties perceptorProperties) {
         this.applicationProperties = applicationProperties;
         this.reactorCloudFoundryClient = reactorCloudFoundryClient;
         this.perceptorRestTemplate = perceptorRestTemplate;
         this.perceptorProperties = perceptorProperties;
-        this.phoneHomeClient = phoneHomeClient;
-        this.phoneHomeRequestBody = phoneHomeRequestBody;
 
         timeLastEventCheck = Instant.now(); // Get the current time
     }
@@ -104,15 +92,15 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
     public void run() {
         logger.info("Startig CloudControllerEventMonitorService thread");
         logger.info("Starting with timestamp: {}", timeLastEventCheck);
-        Set<String> appIdsWaitingStaged = new HashSet<>();
+        final Set<String> appIdsWaitingStaged = new HashSet<>();
         while (!exit) {
 
             if (!appIds.isEmpty()) {
-                ListEventsRequest lev = createListEventsRequest(appIds.stream().map(String::valueOf).collect(Collectors.toList()),
+                final ListEventsRequest lev = createListEventsRequest(appIds.stream().map(String::valueOf).collect(Collectors.toList()),
                         EventType.AUDIT.APP.DROPLET.CREATE, timeLastEventCheck.toString());
 
                 // Get the set of app ids who have a "droplet create" event
-                Set<String> eventAppIds = requestEvents(reactorCloudFoundryClient, lev)
+                final Set<String> eventAppIds = requestEvents(reactorCloudFoundryClient, lev)
                         .log()
                         .doOnComplete(() -> {
                             timeLastEventCheck = Instant.now();
@@ -154,7 +142,7 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
             // Sleep
             try {
                 Thread.sleep(applicationProperties.getEventMonitorService().getPollingPeriod().toMillis());
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 // TODO jfisher Auto-generated catch block
                 throw new RuntimeException(e);
             }
@@ -168,54 +156,43 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
     }
 
     @Override
-    public boolean registerId(UUID appId) {
+    public boolean registerId(final UUID appId) {
         logger.debug("Adding app: {} to receive events", appId);
         return appIds.add(appId);
     }
 
     @Override
-    public boolean unregisterId(UUID appId) {
+    public boolean unregisterId(final UUID appId) {
         logger.debug("Removing app: {} from receiveing events", appId);
         // TODO Add code to remove any pending scans for the appId
         return appIds.remove(appId);
     }
 
-    private void sendToPerceptor(CfResourceData cfResourceData) {
-        Pod pod = cfResourceData.toPod();
+    private void sendToPerceptor(final CfResourceData cfResourceData) {
+        final Pod pod = cfResourceData.toPod();
         logger.debug("Sending Pod data to perceptor: {}", pod);
         URI perceptorUri;
         try {
-            URI perceptorBaseUri = new URI(perceptorProperties.getBaseUrl());
+            final URI perceptorBaseUri = new URI(perceptorProperties.getBaseUrl());
             perceptorUri = new URI(perceptorBaseUri.getScheme(),
                     null,
                     perceptorBaseUri.getHost(),
                     perceptorProperties.getPort(),
                     "/pod",
                     null, null);
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             logger.error("URI to perceptor not created successfully", e);
             return;
         }
         logger.debug("Using URI: {}", perceptorUri);
-        HttpHeaders headers = new HttpHeaders();
+        final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Pod> httpEntity = new HttpEntity<>(pod, headers);
-        ResponseEntity<String> dumpResponse = perceptorRestTemplate.exchange(perceptorUri, HttpMethod.POST, httpEntity, String.class);
+        final HttpEntity<Pod> httpEntity = new HttpEntity<>(pod, headers);
+        final ResponseEntity<String> dumpResponse = perceptorRestTemplate.exchange(perceptorUri, HttpMethod.POST, httpEntity, String.class);
         logger.debug("Post data to perceptor returned: {}", dumpResponse);
     }
 
     private void sendAnalyticData() {
-        if (phoneHomeRequestBody == PhoneHomeRequestBody.DO_NOT_PHONE_HOME) {
-            logger.debug("Analytic data capture disabled");
-            return;
-        }
 
-        logger.info("Sending analytic data");
-        try {
-            phoneHomeClient.postPhoneHomeRequest(phoneHomeRequestBody, Collections.emptyMap());
-        } catch (PhoneHomeException e) {
-            logger.error("Failed to send analytic data", e);
-            return;
-        }
     }
 }

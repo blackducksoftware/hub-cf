@@ -25,15 +25,35 @@ import org.springframework.security.oauth2.client.token.grant.client.ClientCrede
 public class CloudFoundryProperties {
     private String baseUrl;
 
+    private String organization;
+
+    private String space;
+
     private boolean skipSslValidation;
 
     private Oauth2 oauth2;
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(final String organization) {
+        this.organization = organization;
+    }
+
+    public String getSpace() {
+        return space;
+    }
+
+    public void setSpace(final String space) {
+        this.space = space;
+    }
 
     public String getBaseUrl() {
         return baseUrl;
     }
 
-    public void setBaseUrl(String baseUrl) {
+    public void setBaseUrl(final String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
@@ -41,7 +61,7 @@ public class CloudFoundryProperties {
         return skipSslValidation;
     }
 
-    public void setSkipSslValidation(boolean skipSslValidation) {
+    public void setSkipSslValidation(final boolean skipSslValidation) {
         this.skipSslValidation = skipSslValidation;
     }
 
@@ -49,7 +69,7 @@ public class CloudFoundryProperties {
         return oauth2;
     }
 
-    public void setOauth2(Oauth2 oauth2) {
+    public void setOauth2(final Oauth2 oauth2) {
         this.oauth2 = oauth2;
     }
 
@@ -61,7 +81,7 @@ public class CloudFoundryProperties {
             return client;
         }
 
-        public void setClient(ClientCredentialsResourceDetails client) {
+        public void setClient(final ClientCredentialsResourceDetails client) {
             this.client = client;
         }
     }

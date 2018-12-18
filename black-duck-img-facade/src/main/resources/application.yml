@@ -13,6 +13,8 @@ application:
 cf:
   baseUrl: ${CF_BASEURL}
   skipSslValidation: ${CF_SKIPSSLVALIDATION}
+  org: ${CF_ORG}
+  space: ${CF_SPACE}
   oauth2:
     client:
       id: ${CF_OAUTH2_CLIENT_ID}

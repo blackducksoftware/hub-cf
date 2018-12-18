@@ -11,8 +11,6 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.perceiver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Configuration;
@@ -25,19 +23,38 @@ import org.springframework.security.oauth2.client.token.grant.client.ClientCrede
 @Configuration
 @ConfigurationProperties(prefix = "cf")
 public class CloudFoundryProperties {
-    private static final Logger logger = LoggerFactory.getLogger(CloudFoundryProperties.class);
 
     private String baseUrl;
+
+    private String organization;
+
+    private String space;
 
     private boolean skipSslValidation;
 
     private Oauth2 oauth2;
 
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(final String organization) {
+        this.organization = organization;
+    }
+
+    public String getSpace() {
+        return space;
+    }
+
+    public void setSpace(final String space) {
+        this.space = space;
+    }
+
     public String getBaseUrl() {
         return baseUrl;
     }
 
-    public void setBaseUrl(String baseUrl) {
+    public void setBaseUrl(final String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
@@ -45,7 +62,7 @@ public class CloudFoundryProperties {
         return skipSslValidation;
     }
 
-    public void setSkipSslValidation(boolean skipSslValidation) {
+    public void setSkipSslValidation(final boolean skipSslValidation) {
         this.skipSslValidation = skipSslValidation;
     }
 
@@ -53,7 +70,7 @@ public class CloudFoundryProperties {
         return oauth2;
     }
 
-    public void setOauth2(Oauth2 oauth2) {
+    public void setOauth2(final Oauth2 oauth2) {
         this.oauth2 = oauth2;
     }
 
@@ -65,15 +82,15 @@ public class CloudFoundryProperties {
             return client;
         }
 
-        public void setClient(ClientCredentialsResourceDetails client) {
+        public void setClient(final ClientCredentialsResourceDetails client) {
             this.client = client;
         }
 
-        public static final String encodeSecretForLog(CloudFoundryProperties.Oauth2 oauth) {
+        public static final String encodeSecretForLog(final CloudFoundryProperties.Oauth2 oauth) {
             String ret = null;
-            String workerPasswd = oauth.getClient().getClientSecret();
+            final String workerPasswd = oauth.getClient().getClientSecret();
             if (workerPasswd != null && !workerPasswd.isEmpty()) {
-                StringBuffer encoded = new StringBuffer();
+                final StringBuffer encoded = new StringBuffer();
                 for (int i = 0; i < workerPasswd.length(); i++) {
                     encoded.append("*");
                 }
@@ -85,7 +102,7 @@ public class CloudFoundryProperties {
 
         @Override
         public String toString() {
-            StringBuffer sb = new StringBuffer();
+            final StringBuffer sb = new StringBuffer();
             sb.append("    ").append("client:").append("\n");
             sb.append("      ").append("id: ").append(client.getId()).append("\n");
             sb.append("      ").append("grantType: ").append(client.getGrantType()).append("\n");
@@ -103,8 +120,10 @@ public class CloudFoundryProperties {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        final StringBuffer sb = new StringBuffer();
         sb.append("  ").append("baseUrl: ").append(baseUrl).append("\n");
+        sb.append("  ").append("organization: ").append(organization).append("\n");
+        sb.append("  ").append("space: ").append(space).append("\n");
         sb.append("  ").append("skipSslValidation: ").append(skipSslValidation).append("\n");
         sb.append("  ").append("oauth2:").append("\n");
         sb.append(oauth2.toString());

@@ -58,7 +58,7 @@ import com.blackducksoftware.integration.cloudfoundry.perceiver.api.BindResource
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.CfResourceData;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.HubProjectParameters;
 import com.blackducksoftware.integration.cloudfoundry.v2.model.Catalog;
-import com.blackducksoftware.integration.perceptor.model.AllPods;
+import com.blackducksoftware.integration.perceptor.model.AllImages;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -245,14 +245,14 @@ public class DumperService implements Runnable {
     }
 
     private void sendToPerceptor(Set<CfResourceData> cfResources) {
-        AllPods allPods = cfResources.stream()
+        AllImages allImages = cfResources.stream()
                 .filter(cfrd -> DropletResourceNotDummy.test(cfrd.getDropletData()))
-                .map(CfResourceData::toPod)
-                .collect(Collectors.collectingAndThen(Collectors.toList(), AllPods::new));
+                .map(CfResourceData::toImage)
+                .collect(Collectors.collectingAndThen(Collectors.toList(), AllImages::new));
 
-        if (!allPods.getPods().isEmpty()) {
+        if (!allImages.getImages().isEmpty()) {
             // There is data to send
-            logger.debug("Sending Pods data to perceptor: {}", allPods);
+            logger.debug("Sending Images data to perceptor: {}", allImages);
             URI perceptorUri;
             try {
                 URI perceptorBaseUri = new URI(perceptorProperties.getBaseUrl());
@@ -260,7 +260,7 @@ public class DumperService implements Runnable {
                         null,
                         perceptorBaseUri.getHost(),
                         perceptorProperties.getPort(),
-                        "/allpods",
+                        "/allimages",
                         null, null);
             } catch (URISyntaxException e) {
                 logger.error("URI to perceptor not created successfully", e);
@@ -269,11 +269,11 @@ public class DumperService implements Runnable {
             logger.debug("Using URI: {}", perceptorUri);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<AllPods> httpEntity = new HttpEntity<>(allPods, headers);
+            HttpEntity<AllImages> httpEntity = new HttpEntity<>(allImages, headers);
             ResponseEntity<String> dumpResponse = perceptorRestTemplate.exchange(perceptorUri, HttpMethod.PUT, httpEntity, String.class);
             logger.debug("Dump data to perceptor returned: {}", dumpResponse);
         } else {
-            logger.debug("No Pod data to send to perceptor");
+            logger.debug("No Image data to send to perceptor");
         }
     }
 

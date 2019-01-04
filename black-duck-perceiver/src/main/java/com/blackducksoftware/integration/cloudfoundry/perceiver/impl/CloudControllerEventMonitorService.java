@@ -48,7 +48,7 @@ import com.blackducksoftware.integration.cloudfoundry.perceiver.api.CfResourceDa
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IControllerService;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IEventMonitorService;
 import com.blackducksoftware.integration.cloudfoundry.v2.model.EventType;
-import com.blackducksoftware.integration.perceptor.model.Pod;
+import com.blackducksoftware.integration.perceptor.model.Image;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -174,8 +174,8 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
     }
 
     private void sendToPerceptor(final CfResourceData cfResourceData) {
-        final Pod pod = cfResourceData.toPod();
-        logger.debug("Sending Pod data to perceptor: {}", pod);
+        final Image image = cfResourceData.toImage();
+        logger.debug("Sending Image data to perceptor: {}", image);
         URI perceptorUri;
         try {
             final URI perceptorBaseUri = new URI(perceptorProperties.getBaseUrl());
@@ -183,7 +183,7 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
                     null,
                     perceptorBaseUri.getHost(),
                     perceptorProperties.getPort(),
-                    "/pod",
+                    "/image",
                     null, null);
         } catch (final URISyntaxException e) {
             logger.error("URI to perceptor not created successfully", e);
@@ -192,7 +192,7 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
         logger.debug("Using URI: {}", perceptorUri);
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        final HttpEntity<Pod> httpEntity = new HttpEntity<>(pod, headers);
+        final HttpEntity<Image> httpEntity = new HttpEntity<>(image, headers);
         final ResponseEntity<String> dumpResponse = perceptorRestTemplate.exchange(perceptorUri, HttpMethod.POST, httpEntity, String.class);
         logger.debug("Post data to perceptor returned: {}", dumpResponse);
     }

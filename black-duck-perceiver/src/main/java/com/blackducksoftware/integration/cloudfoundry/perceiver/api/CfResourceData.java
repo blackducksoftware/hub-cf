@@ -11,13 +11,9 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.perceiver.api;
 
-import java.util.ArrayList;
-
 import org.cloudfoundry.client.v3.droplets.DropletResource;
 
-import com.blackducksoftware.integration.perceptor.model.Container;
 import com.blackducksoftware.integration.perceptor.model.Image;
-import com.blackducksoftware.integration.perceptor.model.Pod;
 
 public class CfResourceData {
     private String resourceId;
@@ -70,7 +66,7 @@ public class CfResourceData {
         this.dropletData = dropletData;
     }
 
-    public Pod toPod() {
+    public Image toImage() {
         // Repository -> Blackduck Project
         // Sha -> Application Id + Checksum
         // Tag -> Blackduck Project Version
@@ -83,20 +79,6 @@ public class CfResourceData {
         // droplet. Used to ensure read
         // consistency later
 
-        Container ctr = new Container();
-        ctr.setImage(img);
-        ctr.setName(getDropletData().getId()); // The Droplet Id as the Container
-        // Id
-
-        Pod pod = new Pod();
-        pod.setContainers(new ArrayList<Container>() {
-            {
-                add(ctr);
-            }
-        });
-        pod.setId(getBindingId()); // The Service Binding Id as the Pod Id
-        pod.setNamespcae(""); // No namespace?????
-
-        return pod;
+        return img;
     }
 }

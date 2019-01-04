@@ -12,7 +12,6 @@ RUN set -e \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
     
 ENV BLACK_DUCK_PERCEIVER_OPTS -Djavax.net.ssl.trustStore=/blackducksoftware/perceiver/security/truststore \
-    -Dlogging.level.root=DEBUG \
     -Djava.security.egd=file:/dev/./urandom
 
 ENTRYPOINT ["docker-entrypoint.sh"]

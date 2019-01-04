@@ -11,11 +11,12 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.imagefacade;
 
-import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
+import org.cloudfoundry.client.CloudFoundryClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 
 import com.blackducksoftware.integration.cloudfoundry.imagefacade.impl.ImageFacadeService;
 import com.blackducksoftware.integration.cloudfoundry.imagefacade.impl.ImagePuller;
@@ -28,14 +29,19 @@ import com.blackducksoftware.integration.cloudfoundry.imagefacade.model.ImageMod
 @Configuration
 @Import(CloudControllerConfiguration.class)
 public class ImageFacadeConfiguration {
-    private final ReactorCloudFoundryClient cloudFoundryClient;
+    private CloudFoundryClient cloudFoundryClient;
 
     private final ApplicationProperties applicationProperties;
 
     @Autowired
-    public ImageFacadeConfiguration(ReactorCloudFoundryClient cloudFoundryClient, ApplicationProperties applicationProperties) {
-        this.cloudFoundryClient = cloudFoundryClient;
+    public ImageFacadeConfiguration(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
+    }
+
+    @Autowired
+    @Lazy
+    public void setCloudFoundryClient(CloudFoundryClient cloudFoundryClient) {
+        this.cloudFoundryClient = cloudFoundryClient;
     }
 
     @Bean

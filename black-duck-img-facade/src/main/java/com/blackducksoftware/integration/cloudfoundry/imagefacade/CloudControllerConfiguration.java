@@ -14,25 +14,26 @@ package com.blackducksoftware.integration.cloudfoundry.imagefacade;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.cloudfoundry.operations.CloudFoundryOperations;
-import org.cloudfoundry.operations.DefaultCloudFoundryOperations;
-import org.cloudfoundry.operations.organizations.OrganizationSummary;
+import org.cloudfoundry.client.CloudFoundryClient;
+import org.cloudfoundry.reactor.ConnectionContext;
 import org.cloudfoundry.reactor.DefaultConnectionContext;
 import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
-import org.cloudfoundry.reactor.doppler.ReactorDopplerClient;
 import org.cloudfoundry.reactor.tokenprovider.ClientCredentialsGrantTokenProvider;
 import org.cloudfoundry.reactor.uaa.ReactorUaaClient;
+import org.cloudfoundry.uaa.UaaClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * @author fisherj
  *
  */
 @Configuration
+@Lazy
 public class CloudControllerConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(CloudControllerConfiguration.class);
 
@@ -44,11 +45,10 @@ public class CloudControllerConfiguration {
     }
 
     @Bean
-    public DefaultConnectionContext defaultConnectionContext() throws MalformedURLException {
+    public DefaultConnectionContext connectionContext() throws MalformedURLException {
         final URL baseUrl = new URL(cfProperties.getBaseUrl());
         return DefaultConnectionContext.builder()
                 .apiHost(baseUrl.getHost())
-                .port(baseUrl.getPort())
                 .skipSslValidation(cfProperties.isSkipSslValidation())
                 .build();
     }
@@ -61,56 +61,24 @@ public class CloudControllerConfiguration {
     }
 
     @Bean
-    public ReactorCloudFoundryClient reactorCloudFoundryClient(final DefaultConnectionContext connectionContext,
-            final ClientCredentialsGrantTokenProvider oauthTokenProviderBuilder) throws MalformedURLException {
+    public CloudFoundryClient cloudFoundryClient(ConnectionContext connectionContext, ClientCredentialsGrantTokenProvider tokenProvider)
+            throws MalformedURLException {
         logger.trace("In reactorCloudFoundryClient with properties: \n{}", cfProperties);
 
         return ReactorCloudFoundryClient.builder()
                 .connectionContext(connectionContext)
-                .tokenProvider(oauthTokenProviderBuilder)
+                .tokenProvider(tokenProvider)
                 .build();
     }
 
     @Bean
-    public ReactorDopplerClient reactorDopplerClient(final DefaultConnectionContext connectionContext,
-            final ClientCredentialsGrantTokenProvider oauthTokenProviderBuilder) throws MalformedURLException {
-        logger.trace("In reactorCloudFoundryClient with properties: \n{}", cfProperties);
-
-        return ReactorDopplerClient.builder()
-                .connectionContext(connectionContext)
-                .tokenProvider(oauthTokenProviderBuilder)
-                .build();
-    }
-
-    @Bean
-    public ReactorUaaClient reactorUaaClient(final DefaultConnectionContext connectionContext,
-            final ClientCredentialsGrantTokenProvider oauthTokenProviderBuilder) throws MalformedURLException {
+    public UaaClient uaaClient(ConnectionContext connectionContext, ClientCredentialsGrantTokenProvider tokenProvider)
+            throws MalformedURLException {
         logger.trace("In reactorCloudFoundryClient with properties: \n{}", cfProperties);
 
         return ReactorUaaClient.builder()
                 .connectionContext(connectionContext)
-                .tokenProvider(oauthTokenProviderBuilder)
+                .tokenProvider(tokenProvider)
                 .build();
     }
-
-    @Bean
-    public CloudFoundryOperations reactorCloudFoundryOperations(final ReactorCloudFoundryClient cloudFoundryClient, final ReactorDopplerClient dopplerClient,
-            final ReactorUaaClient uaaClient) throws MalformedURLException {
-        logger.trace("In reactorCloudFoundryOperations with properties: \n{}", cfProperties);
-
-        final CloudFoundryOperations cloudFoundryOperation = DefaultCloudFoundryOperations.builder()
-                .cloudFoundryClient(cloudFoundryClient)
-                .dopplerClient(dopplerClient)
-                .uaaClient(uaaClient)
-                .organization(cfProperties.getOrganization())
-                .space(cfProperties.getSpace())
-                .build();
-
-        cloudFoundryOperation.organizations()
-                .list()
-                .map(OrganizationSummary::getName)
-                .subscribe(System.out::println);
-        return cloudFoundryOperation;
-    }
-
 }

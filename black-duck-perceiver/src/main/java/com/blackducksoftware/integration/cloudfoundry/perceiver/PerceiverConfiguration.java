@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.client.RestTemplate;
 
 import com.blackducksoftware.integration.cloudfoundry.perceiver.impl.BindingInstanceService;
@@ -47,6 +48,8 @@ public class PerceiverConfiguration {
     protected PoolingHttpClientConnectionManager getPoolinHttpClientConnectionManager() {
 
         PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager();
+        connMgr.setMaxTotal(100);
+        connMgr.setDefaultMaxPerRoute(50);
 
         return connMgr;
     }
@@ -89,5 +92,13 @@ public class PerceiverConfiguration {
     @Bean
     public CatalogService getCatalogService() {
         return new CatalogService(getRestTemplate(), brokerProperties.getBaseUrl(), brokerProperties.getPort());
+    }
+
+    @Bean
+    public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
+        ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setPoolSize(3);
+        threadPoolTaskScheduler.setThreadNamePrefix("PerceiverService-");
+        return threadPoolTaskScheduler;
     }
 }

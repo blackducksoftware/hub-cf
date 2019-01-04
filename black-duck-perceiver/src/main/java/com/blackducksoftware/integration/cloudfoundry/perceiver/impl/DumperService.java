@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.Metadata;
 import org.cloudfoundry.client.v2.servicebindings.ListServiceBindingsRequest;
 import org.cloudfoundry.client.v2.servicebindings.ServiceBindingResource;
@@ -40,16 +41,15 @@ import org.cloudfoundry.client.v2.serviceinstances.ServiceInstanceResource;
 import org.cloudfoundry.client.v2.serviceplans.ServicePlanResource;
 import org.cloudfoundry.client.v3.applications.GetApplicationEnvironmentResponse;
 import org.cloudfoundry.client.v3.applications.ListApplicationDropletsRequest;
-import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -68,10 +68,10 @@ import reactor.core.publisher.Mono;
  *
  */
 @Service
-public class DumperService {
+public class DumperService implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(DumperService.class);
 
-    private final ReactorCloudFoundryClient reactorCloudFoundryClient;
+    private CloudFoundryClient cloudFoundryClient;
 
     private final RestTemplate perceptorRestTemplate;
 
@@ -86,13 +86,11 @@ public class DumperService {
     private Catalog cacheCatalog = null;
 
     @Autowired
-    public DumperService(ReactorCloudFoundryClient reactorCloudFoundryClient,
-            RestTemplate perceptorRestTemplate,
+    public DumperService(RestTemplate perceptorRestTemplate,
             ServiceInstanceService serviceInstanceService,
             BindingInstanceService bindingInstanceService,
             CatalogService catalogService,
             PerceptorProperties perceptorProperties) {
-        this.reactorCloudFoundryClient = reactorCloudFoundryClient;
         this.perceptorRestTemplate = perceptorRestTemplate;
         this.serviceInstanceService = serviceInstanceService;
         this.bindingInstanceService = bindingInstanceService;
@@ -100,8 +98,14 @@ public class DumperService {
         this.perceptorProperties = perceptorProperties;
     }
 
-    @Scheduled(fixedRateString = "#{applicationProperties.dumperService.pollingPeriod}")
-    public void execute() {
+    @Autowired
+    @Lazy
+    public void setCloudFoundryClient(CloudFoundryClient cloudFoundryClient) {
+        this.cloudFoundryClient = cloudFoundryClient;
+    }
+
+    @Override
+    public void run() {
         logger.debug("Starting data dump to perceptor");
 
         // Retrieve the Service Ids the broker knows about, if any
@@ -128,7 +132,7 @@ public class DumperService {
                         throw new IllegalStateException("Broker Catalog does not contain entry for plan: standard");
                     })
                     .getId().toString();
-            servicePlanResource = requestServicePlans(reactorCloudFoundryClient, createListServicePlansRequest())
+            servicePlanResource = requestServicePlans(cloudFoundryClient, createListServicePlansRequest())
                     .log()
                     .switchIfEmpty(Mono.empty())
                     .filter(spr -> uniquePlanId.equals(spr.getEntity().getUniqueId()))
@@ -145,7 +149,7 @@ public class DumperService {
         ListServiceInstancesRequest listServiceInstancesRequest = ListServiceInstancesRequest.builder()
                 .servicePlanId(servicePlanResource.getMetadata().getId())
                 .build();
-        Optional<List<ServiceInstanceResource>> serviceInstanceResources = requestServiceInstances(reactorCloudFoundryClient, listServiceInstancesRequest)
+        Optional<List<ServiceInstanceResource>> serviceInstanceResources = requestServiceInstances(cloudFoundryClient, listServiceInstancesRequest)
                 .log()
                 .switchIfEmpty(Mono.empty())
                 .collectList()
@@ -166,7 +170,7 @@ public class DumperService {
                     ListServiceBindingsRequest listServiceBindingsRequest = ListServiceBindingsRequest.builder()
                             .serviceInstanceIds(cfServiceIds)
                             .build();
-                    Optional<List<ServiceBindingResource>> serviceBindingResources = requestServiceBindings(reactorCloudFoundryClient,
+                    Optional<List<ServiceBindingResource>> serviceBindingResources = requestServiceBindings(cloudFoundryClient,
                             listServiceBindingsRequest)
                                     .log()
                                     .onErrorResume(e -> Mono.empty())
@@ -184,7 +188,7 @@ public class DumperService {
                                         ListApplicationDropletsRequest listAppDropletRequest = createListApplicationStagedDropletsRequest(
                                                 sbr.getEntity().getApplicationId());
                                         return Flux.zip(Mono.just(sbr),
-                                                requestCurrentApplicationDropletRequest(reactorCloudFoundryClient, listAppDropletRequest)
+                                                requestCurrentApplicationDropletRequest(cloudFoundryClient, listAppDropletRequest)
                                                         .log());
                                     })
                                     .collect(Collectors.mapping(sbrdroplet -> {
@@ -227,7 +231,7 @@ public class DumperService {
     private void reconstructBrokerBindingInstancesFromCloudFoundry(Map<String, UUID> brokerAppIdByBindingId, Set<CfResourceData> cfrd) {
         cfrd.stream().filter(cfr -> !brokerAppIdByBindingId.containsValue(UUID.fromString(cfr.getApplicationId()))).forEach(cfr -> {
             // Get the env variables from CF to feed back into the broker
-            Optional<GetApplicationEnvironmentResponse> cfEnv = requestApplicationEnvironment(reactorCloudFoundryClient,
+            Optional<GetApplicationEnvironmentResponse> cfEnv = requestApplicationEnvironment(cloudFoundryClient,
                     createGetApplicationEnvironmentRequest(cfr.getApplicationId()))
                             .log()
                             .blockOptional();

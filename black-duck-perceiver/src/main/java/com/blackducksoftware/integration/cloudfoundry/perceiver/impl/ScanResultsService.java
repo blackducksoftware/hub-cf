@@ -11,32 +11,38 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.perceiver.impl;
 
-import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
+import org.cloudfoundry.client.CloudFoundryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 
 /**
  * @author fisherj
  *
  */
-@Component
-public class ScanResultsService {
+@Service
+public class ScanResultsService implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ScanResultsService.class);
 
-    @SuppressWarnings("unused")
-    private final ReactorCloudFoundryClient reactorCloudFoundryClient;
+    private CloudFoundryClient cloudFoundryClient;
+
+    private BindingInstanceService bindingInstanceService;
 
     @Autowired
-    public ScanResultsService(ReactorCloudFoundryClient reactorCloudFoundryClient,
-            BindingInstanceService bindingInstanceService) {
-        this.reactorCloudFoundryClient = reactorCloudFoundryClient;
+    public ScanResultsService(BindingInstanceService bindingInstanceService) {
+        this.bindingInstanceService = bindingInstanceService;
     }
 
-    @Scheduled(fixedRateString = "#{applicationProperties.scanResultsService.pollingPeriod}")
-    public void execute() {
+    @Autowired
+    @Lazy
+    public void setCloudFoundryClient(CloudFoundryClient cloudFoundryClient) {
+        this.cloudFoundryClient = cloudFoundryClient;
+    }
+
+    @Override
+    public void run() {
         logger.debug("Starting query perceptor for scan results");
     }
 }

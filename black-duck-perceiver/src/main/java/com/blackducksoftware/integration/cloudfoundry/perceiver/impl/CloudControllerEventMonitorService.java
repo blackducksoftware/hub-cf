@@ -26,12 +26,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.events.ListEventsRequest;
 import org.cloudfoundry.client.v2.servicebindings.ListServiceBindingsRequest;
-import org.cloudfoundry.reactor.client.ReactorCloudFoundryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -62,7 +63,7 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
 
     private final ApplicationProperties applicationProperties;
 
-    private final ReactorCloudFoundryClient reactorCloudFoundryClient;
+    private CloudFoundryClient cloudFoundryClient;
 
     private final RestTemplate perceptorRestTemplate;
 
@@ -75,16 +76,20 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
     private Instant timeLastEventCheck;
 
     @Autowired
-    public CloudControllerEventMonitorService(final ApplicationProperties applicationProperties,
-            final ReactorCloudFoundryClient reactorCloudFoundryClient,
-            final RestTemplate perceptorRestTemplate,
-            final PerceptorProperties perceptorProperties) {
+    public CloudControllerEventMonitorService(ApplicationProperties applicationProperties,
+            RestTemplate perceptorRestTemplate,
+            PerceptorProperties perceptorProperties) {
         this.applicationProperties = applicationProperties;
-        this.reactorCloudFoundryClient = reactorCloudFoundryClient;
         this.perceptorRestTemplate = perceptorRestTemplate;
         this.perceptorProperties = perceptorProperties;
 
         timeLastEventCheck = Instant.now(); // Get the current time
+    }
+
+    @Autowired
+    @Lazy
+    public void setCloudFoundryClient(CloudFoundryClient cloudFoundryClient) {
+        this.cloudFoundryClient = cloudFoundryClient;
     }
 
     @Async
@@ -100,7 +105,7 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
                         EventType.AUDIT.APP.DROPLET.CREATE, timeLastEventCheck.toString());
 
                 // Get the set of app ids who have a "droplet create" event
-                final Set<String> eventAppIds = requestEvents(reactorCloudFoundryClient, lev)
+                final Set<String> eventAppIds = requestEvents(cloudFoundryClient, lev)
                         .log()
                         .doOnComplete(() -> {
                             timeLastEventCheck = Instant.now();
@@ -116,8 +121,8 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
 
                 Flux.fromIterable(new HashSet<>(appIdsWaitingStaged))
                         .switchMap(appId -> Flux.zip(Mono.just(appId),
-                                requestCurrentApplicationDropletRequest(reactorCloudFoundryClient, createListApplicationStagedDropletsRequest(appId)),
-                                requestSingleServiceBinding(reactorCloudFoundryClient, ListServiceBindingsRequest.builder().applicationId(appId).build())))
+                                requestCurrentApplicationDropletRequest(cloudFoundryClient, createListApplicationStagedDropletsRequest(appId)),
+                                requestSingleServiceBinding(cloudFoundryClient, ListServiceBindingsRequest.builder().applicationId(appId).build())))
                         .filter(adsb -> DropletResourceNotDummy.test(adsb.getT2()))
                         .map(adsb -> {
                             return new CfResourceData(adsb.getT3().getEntity().getServiceInstanceId(), // service

@@ -31,6 +31,8 @@ dependencies {
   compile('org.springframework.security.oauth:spring-security-oauth2:2.3.3.RELEASE') // Update version based on Co-Pilot report
   compile('org.springframework.boot:spring-boot-configuration-processor')
   compile('org.apache.httpcomponents:httpclient:4.5.5')
+  compile('com.blackducksoftware.integration:blackduck-common:40.0.0')
+  compile('com.blackducksoftware.integration:phone-home-client:0.19.1')
   compile('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6')
   compile('com.fasterxml.jackson.module:jackson-modules-java8:2.9.6')
   compile('com.google.code.findbugs:jsr305:3.0.2')
@@ -45,6 +47,23 @@ dependencies {
 test{
   useTestNG() {
     listeners << 'org.testng.reporters.XMLReporter'
+  }
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+processResources {
+  with copySpec {
+    from 'src/main/resources'
+    include '**/application*.yml'
+    include '**/application*.yaml'
+    include '**/application*.properties'
+    project.properties.findAll().each {
+      prop ->
+        if (prop.key != 'properties' && prop.value != null) {
+          filter(ReplaceTokens, tokens: [ (prop.key): prop.value])
+          filter(ReplaceTokens, tokens: [ ('project.' + prop.key): prop.value])
+        }
+    }
   }
 }
 

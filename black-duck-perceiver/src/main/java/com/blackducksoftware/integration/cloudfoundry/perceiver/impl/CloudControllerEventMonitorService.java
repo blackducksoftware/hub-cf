@@ -21,7 +21,9 @@ import static com.blackducksoftware.integration.cloudfoundry.v3.util.ApiV3Utils.
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,12 +45,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.blackducksoftware.integration.cloudfoundry.perceiver.ApplicationProperties;
+import com.blackducksoftware.integration.cloudfoundry.perceiver.IntegrationSource;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.PerceptorProperties;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.CfResourceData;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IControllerService;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IEventMonitorService;
 import com.blackducksoftware.integration.cloudfoundry.v2.model.EventType;
 import com.blackducksoftware.integration.perceptor.model.Image;
+import com.synopsys.integration.blackduck.phonehome.BlackDuckPhoneHomeHelper;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -69,6 +73,8 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
 
     private final PerceptorProperties perceptorProperties;
 
+    private final BlackDuckPhoneHomeHelper blackDuckPhoneHomeHelper;
+
     private boolean exit = false;
 
     private final Set<UUID> appIds = new HashSet<>();
@@ -78,10 +84,12 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
     @Autowired
     public CloudControllerEventMonitorService(ApplicationProperties applicationProperties,
             RestTemplate perceptorRestTemplate,
-            PerceptorProperties perceptorProperties) {
+            PerceptorProperties perceptorProperties,
+            BlackDuckPhoneHomeHelper blackDuckPhoneHomeHelper) {
         this.applicationProperties = applicationProperties;
         this.perceptorRestTemplate = perceptorRestTemplate;
         this.perceptorProperties = perceptorProperties;
+        this.blackDuckPhoneHomeHelper = blackDuckPhoneHomeHelper;
 
         timeLastEventCheck = Instant.now(); // Get the current time
     }
@@ -198,6 +206,9 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
     }
 
     private void sendAnalyticData() {
-
+        Map<String, String> metaData = new HashMap<>();
+        metaData.put("Source", IntegrationSource.ALLIANCES.text());
+        blackDuckPhoneHomeHelper.handlePhoneHome(applicationProperties.getAnalytics().getArtifactId().name(),
+                applicationProperties.getAnalytics().getArtifactVersion(), metaData);
     }
 }

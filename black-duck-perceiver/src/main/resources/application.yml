@@ -45,6 +45,7 @@ blackduck:
   port: ${BLACKDUCK_PORT:-1}
   user: ${BLACKDUCK_USER}
   userpassword: ${BLACKDUCK_USERPASSWORD}
+  insecure: ${BLACKDUCK_INSECURE}
 logging:
   level:
     root: WARN

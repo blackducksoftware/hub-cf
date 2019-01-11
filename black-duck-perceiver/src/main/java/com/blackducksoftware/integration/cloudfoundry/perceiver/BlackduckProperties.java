@@ -29,6 +29,8 @@ public class BlackduckProperties {
 
     private String userPassword;
 
+    private boolean insecure;
+
     public String getHost() {
         return host;
     }
@@ -59,5 +61,13 @@ public class BlackduckProperties {
 
     public void setUserPassword(String userPassword) {
         this.userPassword = userPassword;
+    }
+
+    public boolean getInsecure() {
+        return insecure;
+    }
+
+    public void setInsecure(boolean insecure) {
+        this.insecure = insecure;
     }
 }

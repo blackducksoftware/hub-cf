@@ -4,6 +4,7 @@ set -e
 certsBaseDir="/mnt/certs"
 trustStoreDir="/blackducksoftware/perceiver/security"
 trustStore="${trustStoreDir}/truststore"
+jvmTrustStore="$JAVA_HOME/jre/lib/security/cacerts"
 
 addAllCerts() {
 	if [ ! $# == 2 ]; then
@@ -45,6 +46,14 @@ if [ -d "${trustStoreDir}" ]; then
 else
 	echo "Creating directory for trust store"
 	mkdir -p "${trustStoreDir}"
+fi
+
+# Populate the trust store with certs from the JRE trust store
+if [ -f "${jvmTrustStore}" ]; then
+  echo "Copying JVM trust store: ${jvmTrustStore} to: ${trustStore}"
+  cp ${jvmTrustStore} ${trustStore}
+else
+  echo "JVM trust store does not exist at location: ${jvmTrustStore}. Continuing with empty trust store!"
 fi
 
 manageOpsmanCerts

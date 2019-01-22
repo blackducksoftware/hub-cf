@@ -20,9 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.synopsys.integration.blackduck.configuration.BlackDuckServerConfig;
 import com.synopsys.integration.blackduck.phonehome.BlackDuckPhoneHomeHelper;
-import com.synopsys.integration.blackduck.rest.BlackDuckRestConnection;
-import com.synopsys.integration.blackduck.rest.CredentialsRestConnection;
 import com.synopsys.integration.blackduck.service.BlackDuckRegistrationService;
 import com.synopsys.integration.blackduck.service.BlackDuckService;
 import com.synopsys.integration.blackduck.service.BlackDuckServicesFactory;
@@ -30,9 +29,6 @@ import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.log.Slf4jIntLogger;
 import com.synopsys.integration.phonehome.PhoneHomeClient;
 import com.synopsys.integration.phonehome.PhoneHomeService;
-import com.synopsys.integration.rest.credentials.Credentials;
-import com.synopsys.integration.rest.credentials.CredentialsBuilder;
-import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.util.IntEnvironmentVariables;
 
 /**
@@ -61,6 +57,30 @@ public class AnalyticsServiceConfiguration {
                 getIntEnvironmentVariables());
     }
 
+    @Bean
+    public BlackDuckServerConfig getBlackDuckServerConfig() {
+        URI hostAndScheme = null;
+        try {
+            hostAndScheme = new URI("https", null, blackduckProperties.getHost(), blackduckProperties.getPort(), null, null, null);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("The provided base host name is not properly formatted", e);
+        }
+        return BlackDuckServerConfig.newBuilder()
+                .setLogger(getIntLogger())
+                .setUsername(blackduckProperties.getUser())
+                .setPassword(blackduckProperties.getUserPassword())
+                .setUrl(hostAndScheme.toString())
+                .setTrustCert(blackduckProperties.getInsecure())
+                .build();
+    }
+
+    @Bean
+    public BlackDuckServicesFactory getBlackDuckServicesFactory() {
+        BlackDuckServicesFactory blackDuckServicesFactory = getBlackDuckServerConfig().createBlackDuckServicesFactory(getIntLogger());
+        blackDuckServicesFactory.addEnvironmentVariables(getIntEnvironmentVariables().getVariables());
+        return blackDuckServicesFactory;
+    }
+
     private IntLogger getIntLogger() {
         return new Slf4jIntLogger(logger);
     }
@@ -70,26 +90,6 @@ public class AnalyticsServiceConfiguration {
         intEnvironmentVariables.put(PhoneHomeClient.SKIP_PHONE_HOME_VARIABLE, Boolean.toString((!applicationProperties.getAnalytics().isEnabled())));
 
         return intEnvironmentVariables;
-    }
-
-    private BlackDuckRestConnection getBlackDuckRestConnection() {
-        CredentialsBuilder credsBuilder = Credentials.newBuilder();
-        credsBuilder.setUsernameAndPassword(blackduckProperties.getUser(), blackduckProperties.getUserPassword());
-        URI hostAndScheme = null;
-        try {
-            hostAndScheme = new URI("https", null, blackduckProperties.getHost(), blackduckProperties.getPort(), null, null, null);
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("The provided base host name is not properly formatted", e);
-        }
-        return new CredentialsRestConnection(getIntLogger(), 30, blackduckProperties.getInsecure(), ProxyInfo.NO_PROXY_INFO, hostAndScheme.toString(),
-                credsBuilder.build());
-    }
-
-    private BlackDuckServicesFactory getBlackDuckServicesFactory() {
-        BlackDuckServicesFactory blackDuckServicesFactory = new BlackDuckServicesFactory(BlackDuckServicesFactory.createDefaultGson(),
-                BlackDuckServicesFactory.createDefaultObjectMapper(), getBlackDuckRestConnection(), getIntLogger());
-        blackDuckServicesFactory.addEnvironmentVariables(getIntEnvironmentVariables().getVariables());
-        return blackDuckServicesFactory;
     }
 
     private BlackDuckService getBlackDuckService() {

@@ -24,6 +24,8 @@ package com.blackducksoftware.integration.cloudfoundry;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BackendBindingProvisionRequestTest;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BackendServiceInstanceProvisionRequestTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindResourceTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingInstanceTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingProvisionRequestTest;
@@ -46,6 +48,8 @@ public class ServiceBrokerTestFactory {
                 new HubProjectParametersTest(),
                 new BindResourceTest(),
                 new BindingInstanceServiceTest(),
+                new BackendBindingProvisionRequestTest(),
+                new BackendServiceInstanceProvisionRequestTest(),
         };
     }
 }

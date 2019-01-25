@@ -15,15 +15,19 @@ import static com.blackducksoftware.integration.cloudfoundry.v2.util.ApiV2Utils.
 import static com.blackducksoftware.integration.cloudfoundry.v2.util.ApiV2Utils.requestEvents;
 import static com.blackducksoftware.integration.cloudfoundry.v2.util.ApiV2Utils.requestSingleServiceBinding;
 import static com.blackducksoftware.integration.cloudfoundry.v3.util.ApiV3Utils.DropletResourceNotDummy;
+import static com.blackducksoftware.integration.cloudfoundry.v3.util.ApiV3Utils.createGetApplicationEnvironmentRequest;
 import static com.blackducksoftware.integration.cloudfoundry.v3.util.ApiV3Utils.createListApplicationStagedDropletsRequest;
+import static com.blackducksoftware.integration.cloudfoundry.v3.util.ApiV3Utils.requestApplicationEnvironment;
 import static com.blackducksoftware.integration.cloudfoundry.v3.util.ApiV3Utils.requestCurrentApplicationDropletRequest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,6 +35,7 @@ import java.util.stream.Collectors;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.events.ListEventsRequest;
 import org.cloudfoundry.client.v2.servicebindings.ListServiceBindingsRequest;
+import org.cloudfoundry.client.v3.applications.GetApplicationEnvironmentResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +53,7 @@ import com.blackducksoftware.integration.cloudfoundry.perceiver.ApplicationPrope
 import com.blackducksoftware.integration.cloudfoundry.perceiver.IntegrationSource;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.PerceptorProperties;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.api.CfResourceData;
+import com.blackducksoftware.integration.cloudfoundry.perceiver.api.HubProjectParameters;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IControllerService;
 import com.blackducksoftware.integration.cloudfoundry.perceiver.iface.IEventMonitorService;
 import com.blackducksoftware.integration.cloudfoundry.v2.model.EventType;
@@ -130,14 +136,19 @@ public class CloudControllerEventMonitorService implements IEventMonitorService,
                 Flux.fromIterable(new HashSet<>(appIdsWaitingStaged))
                         .switchMap(appId -> Flux.zip(Mono.just(appId),
                                 requestCurrentApplicationDropletRequest(cloudFoundryClient, createListApplicationStagedDropletsRequest(appId)),
-                                requestSingleServiceBinding(cloudFoundryClient, ListServiceBindingsRequest.builder().applicationId(appId).build())))
+                                requestSingleServiceBinding(cloudFoundryClient, ListServiceBindingsRequest.builder().applicationId(appId).build()),
+                                requestApplicationEnvironment(cloudFoundryClient, createGetApplicationEnvironmentRequest(appId))))
                         .filter(adsb -> DropletResourceNotDummy.test(adsb.getT2()))
                         .map(adsb -> {
+                            Optional<GetApplicationEnvironmentResponse> gaer = Optional.ofNullable(adsb.getT4());
+                            HubProjectParameters hpp = HubProjectParameters.fromCloudFoundryEnvironment(
+                                    gaer.map(GetApplicationEnvironmentResponse::getEnvironmentVariables).orElse(Collections.emptyMap()));
                             return new CfResourceData(adsb.getT3().getEntity().getServiceInstanceId(), // service
                                                                                                        // instance id
                                     adsb.getT3().getMetadata().getId(), // service binding id
                                     adsb.getT1(), // application id
-                                    adsb.getT2()); // droplet resource
+                                    adsb.getT2(), // droplet resource
+                                    hpp);
                         })
                         .subscribe(cfrd -> {
                             logger.debug("Processing: {}", cfrd);

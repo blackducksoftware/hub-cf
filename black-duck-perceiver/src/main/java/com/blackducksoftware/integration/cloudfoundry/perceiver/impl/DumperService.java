@@ -184,19 +184,25 @@ public class DumperService implements Runnable {
                         if (!sbResources.isEmpty()) {
                             cfResources = Flux.fromStream(sbResources.stream())
                                     .flatMap(sbr -> {
+                                        String appId = sbr.getEntity().getApplicationId();
                                         // Get the current droplet data for each application id
                                         ListApplicationDropletsRequest listAppDropletRequest = createListApplicationStagedDropletsRequest(
-                                                sbr.getEntity().getApplicationId());
+                                                appId);
                                         return Flux.zip(Mono.just(sbr),
                                                 requestCurrentApplicationDropletRequest(cloudFoundryClient, listAppDropletRequest)
-                                                        .log());
+                                                        .log(),
+                                                requestApplicationEnvironment(cloudFoundryClient, createGetApplicationEnvironmentRequest(appId)));
                                     })
                                     .collect(Collectors.mapping(sbrdroplet -> {
+                                        Optional<GetApplicationEnvironmentResponse> gaer = Optional.ofNullable(sbrdroplet.getT3());
+                                        HubProjectParameters hpp = HubProjectParameters.fromCloudFoundryEnvironment(
+                                                gaer.map(GetApplicationEnvironmentResponse::getEnvironmentVariables).orElse(Collections.emptyMap()));
                                         CfResourceData cfrd = new CfResourceData();
                                         cfrd.setResourceId(sbrdroplet.getT1().getEntity().getServiceInstanceId());
                                         cfrd.setBindingId(sbrdroplet.getT1().getMetadata().getId());
                                         cfrd.setApplicationId(sbrdroplet.getT1().getEntity().getApplicationId());
                                         cfrd.setDropletData(sbrdroplet.getT2());
+                                        cfrd.setHubProjectParameters(hpp);
                                         return cfrd;
                                     }, Collectors.toSet())).block();
 

@@ -38,15 +38,21 @@ public final class HubProjectParameters {
 
     private static String PROJECT_NAME_ENV_NAME = "BLACK_DUCK_PROJECT_NAME";
 
+    private static String PROJECT_VERSION_ENV_NAME = "BLACK_DUCK_PROJECT_VERSION";
+
     private Optional<String> projectName = Optional.empty();
 
     private Optional<String> codeLocation = Optional.empty();
 
+    private Optional<String> projectVersion = Optional.empty();
+
     @JsonCreator
     public HubProjectParameters(@JsonProperty(value = "project_name", required = false) @Nullable String projectName,
-            @JsonProperty(value = "code_location", required = false) @Nullable String codeLocation) {
+            @JsonProperty(value = "code_location", required = false) @Nullable String codeLocation,
+            @JsonProperty(value = "project_version", required = false) @Nullable String projectVersion) {
         this.projectName = Optional.ofNullable(projectName);
         this.codeLocation = Optional.ofNullable(codeLocation);
+        this.projectVersion = Optional.ofNullable(projectVersion);
     }
 
     /**
@@ -81,8 +87,25 @@ public final class HubProjectParameters {
         this.codeLocation = codeLocation;
     }
 
+    /**
+     * @return the projectVersion
+     */
+    @JsonProperty(value = "project_version")
+    public final Optional<String> getProjectVersion() {
+        return projectVersion;
+    }
+
+    /**
+     * @param projectVersion
+     *            the projectVersion to set
+     */
+    public final void setProjectVersion(Optional<String> projectVersion) {
+        this.projectVersion = projectVersion;
+    }
+
     public static HubProjectParameters fromCloudFoundryEnvironment(Map<String, Object> cfEnv) {
         return new HubProjectParameters(Optional.ofNullable(cfEnv.get(PROJECT_NAME_ENV_NAME)).map(String::valueOf).orElse(null),
-                Optional.ofNullable(cfEnv.get(CODE_LOCATION_ENV_NAME)).map(String::valueOf).orElse(null));
+                Optional.ofNullable(cfEnv.get(CODE_LOCATION_ENV_NAME)).map(String::valueOf).orElse(null),
+                Optional.ofNullable(cfEnv.get(PROJECT_VERSION_ENV_NAME)).map(String::valueOf).orElse(null));
     }
 }

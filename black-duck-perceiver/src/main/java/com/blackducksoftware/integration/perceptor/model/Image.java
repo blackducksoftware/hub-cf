@@ -27,6 +27,15 @@ public final class Image {
     @JsonProperty("Sha")
     private String sha;
 
+    @JsonProperty("Priority")
+    private int priority;
+
+    @JsonProperty("BlackDuckProjectName")
+    private String blackDuckProjectName;
+
+    @JsonProperty("BlackDuckProjectVersion")
+    private String blackDuckProjectVersion;
+
     public Image() {
 
     }
@@ -53,5 +62,29 @@ public final class Image {
 
     public final void setSha(String sha) {
         this.sha = sha;
+    }
+
+    public final int getPriority() {
+        return priority;
+    }
+
+    public final void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public final String getBlackDuckProjectName() {
+        return blackDuckProjectName;
+    }
+
+    public final void setBlackDuckProjectName(String blackDuckProjectName) {
+        this.blackDuckProjectName = blackDuckProjectName;
+    }
+
+    public final String getBlackDuckProjectVersion() {
+        return blackDuckProjectVersion;
+    }
+
+    public final void setBlackDuckProjectVersion(String blackDuckProjectVersion) {
+        this.blackDuckProjectVersion = blackDuckProjectVersion;
     }
 }

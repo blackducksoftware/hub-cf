@@ -24,14 +24,17 @@ public class CfResourceData {
 
     private DropletResource dropletData;
 
+    private HubProjectParameters hubProjectParameters;
+
     public CfResourceData() {
     }
 
-    public CfResourceData(String resourceId, String bindingId, String applicationId, DropletResource dropletData) {
+    public CfResourceData(String resourceId, String bindingId, String applicationId, DropletResource dropletData, HubProjectParameters hubProjectParameters) {
         this.resourceId = resourceId;
         this.bindingId = bindingId;
         this.applicationId = applicationId;
         this.dropletData = dropletData;
+        this.hubProjectParameters = hubProjectParameters;
     }
 
     public String getResourceId() {
@@ -66,18 +69,31 @@ public class CfResourceData {
         this.dropletData = dropletData;
     }
 
+    public HubProjectParameters getHubProjectParameters() {
+        return hubProjectParameters;
+    }
+
+    public void setHubProjectParameters(HubProjectParameters hubProjectParameters) {
+        this.hubProjectParameters = hubProjectParameters;
+    }
+
     public Image toImage() {
         // Repository -> Blackduck Project
         // Sha -> Application Id + Checksum
         // Tag -> Blackduck Project Version
 
         Image img = new Image();
-        img.setRepository(getApplicationId()); // This is the application Id...this is the only
-        // piece required to download the actual droplet
-        img.setSha(getDropletData().getChecksum().getValue()); // The checksum of
-        // the "current"
-        // droplet. Used to ensure read
-        // consistency later
+        // The Respository is the location where the blob data lives
+        img.setRepository(getApplicationId());
+
+        // The checksum of the "current" droplet. Used to ensure read consistency later
+        img.setSha(getDropletData().getChecksum().getValue());
+
+        // Set the custom Project Name to appear in BlackDuck if one was provided
+        img.setBlackDuckProjectName(getHubProjectParameters().getProjectName().orElse(null));
+
+        // Set the custom Project Version to use in BlackDuck if one was provided
+        img.setBlackDuckProjectVersion(getHubProjectParameters().getProjectVersion().orElse(null));
 
         return img;
     }

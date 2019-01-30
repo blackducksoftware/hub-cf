@@ -40,6 +40,24 @@ manageOpsmanCerts() {
 	addAllCerts "$opsmanCertsDir" "$opsmanAliasPrefix"
 }
 
+manageBlackDuckCerts() {
+  blackDuckCertsDir="${certsBaseDir}/blackduck-certs"
+  blackDuckAliasPrefix="black_duck_cert_"
+    
+  if [ "${BLACKDUCK_AUTHENTICATION_METHOD}" != "Insecure" ]; then
+    echo "Adding BlackDuck certificates to ${blackDuckCertsDir} (INSECURE=${BLACKDUCK_INSECURE})"
+    echo "Certificate: ${BLACKDUCK_CERTIFICATE}"
+    echo ${BLACKDUCK_CERTIFICATE} | base64 -d > "${blackDuckCertsDir}/hub.cer"
+    echo "Massaged Certificate:"
+    cat ${blackDuckCertsDir}/hub.cer
+    
+    addAllCerts "$blackDuckCertsDir" "$blackDuckAliasPrefix"
+  else
+    echo "Skip adding BlackDuck certificates (INSECURE=${BLACKDUCK_INSECURE})"
+  fi
+  
+}
+
 if [ -d "${trustStoreDir}" ]; then
 	echo "Attempting to remove trust store"
 	rm -f "${trustStore}" || true
@@ -58,20 +76,12 @@ fi
 
 manageOpsmanCerts
 manageHostCACerts
+manageBlackDuckCerts
 
 if [ -f "${trustStore}" ]; then
 	echo "Success: Trust store: ${trustStore} created"
 else
 	echo "Error: Trust store: ${trustStore} not created"
 fi
-
-
-#if [ -f "${trustStore}" ]; then
-#	echo "Generating options to use trust store"
-#	TS_OPTS="-Djava.net.ssl.trustStore=${trustStore}"
-#else
-#	echo "Error: Trust Store: ${trustStore} not created."
-#	TS_OPTS=""
-#fi
 
 exec "$@"

@@ -25,10 +25,12 @@ dependencies {
 //  compile('org.apache.tomcat.embed:tomcat-embed-el:8.5.32') // Update version based on Co-Pilot report
 //  compile('org.apache.tomcat.embed:tomcat-embed-core:8.5.32') // Update version based on Co-Pilot report
 //  compile('org.apache.tomcat.embed:tomcat-embed-websocket:8.5.32') // Update version based on Co-Pilot report
-  compile('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.0.1.RELEASE') {
+  compile('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.0.8.RELEASE') {
     exclude group: 'org.springframework.security.oauth', module: 'spring-security-oauth2'
+    exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
   }
   compile('org.springframework.security.oauth:spring-security-oauth2:2.3.4.RELEASE') // Update version based on Co-Pilot report
+  compile('org.bouncycastle:bcprov-jdk15on:1.60') // Update version based on Co-Pilot report
   compile('org.springframework.boot:spring-boot-configuration-processor')
   compile('org.apache.httpcomponents:httpclient:4.5.5')
   compile('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8')

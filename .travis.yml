@@ -11,13 +11,9 @@ addons:
   
 install:
   - './gradlew clean build -x test'
-  
-before_script:
-  - 'pip install proboscis'
-  
+    
 script:
   - './gradlew :black-duck-broker:test'
-  - 'cd black-duck-decorator/test && python run_tests.py && cd ../..'
 
 after_success:
   - './gradlew :black-duck-broker:test :black-duck-broker:jacocoTestReport :black-duck-broker:coveralls'

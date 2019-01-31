@@ -1,6 +1,4 @@
-language: python
-python:
-  - '2.7'
+language: java
 jdk:
   - 'oraclejdk8'
   
@@ -14,7 +12,9 @@ install:
     
 script:
   - './gradlew :black-duck-broker:test'
+  - './gradlew :black-duck-perceiver:test'
+  - './gradlew :black-duck-img-facade:test'
 
 after_success:
-  - './gradlew :black-duck-broker:test :black-duck-broker:jacocoTestReport :black-duck-broker:coveralls'
+  - './gradlew :{black-duck-broker,black-duck-perceiver,black-duck-img-facade}:{test,jacocoTestReport,coveralls}'
   - bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)

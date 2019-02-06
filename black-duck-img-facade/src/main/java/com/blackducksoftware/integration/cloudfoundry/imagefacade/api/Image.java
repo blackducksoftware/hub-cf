@@ -48,6 +48,11 @@ public final class Image {
         return pullSpec.split(DELIMITER)[1];
     }
 
+    @JsonIgnore
+    public final String asTarFilePath() {
+        return pullSpec.replace('/', '_').replace('@', '_').replace(':', '_').concat(".tar");
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(pullSpec);

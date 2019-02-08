@@ -23,6 +23,7 @@ package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -34,25 +35,9 @@ import org.testng.annotations.Test;
  *
  */
 public class BindingProvisionResponseTest {
-    private static String TEST_KEY_SCHEME = "scheme";
+    private static String TEST_KEY_APPGUID = "appGuid";
 
-    private static String TEST_SCHEME = "https";
-
-    private static String TEST_KEY_HOST = "host";
-
-    private static String TEST_HOST = "test.host.org";
-
-    private static String TEST_KEY_PORT = "port";
-
-    private static int TEST_PORT = 9090;
-
-    private static String TEST_KEY_USERNAME = "username";
-
-    private static String TEST_USERNAME = "testUser";
-
-    private static String TEST_KEY_PASSWORD = "password";
-
-    private static String TEST_PASSWORD = "testPassword";
+    private static UUID TEST_APPGUID = UUID.randomUUID();
 
     private static String TEST_KEY_PROJECTNAME = "projectName";
 
@@ -62,35 +47,16 @@ public class BindingProvisionResponseTest {
 
     private static String TEST_CODELOCATIONNAME = "testCodeLocName";
 
-    private static String TEST_KEY_ISINSECURE = "isInsecure";
-
-    private static Boolean TEST_ISINSECURE = Boolean.FALSE;
-
     private static String TEST_KEY_PLUGINVERSION = "pluginVersion";
 
     private static String TEST_PLUGIN_VERSION = "testPluginVer";
 
-    private static String TEST_KEY_INTEGRATIONSOURCE = "integrationSource";
-
-    private static String TEST_INTEGRATION_SOURCE = "testIntegrationSource";
-
-    private static String TEST_KEY_INTEGRATIONVENDOR = "integrationVendor";
-
-    private static String TEST_INTEGRATION_VENDOR = "integrationVendor";
-
     private static Map<String, Object> DATA_MAP = new HashMap<String, Object>() {
         {
-            put(TEST_KEY_SCHEME, TEST_SCHEME);
-            put(TEST_KEY_HOST, TEST_HOST);
-            put(TEST_KEY_PORT, TEST_PORT);
-            put(TEST_KEY_USERNAME, TEST_USERNAME);
-            put(TEST_KEY_PASSWORD, TEST_PASSWORD);
+            put(TEST_KEY_APPGUID, TEST_APPGUID);
             put(TEST_KEY_PROJECTNAME, TEST_PROJECTNAME);
             put(TEST_KEY_CODELOCATIONNAME, TEST_CODELOCATIONNAME);
-            put(TEST_KEY_ISINSECURE, TEST_ISINSECURE);
             put(TEST_KEY_PLUGINVERSION, TEST_PLUGIN_VERSION);
-            put(TEST_KEY_INTEGRATIONSOURCE, TEST_INTEGRATION_SOURCE);
-            put(TEST_KEY_INTEGRATIONVENDOR, TEST_INTEGRATION_VENDOR);
         }
     };
 
@@ -98,8 +64,8 @@ public class BindingProvisionResponseTest {
 
     @BeforeClass
     public void setupData() {
-        bindInst = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
-                TEST_ISINSECURE, TEST_PLUGIN_VERSION, TEST_INTEGRATION_SOURCE, TEST_INTEGRATION_VENDOR);
+        bindInst = new BindingInstance(TEST_APPGUID, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
+                TEST_PLUGIN_VERSION);
     }
 
     @Test

@@ -21,14 +21,20 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.server;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.yaml.snakeyaml.Yaml;
+
+import com.blackducksoftware.integration.cloudfoundry.v2.model.Catalog;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author jfisher
@@ -39,15 +45,16 @@ import org.yaml.snakeyaml.Yaml;
 public class CatalogRestServer {
     private final Logger logger = LoggerFactory.getLogger(CatalogRestServer.class);
 
-    private Object catalog;
+    private Catalog catalog;
+
+    @Autowired
+    public CatalogRestServer(Catalog catalog) {
+        this.catalog = catalog;
+    }
 
     @RequestMapping(method = RequestMethod.GET)
-    ResponseEntity<?> getCatalog() {
+    ResponseEntity<?> getCatalog() throws JsonParseException, JsonMappingException, IOException {
         logger.info("Entered GET Service Broker Catalog");
-        if (catalog == null) {
-            Yaml yaml = new Yaml();
-            catalog = yaml.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("service.yml"));
-        }
 
         logger.debug("Returning: " + HttpStatus.OK + " (" + HttpStatus.OK.name() + "), Catalog: " + catalog);
         return new ResponseEntity<>(catalog, HttpStatus.OK);

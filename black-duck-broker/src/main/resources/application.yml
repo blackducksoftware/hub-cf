@@ -1,15 +1,24 @@
 server:
-  port: 8890
+  port: ${PORT:8890}
 spring:
   main:
     banner-mode: 'OFF'
   application:
     name: black-duck-broker
 application:
-  realm: BlackDuckSoftware
+  realm: ${APPLICATION_REALM}
   security:
     basicAuth:
       userEnvVblName: SECURITY_USER_NAME
       passEnvVblName: SECURITY_USER_PASSWORD
+perceiver:
+  baseUrl: ${DOCKER_HOST}
+  port: ${PERCEIVER_PORT}
+logging:
+  level:
+    root: WARN
+    com:
+      blackducksoftware:
+        cloudfoundry: ${LOGGING_LEVEL_COM_BLACKDUCKSOFTWARE_INTEGRATION_CLOUDFOUNDRY:WARN}
 plugin:
-  version: ${version}
+  version: "@version@"

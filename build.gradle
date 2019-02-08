@@ -4,8 +4,8 @@ buildscript {
 		jcenter()
   }
 	dependencies {
-		classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: '1.5.10.RELEASE'
-		classpath group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4.0.0'
+		classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: '2.0.8.RELEASE'
+		classpath group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4.7.3'
 	}
 }
 
@@ -21,13 +21,33 @@ allprojects{
 
 subprojects{
   apply plugin: 'maven'
+  apply plugin: 'java'
+  apply plugin: 'application'
+  apply plugin: 'org.springframework.boot'
+  apply plugin: 'io.spring.dependency-management'
 
+  bootDistZip {
+    baseName = "${project.name}"
+    classifier = 'boot'
+  }
+
+  bootDistTar {
+    baseName = "${project.name}"
+    classifier = 'boot'
+  }
   publishing{
     publications {
       maven(MavenPublication){
         artifact distZip
         artifact distTar
+        artifact bootDistZip
       }
+    }
+  }
+
+  afterEvaluate(){
+    jar {
+      enabled = true
     }
   }
 }

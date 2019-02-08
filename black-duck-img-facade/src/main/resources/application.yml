@@ -1,0 +1,33 @@
+server:
+  port: ${SERVER_PORT:8893}
+spring:
+  main:
+    banner-mode: 'OFF'
+  application:
+    name: black-duck-img-facade
+application:
+  realm: ${APPLICATION_REALM}
+  dropletLocation: ${APPLICATION_DROPLETLOCATION}
+  pullRetries: ${APPLICATION_PULLRETRIES}
+  pullTimeout: ${APPLICATION_PULLTIMEOUT}
+cf:
+  baseUrl: ${CF_BASEURL}
+  skipSslValidation: ${CF_SKIPSSLVALIDATION}
+  organization: ${CF_ORG}
+  space: ${CF_SPACE}
+  oauth2:
+    client:
+      id: ${CF_OAUTH2_CLIENT_ID}
+      grantType: ${CF_OAUTH2_CLIENT_GRANTTYPE}
+      clientId: ${CF_OAUTH2_CLIENT_CLIENTID}
+      clientSecret: ${CF_OAUTH2_CLIENT_CLIENTSECRET}
+      accessTokenUri: ${CF_OAUTH2_CLIENT_ACCESSTOKENURI}
+      scope: ${CF_OAUTH2_CLIENT_SCOPE}
+logging:
+  level:
+    root: WARN
+    com:
+      blackducksoftware:
+        integration: 
+          cloudfoundry:
+            imagefacade: ${LOGGING_LEVEL_COM_BLACKDUCKSOFTWARE_INTEGRATION_CLOUDFOUNDRY_IMAGEFACADE:WARN}

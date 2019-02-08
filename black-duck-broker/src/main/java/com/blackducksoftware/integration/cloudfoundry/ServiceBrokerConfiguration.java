@@ -21,15 +21,25 @@
  */
 package com.blackducksoftware.integration.cloudfoundry;
 
+import java.io.IOException;
+
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParameters;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.ICloudControllerEventMonitorService;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl.BindingInstanceService;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl.ServiceInstanceService;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.security.AuthenticationEntryPoint;
+import com.blackducksoftware.integration.cloudfoundry.v2.model.Catalog;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * @author jfisher
@@ -39,13 +49,11 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.security.Aut
 public class ServiceBrokerConfiguration {
 
     @Bean
-    public HubCredentials hubCredentials(
-            @Value(value = "#{ @environment['HUB_SCHEME'] ?: '0' }") final String scheme,
-            @Value(value = "#{ @environment['HUB_HOST'] ?: '0' }") final String host,
-            @Value(value = "#{ @environment['HUB_PORT'] ?: -1 }") final int port,
-            @Value(value = "#{ @environment['HUB_LOGIN'] ?: '{}' }") final String loginInfo,
-            @Value(value = "#{ @environment['HUB_INSECURE'] ?: false }") final boolean insecure) {
-        return new HubCredentials(scheme, host, port, loginInfo, insecure);
+    public Catalog serviceBrokerCatalog() throws JsonParseException, JsonMappingException, IOException {
+        ObjectMapper om = new ObjectMapper(new YAMLFactory());
+        Catalog catalog = om.readValue(Thread.currentThread().getContextClassLoader().getResourceAsStream("service.yml"),
+                Catalog.class);
+        return catalog;
     }
 
     @Bean
@@ -54,9 +62,10 @@ public class ServiceBrokerConfiguration {
     }
 
     @Bean
-    public BindingInstanceService bindingInstanceService(ServiceInstanceService serviceInstanceService, HubCredentials hubCredentials, String pluginVersion,
-            PhoneHomeParameters phoneHomeParms) {
-        return new BindingInstanceService(serviceInstanceService, hubCredentials, pluginVersion, phoneHomeParms);
+    public BindingInstanceService bindingInstanceService(ServiceInstanceService serviceInstanceService,
+            @Value("${plugin.version}") String pluginVersion,
+            ICloudControllerEventMonitorService ccEventMonitorHandler) {
+        return new BindingInstanceService(serviceInstanceService, pluginVersion, ccEventMonitorHandler);
     }
 
     @Bean
@@ -65,14 +74,19 @@ public class ServiceBrokerConfiguration {
     }
 
     @Bean
-    public String getPluginVersion(@Value(value = "${plugin.version}") final String pluginVersion) {
-        return pluginVersion;
+    protected CloseableHttpClient httpClient() {
+        return HttpClients.createDefault();
     }
 
     @Bean
-    public PhoneHomeParameters phoneHomeParameters(
-            @Value(value = "#{ @environment['INTEGRATION_SOURCE'] ?: '0' }") final String source,
-            @Value(value = "#{ @environment['INTEGRATION_VENDOR'] ?: '0' }") final String vendor) {
-        return new PhoneHomeParameters(source, vendor);
+    protected HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
+        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        clientHttpRequestFactory.setHttpClient(httpClient());
+        return clientHttpRequestFactory;
+    }
+
+    @Bean
+    public RestTemplate perceiverRestTemplate() {
+        return new RestTemplate(clientHttpRequestFactory());
     }
 }

@@ -1,0 +1,56 @@
+server:
+  port: ${SERVER_PORT:8891}
+spring:
+  main:
+    banner-mode: 'OFF'
+  application:
+    name: black-duck-perceiver
+application:
+  realm: ${APPLICATION_REALM}
+  eventMonitorService:
+    pollingPeriod: ${APPLICATION_EVENTMONITORSERVICE_POLLINGPERIOD}
+  dumperService:
+    pollingPeriod: ${APPLICATION_DUMPERSERVICE_POLLINGPERIOD}
+  scanResultsService:
+    pollingPeriod: ${APPLICATION_SCANRESULTSSERVICE_POLLINGPERIOD}
+  analytics:
+    enabled: ${APPLICATION_ANALYTICS_ENABLED:false}
+    artifactId: ${APPLICATION_ANALYTICS_ARTIFACTID:"OPENSOURCE_CF"}
+    artifactVersion: "@version@"
+    integrationSource: ${APPLICATION_ANALYTICS_INTEGRATIONSOURCE:"<unknown>"}
+cf:
+  baseUrl: ${CF_BASEURL}
+  skipSslValidation: ${CF_SKIPSSLVALIDATION}
+  organization: ${CF_ORG}
+  space: ${CF_SPACE}
+  oauth2:
+    client:
+      id: ${CF_OAUTH2_CLIENT_ID}
+      grantType: ${CF_OAUTH2_CLIENT_GRANTTYPE}
+      clientId: ${CF_OAUTH2_CLIENT_CLIENTID}
+      clientSecret: ${CF_OAUTH2_CLIENT_CLIENTSECRET}
+      accessTokenUri: ${CF_OAUTH2_CLIENT_ACCESSTOKENURI}
+      scope: ${CF_OAUTH2_CLIENT_SCOPE}
+perceptor:
+  baseUrl: ${PERCEPTOR_BASEURL}
+  port: ${PERCEPTOR_PORT:-1}
+broker:
+  baseUrl: ${BROKER_BASEURL}
+  port: ${BROKER_PORT:-1}
+  basicAuth:
+    userEnvVblName: SECURITY_USER_NAME
+    passEnvVblName: SECURITY_USER_PASSWORD
+blackduck:
+  host: ${BLACKDUCK_HOST}
+  port: ${BLACKDUCK_PORT:-1}
+  user: ${BLACKDUCK_USER}
+  userpassword: ${BLACKDUCK_USERPASSWORD}
+  insecure: ${BLACKDUCK_INSECURE}
+logging:
+  level:
+    root: WARN
+    com:
+      blackducksoftware:
+        integration:
+          cloudfoundry:
+            perceiver: ${LOGGING_LEVEL_COM_BLACKDUCKSOFTWARE_INTEGRATION_CLOUDFOUNDRY_PERCEIVER:WARN}

@@ -9,21 +9,21 @@ services:
     - bds-scan
   bindable: true
   metadata:
-    displayName: Black Duck Hub Scan Service
+    displayName: Synopsys Black Duck Scan Service
     imageUrl: https://www.blackducksoftware.com/sites/default/files/images/Brand/Ducky128.png
-    providerDisplayName: Black Duck Software
-    documentationUrl: https://blackducksoftware.atlassian.net/wiki/display/PARTNERS/Black+Duck+Hub+Service+Broker+for+PCF
-    longDescription: "The Black Duck Hub Scan Service adds open source security scanning to your Pivotal Cloud Foundry app.  
+    providerDisplayName: Synopsys
+    documentationUrl: https://synopsys.atlassian.net/wiki/spaces/PARTNERS/pages/7471190/Black+Duck+Service+Broker+for+Cloud+Foundry
+    longDescription: "The Synopsys Black Duck Scan Service adds open source security scanning to your Pivotal Cloud Foundry app.  
     The Scan Service integrates into the “cf” command line utility to initiate an open source software scan during the cf push.  
-    The scan creates a Bill of Material (BOM) of your open source components and creates a risk report in the Black Duck Hub Web Console."
+    The scan creates a Bill of Material (BOM) of your open source components and creates a risk report in the Black Duck Web Console."
   plan_updateable: false
   plans:
     - name: standard
       id: 6af287e5-0cd1-4eb7-a7ac-cc69db62323d
-      description: Scan with resulting BOM in Hub
+      description: Scan with resulting BOM in Black Duck
       metadata:
         bullets:
           - Integrates with 'cf push' process
           - Creates Bill of Materials (BOM)
-          - Analysis and Reporting occur on your organization's Black Duck Hub instance
+          - Analysis and Reporting occur on your organization's Black Duck instance
           - Provides security, license, and operational risk on Open Source components

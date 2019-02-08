@@ -21,6 +21,8 @@
  */
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
+import java.util.UUID;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -31,34 +33,21 @@ import org.testng.annotations.Test;
  *
  */
 public class BindingInstanceTest {
-    private static String TEST_SCHEME = "https";
-
-    private static String TEST_HOST = "test.host";
-
-    private static int TEST_PORT = 9090;
-
-    private static String TEST_USERNAME = "tester";
-
-    private static String TEST_PASSWORD = "not_private";
+    private static UUID TEST_APPGUID = UUID.randomUUID();
 
     private static String TEST_PROJECTNAME = "test project";
 
     private static String TEST_CODELOCATIONNAME = "test/location";
 
-    private static boolean TEST_INSECURE = true;
-
     private static String TEST_PLUGIN_VERSION = "testVer";
-
-    private static String TEST_INTEGRATION_SOURCE = "testIntegrationSource";
-
-    private static String TEST_INTEGRATION_VENDOR = "testIntegrationVendor";
 
     private BindingInstance testInstance;
 
     @BeforeClass
     public void setupObject() {
-        testInstance = new BindingInstance(TEST_SCHEME, TEST_HOST, TEST_PORT, TEST_USERNAME, TEST_PASSWORD, TEST_PROJECTNAME, TEST_CODELOCATIONNAME,
-                TEST_INSECURE, TEST_PLUGIN_VERSION, TEST_INTEGRATION_SOURCE, TEST_INTEGRATION_VENDOR);
+        testInstance = new BindingInstance(TEST_APPGUID, TEST_PROJECTNAME,
+                TEST_CODELOCATIONNAME,
+                TEST_PLUGIN_VERSION);
     }
 
     @Test(priority = 0)
@@ -67,28 +56,8 @@ public class BindingInstanceTest {
     }
 
     @Test(dependsOnMethods = { "testInstanceValid" })
-    public void testSchemeValue() {
-        Assert.assertEquals(testInstance.getScheme(), TEST_SCHEME, "BindingInstance scheme incorrect");
-    }
-
-    @Test(dependsOnMethods = { "testInstanceValid" })
-    public void testHostValid() {
-        Assert.assertEquals(testInstance.getHost(), TEST_HOST, "BindingInstance host incorrect");
-    }
-
-    @Test(dependsOnMethods = { "testInstanceValid" })
-    public void testPortValid() {
-        Assert.assertEquals(testInstance.getPort(), TEST_PORT, "BindingInstance port incorrect");
-    }
-
-    @Test(dependsOnMethods = { "testInstanceValid" })
-    public void testUserNameValid() {
-        Assert.assertEquals(testInstance.getUsername(), TEST_USERNAME, "BindingInstance username incorrect");
-    }
-
-    @Test(dependsOnMethods = { "testInstanceValid" })
-    public void testPasswordValid() {
-        Assert.assertEquals(testInstance.getPassword(), TEST_PASSWORD, "BindingInstance password incorrect");
+    public void testAppGuid() {
+        Assert.assertEquals(testInstance.getAppGuid(), TEST_APPGUID, "BindingInstance appGuid incorrect");
     }
 
     @Test(dependsOnMethods = { "testInstanceValid" })
@@ -102,22 +71,7 @@ public class BindingInstanceTest {
     }
 
     @Test(dependsOnMethods = { "testInstanceValid" })
-    public void testIsInsecureValid() {
-        Assert.assertEquals(testInstance.getIsInsecure(), TEST_INSECURE, "BindingInstance isInsecure incorrect");
-    }
-
-    @Test(dependsOnMethods = { "testInstanceValid" })
     public void testPluginVersionValid() {
         Assert.assertEquals(testInstance.getPluginVersion(), TEST_PLUGIN_VERSION, "BindingInstance pluginVersion incorrect");
-    }
-
-    @Test(dependsOnMethods = { "testInstanceValid" })
-    public void testIntegrationSourceValid() {
-        Assert.assertEquals(testInstance.getIntegrationSource(), TEST_INTEGRATION_SOURCE, "BindingInstance integrationSource incorrect");
-    }
-
-    @Test(dependsOnMethods = { "testInstanceValid" })
-    public void testIntegrationVendorValid() {
-        Assert.assertEquals(testInstance.getIntegrationVendor(), TEST_INTEGRATION_VENDOR, "BindingInstance integrationVendor incorrect");
     }
 }

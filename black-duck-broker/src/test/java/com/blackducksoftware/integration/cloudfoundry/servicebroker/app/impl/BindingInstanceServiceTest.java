@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -31,9 +32,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentials;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindResource;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParameters;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParameters;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.iface.ICloudControllerEventMonitorService;
 
 /**
  *
@@ -41,17 +42,11 @@ import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.Phon
  *
  */
 public class BindingInstanceServiceTest {
-    private static final String HUB_SCHEME = "https";
-
-    private static final String HUB_HOST = "test_host";
-
-    private static final Integer HUB_PORT = 1;
-
-    private static final String HUB_LOGIN_JSON = "{\"identity\": \"testUser\", \"password\": \"testPass\"}";
-
-    private static final Boolean HUB_INSECURE = Boolean.TRUE;
-
     private static final String PROJ_NAME = "testProj";
+
+    private static final UUID APP_GUID = UUID.randomUUID();
+
+    private static final String ROUTE = "testRoute";
 
     private static final String CODE_LOC = "codeLocationName";
 
@@ -61,16 +56,11 @@ public class BindingInstanceServiceTest {
 
     private static final String PLUGIN_VERSION = "testPluginVer";
 
-    private static final String INTEGRATION_SOURCE = "testIntegrationSource";
-
-    private static final String INTEGRATION_VENDOR = "testIntegrationVendor";
-
     @Mock
     private ServiceInstanceService serviceInstanceService;
 
-    private HubCredentials hubCreds;
-
-    private PhoneHomeParameters phoneHomeParms;
+    @Mock
+    private ICloudControllerEventMonitorService ccEventMonitorHandler;
 
     private BindingInstanceService bindingInstanceService;
 
@@ -84,23 +74,58 @@ public class BindingInstanceServiceTest {
         };
     }
 
+    @DataProvider(name = "TestInvalidBindResource")
+    public Object[][] createTestInvalidBindResource() {
+        return new Object[][] {
+                { Optional.empty() },
+                { Optional.ofNullable(null) },
+                { Optional.ofNullable(new BindResource(null, ROUTE)) },
+                { Optional.ofNullable(new BindResource(null, null)) },
+        };
+    }
+
     @BeforeMethod
     public void beforeMethod() {
         MockitoAnnotations.initMocks(this);
 
-        hubCreds = new HubCredentials(HUB_SCHEME, HUB_HOST, HUB_PORT, HUB_LOGIN_JSON, HUB_INSECURE);
-
-        phoneHomeParms = new PhoneHomeParameters(INTEGRATION_SOURCE, INTEGRATION_VENDOR);
-
-        bindingInstanceService = new BindingInstanceService(serviceInstanceService, hubCreds, PLUGIN_VERSION, phoneHomeParms);
+        bindingInstanceService = new BindingInstanceService(serviceInstanceService, PLUGIN_VERSION, ccEventMonitorHandler);
     }
 
     @Test(dataProvider = "TestHubProjectParameters")
-    public void testCreate(Optional<HubProjectParameters> hpp) {
+    public void testCreateWithHubProjectParameters(Optional<HubProjectParameters> hpp) {
         Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
+        Mockito.when(ccEventMonitorHandler.registerId(Mockito.any(UUID.class))).thenReturn(true);
 
-        bindingInstanceService.create(BINDING_ID, SERVICE_ID, hpp);
+        Optional<BindResource> bind = Optional.of(new BindResource(APP_GUID.toString(), null));
+
+        bindingInstanceService.create(BINDING_ID, SERVICE_ID, bind, hpp);
 
         Assert.assertTrue(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID), "An internal error occurred and the binding was not created.");
+    }
+
+    @Test
+    public void testCreateWithValidAppGuid() {
+        Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
+        Mockito.when(ccEventMonitorHandler.registerId(Mockito.any(UUID.class))).thenReturn(true);
+
+        Optional<HubProjectParameters> hpp = Optional.of(Mockito.mock(HubProjectParameters.class));
+
+        Optional<BindResource> bind = Optional.of(new BindResource(APP_GUID.toString(), null));
+
+        bindingInstanceService.create(BINDING_ID, SERVICE_ID, bind, hpp);
+
+        Assert.assertTrue(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID), "An internal error occurred and the binding was not created.");
+    }
+
+    @Test(dataProvider = "TestInvalidBindResource")
+    public void testCreateWithInvalidAppGuid(Optional<BindResource> bind) {
+        Mockito.when(serviceInstanceService.isExists(Mockito.anyString())).thenReturn(true);
+        Mockito.when(ccEventMonitorHandler.registerId(Mockito.any(UUID.class))).thenReturn(true);
+
+        Optional<HubProjectParameters> hpp = Optional.of(Mockito.mock(HubProjectParameters.class));
+
+        bindingInstanceService.create(BINDING_ID, SERVICE_ID, bind, hpp);
+
+        Assert.assertFalse(bindingInstanceService.isExists(Mockito.anyString(), BINDING_ID), "Binding created in error.");
     }
 }

@@ -22,6 +22,7 @@
 package com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -29,76 +30,19 @@ import java.util.stream.Stream;
  *
  */
 public final class BindingInstance {
-    private final String scheme;
-
-    private final String host;
-
-    private final int port;
-
-    private final String username;
-
-    private final String password;
+    private final UUID appGuid;
 
     private final String projectName;
 
     private final String codeLocationName;
 
-    private final boolean isInsecure;
-
     private final String pluginVersion;
 
-    private final String integrationSource;
-
-    private final String integrationVendor;
-
-    public BindingInstance(String scheme, String host, int port, String username, String password, String projectName, String codeLocationName,
-            boolean isInsecure, String pluginVersion, String integrationSource, String integrationVendor) {
-        this.scheme = scheme;
-        this.host = host;
-        this.port = port;
-        this.username = username;
-        this.password = password;
+    public BindingInstance(UUID appGuid, String projectName, String codeLocationName, String pluginVersion) {
+        this.appGuid = appGuid;
         this.projectName = projectName;
         this.codeLocationName = codeLocationName;
-        this.isInsecure = isInsecure;
         this.pluginVersion = pluginVersion;
-        this.integrationSource = integrationSource;
-        this.integrationVendor = integrationVendor;
-    }
-
-    /**
-     * @return the scheme
-     */
-    public final String getScheme() {
-        return scheme;
-    }
-
-    /**
-     * @return the host
-     */
-    public final String getHost() {
-        return host;
-    }
-
-    /**
-     * @return the port
-     */
-    public final int getPort() {
-        return port;
-    }
-
-    /**
-     * @return the username
-     */
-    public final String getUsername() {
-        return username;
-    }
-
-    /**
-     * @return the password
-     */
-    public final String getPassword() {
-        return password;
     }
 
     /**
@@ -109,6 +53,13 @@ public final class BindingInstance {
     }
 
     /**
+     * @return the appGuid
+     */
+    public final UUID getAppGuid() {
+        return appGuid;
+    }
+
+    /**
      * @return the codeLocation
      */
     public final String getCodeLocationName() {
@@ -116,31 +67,10 @@ public final class BindingInstance {
     }
 
     /**
-     * @return the isInsecure
-     */
-    public final boolean getIsInsecure() {
-        return isInsecure;
-    }
-
-    /**
      * @return the pluginVersion
      */
     public final String getPluginVersion() {
         return pluginVersion;
-    }
-
-    /**
-     * @return the integrationSource
-     */
-    public final String getIntegrationSource() {
-        return integrationSource;
-    }
-
-    /**
-     * @return the integrationVendor
-     */
-    public final String getIntegrationVendor() {
-        return integrationVendor;
     }
 
     public static final BindingProvisionResponse toBindingProvisionResponse(final BindingInstance bindingInstance) {

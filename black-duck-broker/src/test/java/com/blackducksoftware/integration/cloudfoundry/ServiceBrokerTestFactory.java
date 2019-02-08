@@ -24,14 +24,13 @@ package com.blackducksoftware.integration.cloudfoundry;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BackendBindingProvisionRequestTest;
+import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BackendServiceInstanceProvisionRequestTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindResourceTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingInstanceTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingProvisionRequestTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.BindingProvisionResponseTest;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubCredentialsTest;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubLoginTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.HubProjectParametersTest;
-import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.api.PhoneHomeParametersTest;
 import com.blackducksoftware.integration.cloudfoundry.servicebroker.app.impl.BindingInstanceServiceTest;
 
 /**
@@ -46,12 +45,11 @@ public class ServiceBrokerTestFactory {
                 new BindingInstanceTest(),
                 new BindingProvisionRequestTest(),
                 new BindingProvisionResponseTest(),
-                new HubCredentialsTest(),
-                new HubLoginTest(),
                 new HubProjectParametersTest(),
                 new BindResourceTest(),
                 new BindingInstanceServiceTest(),
-                new PhoneHomeParametersTest(),
+                new BackendBindingProvisionRequestTest(),
+                new BackendServiceInstanceProvisionRequestTest(),
         };
     }
 }

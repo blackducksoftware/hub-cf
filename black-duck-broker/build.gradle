@@ -1,12 +1,9 @@
 plugins {
-	id 'java'
 	id 'application'
 	id 'eclipse-wtp'
 	id 'jacoco'
 	id 'com.github.kt3k.coveralls' version '2.8.1'
 }
-
-apply plugin: 'org.springframework.boot'
 
 sourceCompatibility = 1.8
 mainClassName = 'com.blackducksoftware.integration.cloudfoundry.BDServiceBrokerApplication'
@@ -16,16 +13,23 @@ repositories {
 }
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-hateoas')
 	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.boot:spring-boot-starter-web') {
-		exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+	compile('org.springframework.boot:spring-boot-starter-web') 
+	compile('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.0.8.RELEASE') {
+	  exclude group: 'org.springframework.security.oauth', module: 'spring-security-oauth2'
+	  exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
 	}
-	compile('com.fasterxml.jackson.core:jackson-databind:2.8.11.1')
-	compile('com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.6')
-	compile('org.yaml:snakeyaml:1.18')
+	compile('org.springframework.security.oauth:spring-security-oauth2:2.3.4.RELEASE') // Update version based on Co-Pilot report
+  compile('org.bouncycastle:bcprov-jdk15on:1.60') // Update version based on Co-Pilot report
+	compile('org.springframework.boot:spring-boot-configuration-processor')
+	compile('org.apache.httpcomponents:httpclient:4.5.5')
+	compile('com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8')
+	compile('com.fasterxml.jackson.module:jackson-modules-java8:2.9.8')
 	compile('com.google.code.findbugs:jsr305:3.0.2')
-	compile('com.blackducksoftware.integration:phone-home-api:5.+')
+	compile('org.cloudfoundry:cloudfoundry-client-reactor:3.13.0.RELEASE') {
+	  exclude group: 'org.apache.commons', module: 'commons-compress'
+	}
+	compile('org.apache.commons:commons-compress:1.18') // Update version based on Co-Pilot report
 	testCompile('org.springframework.boot:spring-boot-starter-test') { 
 		exclude group: 'junit', module: 'junit'
 	}
@@ -38,10 +42,21 @@ test{
   }
 }
 
+import org.apache.tools.ant.filters.ReplaceTokens
 processResources {
-	filesMatching("**/application.yml") {
-		expand(project.properties)
-	}
+  with copySpec {
+    from 'src/main/resources'
+    include '**/application*.yml'
+    include '**/application*.yaml'
+    include '**/application*.properties'
+    project.properties.findAll().each {
+      prop ->
+        if (prop.key != 'properties' && prop.value != null) {
+          filter(ReplaceTokens, tokens: [ (prop.key): prop.value])
+          filter(ReplaceTokens, tokens: [ ('project.' + prop.key): prop.value])
+        }
+    }
+  }
 }
 
 jacocoTestReport {
